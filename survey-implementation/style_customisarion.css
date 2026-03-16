@@ -1,0 +1,12 @@
+
+/* Hide language selector */
+.LanguageSelectorContainer, span.langCode { display:none; }
+
+#language-selector-container{
+display:none;
+}
+
+/* Hide footer only on the first page */
+body.Q_FirstPage #footer {
+    display: none !important;
+}

@@ -1,0 +1,99 @@
+<style>
+  /* Task header */
+  .task-title {
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  /* Table header (Option 1 / Option 2) */
+  .wholetable .toprow td {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  /* Table body: inherit survey default (≈12px) */
+  .wholetable .normalrow td {
+    font-size: inherit;
+  }
+
+  /* First column stays single-line */
+  .wholetable td.name {
+    white-space: nowrap;
+  }
+</style>
+
+<div style="text-align: center;">
+  <h1 style="margin-top: 10px;">
+    <span class="task-title">
+      ${e://Field/__js_task_name} ${lm://CurrentLoopNumber}/6
+    </span>
+  </h1>
+  &nbsp;
+
+  <table class="wholetable" style="min-width: 60%; border-collapse: collapse;">
+    <tbody>
+
+      
+      <tr class="toprow" style="border-bottom: 2px solid #999;">
+        <td style="padding: 8px; width: 35%;">&nbsp;</td>
+        <td class="attr" style="padding: 8px;">
+          ${e://Field/__js_option_name} A
+        </td>
+        <td class="attr" style="padding: 8px;">
+          ${e://Field/__js_option_name} B
+        </td>
+      </tr>
+
+      
+      <tr class="normalrow" style="border-bottom: 1px solid #ccc;"
+          title="${e://Field/__js_fuel_description}">
+        <td class="name" style="text-align: left; padding: 8px; width: 35%;">
+          ${e://Field/__js_fuel_name}
+        </td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/1}</td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/2}</td>
+      </tr>
+
+      
+      <tr class="normalrow" style="border-bottom: 1px solid #ccc;"
+          title="${e://Field/__js_activity_description}">
+        <td class="name" style="text-align: left; padding: 8px; width: 35%;">
+          ${e://Field/__js_activity_name}
+        </td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/3}</td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/4}</td>
+      </tr>
+
+      
+      <tr class="normalrow" style="border-bottom: 1px solid #ccc;"
+          title="${e://Field/__js_durability_description}">
+        <td class="name" style="text-align: left; padding: 8px; width: 35%;">
+          ${e://Field/__js_durability_name}
+        </td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/5}</td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/6}</td>
+      </tr>
+
+      
+      <tr class="normalrow" style="border-bottom: 1px solid #ccc;"
+          title="${e://Field/__js_responsibility_description}">
+        <td class="name" style="text-align: left; padding: 8px; width: 35%;">
+          ${e://Field/__js_responsibility_name}
+        </td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/7}</td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/8}</td>
+      </tr>
+
+      
+      <tr class="normalrow" style="border-bottom: 1px solid #ccc;"
+          title="${e://Field/__js_cost_description}">
+        <td class="name" style="text-align: left; padding: 8px; width: 35%;">
+          ${e://Field/__js_cost_name}
+        </td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/9}</td>
+        <td class="attr" style="text-align: left; padding: 8px;">${lm://Field/10}</td>
+      </tr>
+
+    </tbody>
+  </table>
+</div>
