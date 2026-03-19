@@ -1,6 +1,9 @@
 Qualtrics.SurveyEngine.addOnReady(function () {
 
     console.log("=== NZ HELPER JS START ===");
+	
+	var framing = "${e://Field/framing}";
+    console.log("Framing:", framing);
 
     function pick(arr, idx) {
         return arr[idx - 1];
