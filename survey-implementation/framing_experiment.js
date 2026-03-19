@@ -2,92 +2,173 @@ Qualtrics.SurveyEngine.addOnReady(function () {
 
     console.log("=== FRAMING TEXT JS START ===");
 
-    function normalizeFuel(fuelText) {
-        console.log("Raw fuel:", fuelText);
-        if (fuelText === "Fuels made using clean electricity") return "E-SAF";
-        if (fuelText === "Bio-based fuels") return "Bio-SAF";
-        return "Other";
+    var taskNumber = parseInt("${lm://CurrentLoopNumber}");
+    var lang = "${e://Field/Q_Language}";
+
+    console.log("Language:", lang);
+    console.log("Task number:", taskNumber);
+
+    // ------------------------------------
+    // 1. PRE-PIPE JS VARIABLES
+    // ------------------------------------
+    function pick(arr, idx) {
+        return arr[idx - 1];
     }
 
-    function normalizeActivity(activityText) {
-        console.log("Raw activity:", activityText);
-        if (activityText === "Capturing CO2 from the air and storing it in rocks deep underground") return "DACCS";
-        if (activityText === "Planting and maintaining forests") return "Trees";
-        return "Other";
-    }
+    var a_fuel = pick([
+        "${e://Field/__js_task1_fuel1_code}",
+        "${e://Field/__js_task2_fuel1_code}",
+        "${e://Field/__js_task3_fuel1_code}",
+        "${e://Field/__js_task4_fuel1_code}",
+        "${e://Field/__js_task5_fuel1_code}",
+        "${e://Field/__js_task6_fuel1_code}"
+    ], taskNumber);
 
-    function normalizeDurability(durText) {
-        console.log("Raw durability:", durText);
-        if (durText === "Permanent") return "Perm";
-        if (durText === "Temporary") return "Temp";
-        return "Other";
-    }
+    var b_fuel = pick([
+        "${e://Field/__js_task1_fuel2_code}",
+        "${e://Field/__js_task2_fuel2_code}",
+        "${e://Field/__js_task3_fuel2_code}",
+        "${e://Field/__js_task4_fuel2_code}",
+        "${e://Field/__js_task5_fuel2_code}",
+        "${e://Field/__js_task6_fuel2_code}"
+    ], taskNumber);
 
+    var a_activity = pick([
+        "${e://Field/__js_task1_activity1_code}",
+        "${e://Field/__js_task2_activity1_code}",
+        "${e://Field/__js_task3_activity1_code}",
+        "${e://Field/__js_task4_activity1_code}",
+        "${e://Field/__js_task5_activity1_code}",
+        "${e://Field/__js_task6_activity1_code}"
+    ], taskNumber);
+
+    var b_activity = pick([
+        "${e://Field/__js_task1_activity2_code}",
+        "${e://Field/__js_task2_activity2_code}",
+        "${e://Field/__js_task3_activity2_code}",
+        "${e://Field/__js_task4_activity2_code}",
+        "${e://Field/__js_task5_activity2_code}",
+        "${e://Field/__js_task6_activity2_code}"
+    ], taskNumber);
+
+    var a_durability = pick([
+        "${e://Field/__js_task1_durability1_code}",
+        "${e://Field/__js_task2_durability1_code}",
+        "${e://Field/__js_task3_durability1_code}",
+        "${e://Field/__js_task4_durability1_code}",
+        "${e://Field/__js_task5_durability1_code}",
+        "${e://Field/__js_task6_durability1_code}"
+    ], taskNumber);
+
+    var b_durability = pick([
+        "${e://Field/__js_task1_durability2_code}",
+        "${e://Field/__js_task2_durability2_code}",
+        "${e://Field/__js_task3_durability2_code}",
+        "${e://Field/__js_task4_durability2_code}",
+        "${e://Field/__js_task5_durability2_code}",
+        "${e://Field/__js_task6_durability2_code}"
+    ], taskNumber);
+
+    console.log("A codes:", a_fuel, a_activity, a_durability);
+    console.log("B codes:", b_fuel, b_activity, b_durability);
+
+    // ------------------------------------
+    // 2. NET ZERO CLASSIFICATION
+    // ------------------------------------
     function isNetZeroAligned(fuel, activity, durability) {
         return (
-            fuel === "Bio-SAF" ||
-            fuel === "E-SAF" ||
-            ((activity === "Trees" || activity === "DACCS") && durability === "Perm")
+            fuel === "plants" ||
+            fuel === "electric" ||
+            (
+                (activity === "trees" || activity === "direct_air") &&
+                durability === "permanent"
+            )
         );
     }
 
-    var a_fuel_raw = "${lm://Field/1}";
-    var a_activity_raw = "${lm://Field/3}";
-    var a_durability_raw = "${lm://Field/5}";
-
-    var b_fuel_raw = "${lm://Field/2}";
-    var b_activity_raw = "${lm://Field/4}";
-    var b_durability_raw = "${lm://Field/6}";
-
-    console.log("A raw:", a_fuel_raw, a_activity_raw, a_durability_raw);
-    console.log("B raw:", b_fuel_raw, b_activity_raw, b_durability_raw);
-
-    var a_fuel = normalizeFuel(a_fuel_raw);
-    var a_activity = normalizeActivity(a_activity_raw);
-    var a_durability = normalizeDurability(a_durability_raw);
-
-    var b_fuel = normalizeFuel(b_fuel_raw);
-    var b_activity = normalizeActivity(b_activity_raw);
-    var b_durability = normalizeDurability(b_durability_raw);
-
-    console.log("A normalized:", a_fuel, a_activity, a_durability);
-    console.log("B normalized:", b_fuel, b_activity, b_durability);
-
     var a_nz = isNetZeroAligned(a_fuel, a_activity, a_durability);
     var b_nz = isNetZeroAligned(b_fuel, b_activity, b_durability);
-    var taskNumber = "${lm://CurrentLoopNumber}";
-
-    Qualtrics.SurveyEngine.setJSEmbeddedData("a_nz_binary_task" + taskNumber, a_nz ? 1 : 0);
-    Qualtrics.SurveyEngine.setJSEmbeddedData("b_nz_binary_task" + taskNumber, b_nz ? 1 : 0);
 
     console.log("A NZ:", a_nz);
     console.log("B NZ:", b_nz);
 
-    var a_text_nz     = '${e://Field/a_text_nz}';
-	var a_text_not_nz = '${e://Field/a_text_not_nz}';
-	var b_text_nz     = '${e://Field/b_text_nz}';
-	var b_text_not_nz = '${e://Field/b_text_not_nz}';
+    Qualtrics.SurveyEngine.setJSEmbeddedData("a_nz_binary_task" + taskNumber, a_nz ? 1 : 0);
+    Qualtrics.SurveyEngine.setJSEmbeddedData("b_nz_binary_task" + taskNumber, b_nz ? 1 : 0);
 
+    // ------------------------------------
+    // 3. TRANSLATIONS (EXPLICIT)
+    // ------------------------------------
+    var texts;
 
-    console.log("SF texts:",
-        a_text_nz,
-        a_text_not_nz,
-        b_text_nz,
-        b_text_not_nz
-    );
+    switch (lang) {
 
-    var a_text = a_nz ? a_text_nz : a_text_not_nz;
-    var b_text = b_nz ? b_text_nz : b_text_not_nz;
+        case "DE":
+            texts = {
+                a_nz: "Paket A: Die Luftfahrt verursacht nicht länger eine zusätzliche globale Erwärmung.",
+                a_not_nz: "Paket A: Die Luftfahrt verursacht weiterhin eine zusätzliche globale Erwärmung.",
+                b_nz: "Paket B: Die Luftfahrt verursacht nicht länger eine zusätzliche globale Erwärmung.",
+                b_not_nz: "Paket B: Die Luftfahrt verursacht weiterhin eine zusätzliche globale Erwärmung."
+            };
+            break;
+
+        case "AR":
+            texts = {
+                a_nz: "المجموعة أ: الطيران لا يساهم في استمرار الاحتباس العالمي.",
+                a_not_nz: "المجموعة أ: الطيران يساهم في استمرار الاحتباس العالمي.",
+                b_nz: "المجموعة ب: الطيران لا يساهم في استمرار الاحتباس العالمي.",
+                b_not_nz: "المجموعة ب: الطيران يساهم في استمرار الاحتباس العالمي."
+            };
+            break;
+
+        case "VI":
+            texts = {
+                a_nz: "Gói A: hàng không không tiếp tục góp phần vào tình trạng nóng lên toàn cầu.",
+                a_not_nz: "Gói A: hàng không tiếp tục góp phần vào tình trạng nóng lên toàn cầu.",
+                b_nz: "Gói B: hàng không không tiếp tục góp phần vào tình trạng nóng lên toàn cầu.",
+                b_not_nz: "Gói B: hàng không tiếp tục góp phần vào tình trạng nóng lên toàn cầu."
+            };
+            break;
+
+        case "PT-BR":
+            texts = {
+                a_nz: "Pacote A: a aviação não continua contribuindo para o aquecimento global.",
+                a_not_nz: "Pacote A: A aviação continua contribuindo para o aquecimento global.",
+                b_nz: "Pacote B: a aviação não continua contribuindo para o aquecimento global.",
+                b_not_nz: "Pacote B: A aviação continua contribuindo para o aquecimento global."
+            };
+            break;
+
+        default: // EN
+            texts = {
+                a_nz: "Package A: aviation does not continue to contribute to global warming.",
+                a_not_nz: "Package A: aviation continues to contribute to global warming.",
+                b_nz: "Package B: aviation does not continue to contribute to global warming.",
+                b_not_nz: "Package B: aviation continues to contribute to global warming."
+            };
+    }
+
+    // ------------------------------------
+    // 4. TEXT SELECTION
+    // ------------------------------------
+    var a_text = a_nz ? texts.a_nz : texts.a_not_nz;
+    var b_text = b_nz ? texts.b_nz : texts.b_not_nz;
 
     console.log("Final A text:", a_text);
     console.log("Final B text:", b_text);
 
+    // ------------------------------------
+    // 5. RENDER
+    // ------------------------------------
     var container = this.getQuestionTextContainer();
-    console.log("Text container:", container);
 
     if (!container) {
-        console.error("Question text container not found");
+        console.error("No container found");
         return;
+    }
+
+    if (lang === "AR") {
+        container.setAttribute("dir", "rtl");
+        container.style.textAlign = "right";
     }
 
     container.innerHTML =
