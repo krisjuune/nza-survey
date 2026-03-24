@@ -3,8 +3,12 @@
 # -------------------
 RAW = "raw-data/GBF_150326.csv"
 CONJOINT_LONG = "data/conjoint_long.csv"
+
 CHOICE_OUTPUT = "data/choice_results.csv"
 RATING_OUTPUT = "data/rating_results.csv"
+
+CHOICE_PLOT = "output/general_choice_conjoint.png"
+RATING_PLOT = "output/general_rating_conjoint.png"
 
 # -------------------
 # Final target
@@ -12,7 +16,9 @@ RATING_OUTPUT = "data/rating_results.csv"
 rule all:
     input:
         CHOICE_OUTPUT,
-        RATING_OUTPUT
+        RATING_OUTPUT,
+        CHOICE_PLOT,
+        RATING_PLOT
 
 # -------------------
 # Rule 1: Reshape conjoint data
@@ -46,3 +52,16 @@ rule conjoint_rating:
         RATING_OUTPUT
     script:
         "scripts/analysis/03_conjoint_rating.R"
+
+# -------------------
+# Rule 4: Plot basic analysis
+# -------------------
+rule plot_conjoint_general:
+    input:
+        choice = CHOICE_OUTPUT,
+        rating = RATING_OUTPUT
+    output:
+        choice_plot = CHOICE_PLOT,
+        rating_plot = RATING_PLOT
+    script:
+        "visualise/04_conjoint_general.R"
