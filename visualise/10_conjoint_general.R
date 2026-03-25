@@ -11,8 +11,8 @@ if (exists("snakemake")) {
   choice_out  <- snakemake@output[["choice_plot"]]
   rating_out  <- snakemake@output[["rating_plot"]]
 } else {
-  choice_file <- here("data", "choice_results.csv")
-  rating_file <- here("data", "rating_results.csv")
+  choice_file <- here("data", "overall_choice_emm.csv")
+  rating_file <- here("data", "overall_rating_emm.csv")
   choice_out  <- here("output", "general_choice_conjoint.png")
   rating_out  <- here("output", "general_rating_conjoint.png")
 }
@@ -151,7 +151,7 @@ rating_plot <- plot_emm(
   y_label = "Marginal means"
 )
 
-ggsave(choice_out, choice_plot, width = 8, height = 12)
-ggsave(rating_out, rating_plot, width = 8, height = 12)
+ggsave(choice_out, choice_plot, width = 8, height = 9)
+ggsave(rating_out, rating_plot, width = 8, height = 9)
 
 message("Plots saved: ", choice_out, " & ", rating_out)

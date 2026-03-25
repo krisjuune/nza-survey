@@ -1,11 +1,12 @@
 # -------------------
 # Files and paths
 # -------------------
-RAW = "raw-data/GBF_150326.csv"
+RAW = "raw-data/GBF_250326.csv"
 CONJOINT_LONG = "data/conjoint_long.csv"
+COVARIATES = "data/covariates.csv"
 
-CHOICE_OUTPUT = "data/choice_results.csv"
-RATING_OUTPUT = "data/rating_results.csv"
+CHOICE_OUTPUT = "data/overall_choice_emm.csv"
+RATING_OUTPUT = "data/overall_rating_emm.csv"
 
 CHOICE_PLOT = "output/general_choice_conjoint.png"
 RATING_PLOT = "output/general_rating_conjoint.png"
@@ -15,6 +16,8 @@ RATING_PLOT = "output/general_rating_conjoint.png"
 # -------------------
 rule all:
     input:
+        CONJOINT_LONG,
+        COVARIATES,
         CHOICE_OUTPUT,
         RATING_OUTPUT,
         CHOICE_PLOT,
@@ -31,30 +34,33 @@ rule reshape_conjoint:
     script:
         "scripts/preprocessing/01_reshape_conjoint.R"
 
+
 # -------------------
-# Rule 2: Run conjoint analysis
+# Rule 2: Get covariate data
+# -------------------
+rule covariates:
+    input:
+        RAW
+    output:
+        COVARIATES
+    script:
+        "scripts/preprocessing/02_respondent_data.R"
+
+
+# -------------------
+# Rule 3: Run conjoint analysis
 # -------------------
 rule conjoint_analysis:
     input:
         CONJOINT_LONG
     output:
-        CHOICE_OUTPUT
+        choice = CHOICE_OUTPUT,
+        rating = RATING_OUTPUT
     script:
-        "scripts/analysis/02_conjoint_analysis.R"
+        "scripts/analysis/03_conjoint_analysis.R"
 
 # -------------------
-# Rule 3: Conjoint rating analysis
-# -------------------
-rule conjoint_rating:
-    input:
-        CONJOINT_LONG
-    output:
-        RATING_OUTPUT
-    script:
-        "scripts/analysis/03_conjoint_rating.R"
-
-# -------------------
-# Rule 4: Plot basic analysis
+# Rule 10: Plot basic analysis
 # -------------------
 rule plot_conjoint_general:
     input:
@@ -64,4 +70,4 @@ rule plot_conjoint_general:
         choice_plot = CHOICE_PLOT,
         rating_plot = RATING_PLOT
     script:
-        "visualise/04_conjoint_general.R"
+        "visualise/10_conjoint_general.R"
