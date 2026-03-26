@@ -9,7 +9,7 @@ if (exists("snakemake")) {
   input_file <- snakemake@input[[1]]
   output_file <- snakemake@output[[1]]
 } else {
-  input_file <- here("raw-data", "GBF_250326.csv")
+  input_file <- here("raw-data", "raw_data.csv")
   output_file <- here("data", "conjoint_long.csv")
 }
 
@@ -17,9 +17,12 @@ df <- read_csv(
   input_file,
   show_col_types = FALSE
 ) |>
-  slice(-(1:2)) |>
-  mutate(id = row_number()) |>
-  clean_names()
+  mutate(
+    across(
+      matches("^js_task\\d+_cost[12]_code$"),
+      as.character
+    )
+  )
 
 n_resp  <- nrow(df)
 n_tasks <- 6

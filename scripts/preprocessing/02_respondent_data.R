@@ -9,7 +9,7 @@ if (exists("snakemake")) {
   input_file  <- snakemake@input[[1]]
   output_file <- snakemake@output[[1]]
 } else {
-  input_file  <- here("raw-data", "GBF_250326.csv")
+  input_file  <- here("raw-data", "raw_data.csv")
   output_file <- here("data", "covariates.csv")
 }
 
@@ -17,9 +17,6 @@ df <- read_csv(
   input_file,
   show_col_types = FALSE
 ) |>
-  slice(-(1:2)) |>
-  mutate(id = row_number()) |>
-  clean_names() |>
   mutate(
     duration_min = as.numeric(duration_in_seconds) / 60,
     statements_flying_3 = 6 - suppressWarnings(as.numeric(statements_flying_3_reverse))
