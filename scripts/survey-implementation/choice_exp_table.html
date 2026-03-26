@@ -97,3 +97,53 @@
     </tbody>
   </table>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const language = "${e://Field/Q_Language}";
+    const currentLoop = parseInt("${lm://CurrentLoopNumber}");
+    const totalLoops = 6;
+
+    // Update task header
+    let taskNumberDisplay = `${currentLoop}/${totalLoops}`;
+    if (language === "AR") {
+        taskNumberDisplay = `${totalLoops}/${currentLoop}`;
+    }
+    const titleSpan = document.querySelector(".task-title");
+    if (titleSpan) {
+        titleSpan.textContent = `${"${e://Field/__js_task_name}"} ${taskNumberDisplay}`;
+    }
+
+    // Handle table RTL / LTR
+    const container = document.getElementById("tableContainer");
+    if (container) {
+        if (language === "AR") {
+            container.style.direction = "rtl";
+            container.style.textAlign = "right";
+
+            // Align table cells to right
+            document.querySelectorAll(".wholetable td.attr, .wholetable td.name")
+                    .forEach(td => td.style.textAlign = "right");
+
+            const table = document.querySelector(".wholetable tbody");
+            if (table) {
+                table.querySelectorAll("tr").forEach(row => {
+                    const cells = Array.from(row.children);
+                    if (cells.length > 2) {
+                        // Swap cells 1 and 2 (skip first column)
+                        row.insertBefore(cells[2], cells[1]);
+                    }
+                });
+            }
+        } else {
+            // Reset defaults for non-Arabic languages
+            container.style.direction = "ltr";
+            container.style.textAlign = "center";
+            document.querySelectorAll(".wholetable td.attr, .wholetable td.name")
+                    .forEach(td => td.style.textAlign = "left");
+        }
+    }
+
+});
+</script>
