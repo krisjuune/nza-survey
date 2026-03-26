@@ -4,3 +4,4 @@
 *.log
 /.snakemake
 init_kernel.py
+.DS_Store
