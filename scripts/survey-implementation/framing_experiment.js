@@ -104,10 +104,10 @@ Qualtrics.SurveyEngine.addOnReady(function () {
 
         case "DE":
             texts = {
-                a_nz: "Paket A: Die Luftfahrt verursacht nicht länger eine zusätzliche globale Erwärmung.",
-                a_not_nz: "Paket A: Die Luftfahrt verursacht weiterhin eine zusätzliche globale Erwärmung.",
-                b_nz: "Paket B: Die Luftfahrt verursacht nicht länger eine zusätzliche globale Erwärmung.",
-                b_not_nz: "Paket B: Die Luftfahrt verursacht weiterhin eine zusätzliche globale Erwärmung."
+                a_nz: "Paket A: Die Luftfahrt trägt nicht länger zur globalen Erwärmung bei.",
+                a_not_nz: "Paket A: Die Luftfahrt trägt weiterhin zur globalen Erwärmung bei.",
+                b_nz: "Paket B: Die Luftfahrt trägt nicht länger zur globalen Erwärmung bei.",
+                b_not_nz: "Paket B: Die Luftfahrt trägt weiterhin zur globalen Erwärmung bei."
             };
             break;
 
