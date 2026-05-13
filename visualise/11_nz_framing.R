@@ -99,7 +99,7 @@ nz_rating <- read_csv(nz_rating_emm, show_col_types = FALSE) |>
 # Plot framing results
 # -------------------
 
-plot_emm <- function(df, title = NULL, y_label = NULL) {
+plot_emm <- function(df, title = NULL, y_label = NULL, midline = NULL) {
 
   df <- df |>
     mutate(
@@ -189,12 +189,16 @@ plot_emm <- function(df, title = NULL, y_label = NULL) {
       )
     )
 
+  y_min <- min(df$asymp.LCL, na.rm = TRUE)
+  y_max <- max(df$asymp.UCL, na.rm = TRUE)
+
   ggplot(df, aes(x = code, y = prob, color = attribute)) +
+    geom_hline(yintercept = midline, color = "grey60", linetype = "dashed") +
     geom_point(size = 3, na.rm = TRUE) +
     geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL),
                   width = 0.2, na.rm = TRUE) +
     scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
-    coord_flip() +
+    coord_flip(ylim = c(y_min, y_max)) +
     theme_classic(base_size = 14) +
     theme(
       axis.text.y = ggtext::element_markdown(),
@@ -214,14 +218,16 @@ plot_emm <- function(df, title = NULL, y_label = NULL) {
 
 choice_plot <- plot_emm(
   framing_choice_df,
-  title = "Choice probabilities by framing",
-  y_label = "Marginal means"
+  title   = "Choice probabilities by framing",
+  y_label = "Marginal means",
+  midline = 0.5
 )
 
 rating_plot <- plot_emm(
   framing_rating_df,
-  title = "Rating scores by framing",
-  y_label = "Marginal means"
+  title   = "Rating scores by framing",
+  y_label = "Marginal means",
+  midline = 3
 )
 
 ggsave(choice_out, choice_plot, width = 8, height = 9)
