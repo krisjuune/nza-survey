@@ -1,8 +1,10 @@
+configfile: "config.yaml"
+
 # -------------------
 # Files and paths
 # -------------------
 # data
-QUALTRICS = "raw-data/GBF_250326.csv"
+QUALTRICS = config["raw_data_file"]
 RAW = "raw-data/raw_data.csv"
 CONJOINT_LONG = "data/conjoint_long.csv"
 COVARIATES = "data/covariates.csv"
@@ -15,9 +17,15 @@ FRAMING_RATING = "data/framing_rating_emm.csv"
 NZ_CHOICE = "data/nz_choice_emm.csv"
 NZ_RATING = "data/nz_rating_emm.csv"
 
+# country subgroup results
+COUNTRY_CHOICE = "data/country_choice_emm.csv"
+COUNTRY_RATING = "data/country_rating_emm.csv"
+
 # output plots and text files
 CHOICE_PLOT = "output/general_choice_conjoint.png"
 RATING_PLOT = "output/general_rating_conjoint.png"
+COUNTRY_CHOICE_PLOT = "output/country_choice_conjoint.png"
+COUNTRY_RATING_PLOT = "output/country_rating_conjoint.png"
 FRAMING_CHOICE_PLOT = "output/framing_choice_plot.png"
 FRAMING_RATING_PLOT = "output/framing_rating_plot.png"
 NZ_SUMMARY = "output/nz_summary.txt"
@@ -36,8 +44,12 @@ rule all:
         FRAMING_RATING,
         NZ_CHOICE,
         NZ_RATING,
+        COUNTRY_CHOICE,
+        COUNTRY_RATING,
         CHOICE_PLOT,
         RATING_PLOT,
+        COUNTRY_CHOICE_PLOT,
+        COUNTRY_RATING_PLOT,
         FRAMING_CHOICE_PLOT,
         FRAMING_RATING_PLOT,
         NZ_SUMMARY
@@ -102,15 +114,32 @@ rule nz_framing_analysis:
         "scripts/analysis/04_nz_framing.R"
 
 # -------------------
+# Rule 5: Country subgroup analysis
+# -------------------
+rule country_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = COUNTRY_CHOICE,
+        rating = COUNTRY_RATING
+    script:
+        "scripts/analysis/05_country.R"
+
+# -------------------
 # Rule 10: Plot basic conjoint results
 # -------------------
 rule plot_conjoint_general:
     input:
-        choice = CHOICE_OUTPUT,
-        rating = RATING_OUTPUT
+        choice         = CHOICE_OUTPUT,
+        rating         = RATING_OUTPUT,
+        country_choice = COUNTRY_CHOICE,
+        country_rating = COUNTRY_RATING
     output:
-        choice_plot = CHOICE_PLOT,
-        rating_plot = RATING_PLOT
+        choice_plot         = CHOICE_PLOT,
+        rating_plot         = RATING_PLOT,
+        country_choice_plot = COUNTRY_CHOICE_PLOT,
+        country_rating_plot = COUNTRY_RATING_PLOT
     script:
         "visualise/10_conjoint_general.R"
 
