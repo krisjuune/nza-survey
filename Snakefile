@@ -1,3 +1,18 @@
+import os
+import sys
+
+# Ensure R scripts resolve to the active conda env's Rscript (e.g. lme4),
+# not a system R that may be earlier on PATH (e.g. /usr/local/bin/Rscript).
+os.environ["PATH"] = os.pathsep.join(
+    [os.path.dirname(sys.executable), os.environ.get("PATH", "")]
+)
+
+# Both the conda R and any system R share the same default personal library
+# (~/Library/R/<arch>/<version>/library), so R prioritizes packages built
+# against the system R there over the conda env's own copies, causing
+# binary-incompatible segfaults (e.g. loading dplyr). Point it elsewhere.
+os.environ["R_LIBS_USER"] = "/nonexistent"
+
 configfile: "config.yaml"
 
 # -------------------
@@ -13,6 +28,7 @@ COVARIATES = "data/covariates.csv"
 POLICY_CHOICE = "data/policy_choice_emm.csv"
 POLICY_RATING = "data/policy_rating_emm.csv"
 POLICY_CHOICE_PLOT = "output/policy_choice_plot.png"
+POLICY_RATING_PLOT = "output/policy_rating_plot.png"
 CHOICE_OUTPUT = "data/overall_choice_emm.csv"
 RATING_OUTPUT = "data/overall_rating_emm.csv"
 FRAMING_CHOICE = "data/framing_choice_emm.csv"
@@ -23,6 +39,12 @@ NZ_RATING = "data/nz_rating_emm.csv"
 # country subgroup results
 COUNTRY_CHOICE = "data/country_choice_emm.csv"
 COUNTRY_RATING = "data/country_rating_emm.csv"
+
+# durability x cost (willingness-to-pay) interaction results
+DURABILITY_COST_CHOICE = "data/durability_cost_choice_emm.csv"
+DURABILITY_COST_RATING = "data/durability_cost_rating_emm.csv"
+DURABILITY_COST_CHOICE_PLOT = "output/durability_cost_choice_plot.png"
+DURABILITY_COST_RATING_PLOT = "output/durability_cost_rating_plot.png"
 
 # output plots and text files
 CHOICE_PLOT = "output/general_choice_conjoint.png"
@@ -44,6 +66,7 @@ rule all:
         POLICY_CHOICE,
         POLICY_RATING,
         POLICY_CHOICE_PLOT,
+        POLICY_RATING_PLOT,
         CHOICE_OUTPUT,
         RATING_OUTPUT,
         FRAMING_CHOICE,
@@ -52,6 +75,10 @@ rule all:
         NZ_RATING,
         COUNTRY_CHOICE,
         COUNTRY_RATING,
+        DURABILITY_COST_CHOICE,
+        DURABILITY_COST_RATING,
+        DURABILITY_COST_CHOICE_PLOT,
+        DURABILITY_COST_RATING_PLOT,
         CHOICE_PLOT,
         RATING_PLOT,
         COUNTRY_CHOICE_PLOT,
@@ -145,13 +172,28 @@ rule country_analysis:
         "scripts/analysis/05_country.R"
 
 # -------------------
+# Rule 7: Durability x cost interaction analysis (willingness-to-pay)
+# -------------------
+rule durability_cost_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = DURABILITY_COST_CHOICE,
+        rating = DURABILITY_COST_RATING
+    script:
+        "scripts/analysis/07_durability_cost.R"
+
+# -------------------
 # Rule 12: Plot policy type results
 # -------------------
 rule plot_policy_types:
     input:
-        choice = POLICY_CHOICE
+        choice = POLICY_CHOICE,
+        rating = POLICY_RATING
     output:
-        choice_plot = POLICY_CHOICE_PLOT
+        choice_plot = POLICY_CHOICE_PLOT,
+        rating_plot = POLICY_RATING_PLOT
     script:
         "visualise/12_policy_plot.R"
 
@@ -187,3 +229,16 @@ rule plot_nz_framing:
         nz_summary = NZ_SUMMARY
     script:
         "visualise/11_nz_framing.R"
+
+# -------------------
+# Rule 13: Plot durability x cost interaction (willingness-to-pay)
+# -------------------
+rule plot_durability_cost:
+    input:
+        choice = DURABILITY_COST_CHOICE,
+        rating = DURABILITY_COST_RATING
+    output:
+        choice_plot = DURABILITY_COST_CHOICE_PLOT,
+        rating_plot = DURABILITY_COST_RATING_PLOT
+    script:
+        "visualise/13_durability_cost_plot.R"
