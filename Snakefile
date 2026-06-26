@@ -10,6 +10,9 @@ CONJOINT_LONG = "data/conjoint_long.csv"
 COVARIATES = "data/covariates.csv"
 
 # results data
+POLICY_CHOICE = "data/policy_choice_emm.csv"
+POLICY_RATING = "data/policy_rating_emm.csv"
+POLICY_CHOICE_PLOT = "output/policy_choice_plot.png"
 CHOICE_OUTPUT = "data/overall_choice_emm.csv"
 RATING_OUTPUT = "data/overall_rating_emm.csv"
 FRAMING_CHOICE = "data/framing_choice_emm.csv"
@@ -38,6 +41,9 @@ rule all:
         RAW,
         CONJOINT_LONG,
         COVARIATES,
+        POLICY_CHOICE,
+        POLICY_RATING,
+        POLICY_CHOICE_PLOT,
         CHOICE_OUTPUT,
         RATING_OUTPUT,
         FRAMING_CHOICE,
@@ -100,6 +106,18 @@ rule conjoint_analysis:
         "scripts/analysis/03_conjoint_analysis.R"
 
 # -------------------
+# Rule 6: Policy type analysis
+# -------------------
+rule policy_type_analysis:
+    input:
+        CONJOINT_LONG
+    output:
+        choice = POLICY_CHOICE,
+        rating = POLICY_RATING
+    script:
+        "scripts/analysis/06_policy_types.R"
+
+# -------------------
 # Rule 4: Run net-zero framing analysis
 # -------------------
 rule nz_framing_analysis:
@@ -125,6 +143,17 @@ rule country_analysis:
         rating = COUNTRY_RATING
     script:
         "scripts/analysis/05_country.R"
+
+# -------------------
+# Rule 12: Plot policy type results
+# -------------------
+rule plot_policy_types:
+    input:
+        choice = POLICY_CHOICE
+    output:
+        choice_plot = POLICY_CHOICE_PLOT
+    script:
+        "visualise/12_policy_plot.R"
 
 # -------------------
 # Rule 10: Plot basic conjoint results

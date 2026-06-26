@@ -1,0 +1,17 @@
+name: nza-survey
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - snakemake>=9
+  - pandas
+  - r-base=4.4
+  - r-tidyverse
+  - r-emmeans
+  - r-ggtext
+  - r-here
+  - r-janitor
+  - r-lme4
+  - r-matrix
+  - r-viridis
