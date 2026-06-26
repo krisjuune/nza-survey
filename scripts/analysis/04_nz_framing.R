@@ -7,17 +7,17 @@ library(readr)
 library(here)
 
 if (exists("snakemake")) {
-  input_file  <- snakemake@input[[1]]
+  input_file           <- snakemake@input[[1]]
   framing_choice_out   <- snakemake@output[["framing_choice"]]
   framing_rating_out   <- snakemake@output[["framing_rating"]]
-  nz_choice_out   <- snakemake@output[["nz_choice"]]
-  nz_rating_out   <- snakemake@output[["nz_rating"]]
+  nz_choice_out        <- snakemake@output[["nz_choice"]]
+  nz_rating_out        <- snakemake@output[["nz_rating"]]
 } else {
-  input_file  <- here("data", "conjoint_long.csv")
+  input_file           <- here("data", "conjoint_long.csv")
   framing_choice_out   <- here("data", "framing_choice_emm.csv")
   framing_rating_out   <- here("data", "framing_rating_emm.csv")
-  nz_choice_out   <- here("data", "nz_choice_emm.csv")
-  nz_rating_out   <- here("data", "nz_rating_emm.csv")
+  nz_choice_out        <- here("data", "nz_choice_emm.csv")
+  nz_rating_out        <- here("data", "nz_rating_emm.csv")
 }
 
 df <- read_csv(
@@ -36,23 +36,48 @@ attributes <- c(
   "cost_code"
 )
 
+elapsed <- function(t0) {
+  round(as.numeric(difftime(Sys.time(), t0, units = "secs")))
+}
+
+ts_msg <- function(...) {
+  message("[", format(Sys.time(), "%H:%M:%S"), "] ", ...)
+}
+
 # ----------------------------
 # 1. CHOICE MODEL (logit)
 # ----------------------------
+ts_msg("Fitting choice model (glmer)...")
+t0 <- Sys.time()
+
 choice_model <- suppressWarnings(
   glmer(
-    binary_choice ~ 
+    binary_choice ~
       (fuel_code + activity_code + durability_code +
        responsibility_code + cost_code) * framing +
       nz_binary * framing +
       (1 | id),
     data = df,
-    family = binomial
+    family = binomial,
+    control = glmerControl(
+      optimizer = "bobyqa", optCtrl = list(maxfun = 2e5)
+    )
   )
 )
 
-choice_emm <- lapply(attributes, function(attr) {
-  emmeans(choice_model, as.formula(paste0("~ ", attr, " | framing")), type = "response") |>
+ts_msg("Choice model done (", elapsed(t0), "s). Computing emmeans...")
+
+choice_emm <- lapply(seq_along(attributes), function(i) {
+  attr <- attributes[[i]]
+  message(
+    "  [", i, "/", length(attributes),
+    "] emmeans for ", attr, " (", elapsed(t0), "s elapsed)"
+  )
+  emmeans(
+    choice_model,
+    as.formula(paste0("~ ", attr, " | framing")),
+    type = "response"
+  ) |>
     as.data.frame() |>
     mutate(attribute = attr)
 }) |>
@@ -75,23 +100,40 @@ nz_choice_emm <- emmeans(
 
 write_csv(choice_emm, framing_choice_out)
 write_csv(nz_choice_emm, nz_choice_out)
+ts_msg("Choice emmeans written (", elapsed(t0), "s total).")
 
 # ----------------------------
 # 2. RATING MODEL (linear)
 # ----------------------------
+ts_msg("Fitting rating model (lmer)...")
+t1 <- Sys.time()
+
 rating_model <- suppressWarnings(
   lmer(
-    support ~ 
+    support ~
       (fuel_code + activity_code + durability_code +
        responsibility_code + cost_code) * framing +
       nz_binary * framing +
       (1 | id),
-    data = df
+    data = df,
+    control = lmerControl(
+      optimizer = "bobyqa", optCtrl = list(maxfun = 2e5)
+    )
   )
 )
 
-rating_emm <- lapply(attributes, function(attr) {
-  emmeans(rating_model, as.formula(paste0("~ ", attr, " | framing"))) |>
+ts_msg("Rating model done (", elapsed(t1), "s). Computing emmeans...")
+
+rating_emm <- lapply(seq_along(attributes), function(i) {
+  attr <- attributes[[i]]
+  message(
+    "  [", i, "/", length(attributes),
+    "] emmeans for ", attr, " (", elapsed(t1), "s elapsed)"
+  )
+  emmeans(
+    rating_model,
+    as.formula(paste0("~ ", attr, " | framing"))
+  ) |>
     as.data.frame() |>
     mutate(attribute = attr)
 }) |>
@@ -102,6 +144,12 @@ rating_emm <- lapply(attributes, function(attr) {
     values_to = "code"
   ) |>
   filter(!is.na(code)) |>
+  rename_with(
+    ~ case_match(
+      ., "asymp.LCL" ~ "lower.CL", "asymp.UCL" ~ "upper.CL",
+      .default = .
+    )
+  ) |>
   select(framing, attribute, code, emmean, SE, df, lower.CL, upper.CL)
 
 nz_rating_emm <- emmeans(
@@ -109,7 +157,20 @@ nz_rating_emm <- emmeans(
   ~ nz_binary | framing
 ) |>
   as.data.frame() |>
+  rename_with(
+    ~ case_match(
+      ., "asymp.LCL" ~ "lower.CL", "asymp.UCL" ~ "upper.CL",
+      .default = .
+    )
+  ) |>
   select(framing, nz_binary, emmean, SE, df, lower.CL, upper.CL)
 
 write_csv(rating_emm, framing_rating_out)
 write_csv(nz_rating_emm, nz_rating_out)
+ts_msg("Rating emmeans written (", elapsed(t1), "s total).")
+
+message("NZ framing analysis completed:")
+message("- Framing choice results: ", framing_choice_out)
+message("- Framing rating results: ", framing_rating_out)
+message("- NZ choice results: ", nz_choice_out)
+message("- NZ rating results: ", nz_rating_out)

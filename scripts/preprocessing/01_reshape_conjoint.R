@@ -150,4 +150,43 @@ if (any(choice_check$sum_choice != 1)) {
   message("Binary choice check passed.")
 }
 
+final_df <- final_df |>
+  mutate(policy_type = case_when(
+    fuel_code == "fossil" &
+      activity_code %in% c("factory_ccs", "direct_air") &
+      durability_code == "permanent" &
+      responsibility_code == "fuel_suppliers" ~ "GBF",
+
+    fuel_code %in% c("fossil", "plants") &
+      activity_code %in% c("trees", "cookstoves") &
+      durability_code == "temporary" &
+      responsibility_code == "airline" ~ "CORSIA",
+
+    fuel_code == "plants" &
+      activity_code %in% c("factory_ccs", "direct_air") &
+      durability_code == "permanent" &
+      responsibility_code %in% c("fuel_suppliers", "government") ~ "SAF_ETS",
+
+    fuel_code == "fossil" &
+      activity_code == "direct_air" &
+      durability_code == "permanent" &
+      responsibility_code == "passenger" ~ "VCM_SBTi",
+
+    fuel_code == "fossil" &
+      activity_code %in% c("trees", "cookstoves") &
+      durability_code == "temporary" &
+      responsibility_code == "passenger" ~ "VCM_status_quo",
+
+    TRUE ~ NA_character_
+  ))
+
+policy_counts <- final_df |>
+  count(policy_type) |>
+  filter(!is.na(policy_type))
+
+message("Policy type observation counts:")
+for (i in seq_len(nrow(policy_counts))) {
+  message("  ", policy_counts$policy_type[i], ": ", policy_counts$n[i])
+}
+
 write_csv(final_df, output_file)

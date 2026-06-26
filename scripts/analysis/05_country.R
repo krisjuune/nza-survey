@@ -27,7 +27,9 @@ conjoint <- read_csv(
 covariates <- read_csv(covariates_file, show_col_types = FALSE) |>
   select(id, country)
 
-country_levels <- c("Australia", "Brazil", "Germany", "Kenya", "Vietnam", "UAE")
+country_levels <- c(
+  "Australia", "Brazil", "Germany", "Kenya", "Vietnam", "UAE"
+)
 
 df <- conjoint |>
   left_join(covariates, by = "id") |>
@@ -51,9 +53,20 @@ attributes <- c(
   "cost_code"
 )
 
+elapsed <- function(t0) {
+  round(as.numeric(difftime(Sys.time(), t0, units = "secs")))
+}
+
+ts_msg <- function(...) {
+  message("[", format(Sys.time(), "%H:%M:%S"), "] ", ...)
+}
+
 # ----------------------------
 # 1. CHOICE MODEL (logit)
 # ----------------------------
+ts_msg("Fitting choice model (glmer)...")
+t0 <- Sys.time()
+
 choice_model <- suppressWarnings(
   glmer(
     binary_choice ~
@@ -61,12 +74,26 @@ choice_model <- suppressWarnings(
          responsibility_code + cost_code) * country +
       (1 | id),
     data = df,
-    family = binomial
+    family = binomial,
+    control = glmerControl(
+      optimizer = "bobyqa", optCtrl = list(maxfun = 2e5)
+    )
   )
 )
 
-choice_emm <- lapply(attributes, function(attr) {
-  emmeans(choice_model, as.formula(paste0("~ ", attr, " | country")), type = "response") |>
+ts_msg("Choice model done (", elapsed(t0), "s). Computing emmeans...")
+
+choice_emm <- lapply(seq_along(attributes), function(i) {
+  attr <- attributes[[i]]
+  message(
+    "  [", i, "/", length(attributes),
+    "] emmeans for ", attr, " (", elapsed(t0), "s elapsed)"
+  )
+  emmeans(
+    choice_model,
+    as.formula(paste0("~ ", attr, " | country")),
+    type = "response"
+  ) |>
     as.data.frame() |>
     mutate(attribute = attr)
 }) |>
@@ -80,22 +107,39 @@ choice_emm <- lapply(attributes, function(attr) {
   select(country, attribute, code, prob, SE, df, asymp.LCL, asymp.UCL)
 
 write_csv(choice_emm, choice_out)
+ts_msg("Choice emmeans written (", elapsed(t0), "s total).")
 
 # ----------------------------
 # 2. RATING MODEL (linear)
 # ----------------------------
+ts_msg("Fitting rating model (lmer)...")
+t1 <- Sys.time()
+
 rating_model <- suppressWarnings(
   lmer(
     support ~
       (fuel_code + activity_code + durability_code +
          responsibility_code + cost_code) * country +
       (1 | id),
-    data = df
+    data = df,
+    control = lmerControl(
+      optimizer = "bobyqa", optCtrl = list(maxfun = 2e5)
+    )
   )
 )
 
-rating_emm <- lapply(attributes, function(attr) {
-  emmeans(rating_model, as.formula(paste0("~ ", attr, " | country"))) |>
+ts_msg("Rating model done (", elapsed(t1), "s). Computing emmeans...")
+
+rating_emm <- lapply(seq_along(attributes), function(i) {
+  attr <- attributes[[i]]
+  message(
+    "  [", i, "/", length(attributes),
+    "] emmeans for ", attr, " (", elapsed(t1), "s elapsed)"
+  )
+  emmeans(
+    rating_model,
+    as.formula(paste0("~ ", attr, " | country"))
+  ) |>
     as.data.frame() |>
     mutate(attribute = attr)
 }) |>
@@ -106,6 +150,12 @@ rating_emm <- lapply(attributes, function(attr) {
     values_to = "code"
   ) |>
   filter(!is.na(code)) |>
+  rename_with(
+    ~ case_match(
+      ., "asymp.LCL" ~ "lower.CL", "asymp.UCL" ~ "upper.CL",
+      .default = .
+    )
+  ) |>
   select(country, attribute, code, emmean, SE, df, lower.CL, upper.CL)
 
 write_csv(rating_emm, rating_out)
