@@ -35,6 +35,7 @@ covariates <- df |>
     age,
     gender,
     country,
+    flyer_type,
     num_flying,
     purpose_flying,
     income_decile,
