@@ -317,8 +317,8 @@ country_rating_plot <- plot_emm_country(
   symmetric = TRUE
 )
 
-ggsave(country_choice_out, country_choice_plot, width = 10, height = 7)
-ggsave(country_rating_out, country_rating_plot, width = 10, height = 7)
+ggsave(country_choice_out, country_choice_plot, width = 11, height = 7)
+ggsave(country_rating_out, country_rating_plot, width = 11, height = 7)
 
 message("Plots saved: ", choice_out, " & ", rating_out)
 message("Country plots saved: ", country_choice_out, " & ", country_rating_out)

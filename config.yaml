@@ -1,5 +1,5 @@
 # relative path to the raw data file
-raw_data_file: "raw-data/GBF_130626.csv"
+raw_data_file: "raw-data/GBF_100626.csv"
 
 # set to true to run the pipeline on Qualtrics test/preview responses,
 # with JS attribute columns filled in by sampling from real responses.

@@ -103,7 +103,7 @@ rating_plot <- plot_interaction(
   symmetric = TRUE
 )
 
-ggsave(choice_out, choice_plot, width = 14, height = 4)
-ggsave(rating_out, rating_plot, width = 14, height = 4)
+ggsave(choice_out, choice_plot, width = 11, height = 4)
+ggsave(rating_out, rating_plot, width = 11, height = 4)
 
 message("Durability x cost plots saved: ", choice_out, " & ", rating_out)
