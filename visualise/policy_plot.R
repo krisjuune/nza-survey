@@ -51,7 +51,7 @@ choice_plot <- ggplot(choice_df, aes(x = policy_label, y = prob)) +
 
 # -------------------
 # Attribute classification table, shown alongside the choice plot.
-# Mirrors the policy_type rules in scripts/preprocessing/01_reshape_conjoint.R.
+# Mirrors the policy_type rules in scripts/preprocessing/reshape_conjoint.R.
 # -------------------
 
 policy_attrs <- tibble(

@@ -10,7 +10,7 @@ accent_color <- "#e15759"
 # figures. Each color is "claimed" by exactly one attribute and should not be
 # reused elsewhere (e.g. for level-level distinctions within an attribute -
 # use shape/linetype for that instead, see durability in
-# 13_durability_cost_plot.R).
+# durability_cost_plot.R).
 attribute_colors <- c(
   "Fuel"                    = "#4e79a7",
   "Offsetting activity"     = "#f28e2b",
