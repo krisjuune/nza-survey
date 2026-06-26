@@ -3,8 +3,9 @@ library(tidyr)
 library(ggplot2)
 library(ggtext)
 library(readr)
-library(viridis)
 library(here)
+
+source(here("visualise", "theme_clean.R"))
 
 if (exists("snakemake")) {
   framing_choice_emm   <- snakemake@input[["framing_choice"]]
@@ -99,7 +100,8 @@ nz_rating <- read_csv(nz_rating_emm, show_col_types = FALSE) |>
 # Plot framing results
 # -------------------
 
-plot_emm <- function(df, title = NULL, y_label = NULL, midline = NULL) {
+plot_emm <- function(df, y_label = NULL, midline = NULL, symmetric = FALSE,
+                      breaks = waiver()) {
 
   df <- df |>
     mutate(
@@ -189,45 +191,45 @@ plot_emm <- function(df, title = NULL, y_label = NULL, midline = NULL) {
       )
     )
 
-  y_min <- min(df$asymp.LCL, na.rm = TRUE)
-  y_max <- max(df$asymp.UCL, na.rm = TRUE)
+  y_limits <- if (symmetric) {
+    symmetric_limits(c(df$asymp.LCL, df$asymp.UCL), midline)
+  } else {
+    c(min(df$asymp.LCL, na.rm = TRUE), max(df$asymp.UCL, na.rm = TRUE))
+  }
+  y_limits <- widen_limits_to_breaks(y_limits, breaks)
 
   ggplot(df, aes(x = code, y = prob, color = attribute)) +
-    geom_hline(yintercept = midline, color = "grey60", linetype = "dashed") +
+    geom_neutral_line(midline) +
     geom_point(size = 3, na.rm = TRUE) +
     geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL),
                   width = 0.2, na.rm = TRUE) +
     scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
-    coord_flip(ylim = c(y_min, y_max)) +
-    theme_classic(base_size = 14) +
+    scale_color_attribute() +
+    scale_y_continuous(breaks = breaks) +
+    coord_flip(ylim = y_limits) +
+    theme_clean() +
     theme(
-      axis.text.y = ggtext::element_markdown(),
-      legend.position = "right",
-      strip.background = element_blank(),
-      strip.text = element_text(face = "bold")
+      axis.text.y = ggtext::element_markdown()
     ) +
-    scale_color_viridis(discrete = TRUE, end = .95, option = "D") +
     labs(
       x = NULL,
-      y = y_label,
-      color = "Attribute",
-      title = title
+      y = y_label
     ) +
     facet_wrap(~ framing)
 }
 
 choice_plot <- plot_emm(
   framing_choice_df,
-  title   = "Choice probabilities by framing",
-  y_label = "Marginal means",
-  midline = 0.5
+  y_label = "Choice probability",
+  midline = 0.5,
+  breaks = choice_breaks
 )
 
 rating_plot <- plot_emm(
   framing_rating_df,
-  title   = "Rating scores by framing",
-  y_label = "Marginal means",
-  midline = 3
+  y_label = "Estimated rating",
+  midline = 3,
+  symmetric = TRUE
 )
 
 ggsave(choice_out, choice_plot, width = 8, height = 9)

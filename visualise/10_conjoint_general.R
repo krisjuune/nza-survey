@@ -3,8 +3,9 @@ library(tidyr)
 library(ggplot2)
 library(ggtext)
 library(readr)
-library(viridis)
 library(here)
+
+source(here("visualise", "theme_clean.R"))
 
 if (exists("snakemake")) {
   choice_file         <- snakemake@input[["choice"]]
@@ -35,7 +36,8 @@ rating_df <- read_csv(rating_file, show_col_types = FALSE) |>
     asymp.UCL = upper.CL
   )
 
-plot_emm <- function(df, title = NULL, y_label = NULL, midline = NULL) {
+plot_emm <- function(df, y_label = NULL, midline = NULL, symmetric = FALSE,
+                      breaks = waiver()) {
 
   df <- df |>
     mutate(
@@ -125,45 +127,44 @@ plot_emm <- function(df, title = NULL, y_label = NULL, midline = NULL) {
       )
     )
 
-  y_min <- min(df$asymp.LCL, na.rm = TRUE)
-  y_max <- max(df$asymp.UCL, na.rm = TRUE)
+  y_limits <- if (symmetric) {
+    symmetric_limits(c(df$asymp.LCL, df$asymp.UCL), midline)
+  } else {
+    c(min(df$asymp.LCL, na.rm = TRUE), max(df$asymp.UCL, na.rm = TRUE))
+  }
+  y_limits <- widen_limits_to_breaks(y_limits, breaks)
 
   ggplot(df, aes(x = code, y = prob, color = attribute)) +
-    geom_hline(yintercept = midline, color = "grey60", linetype = "dashed") +
+    geom_neutral_line(midline) +
     geom_point(size = 3, na.rm = TRUE) +
     geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL),
                   width = 0.2, na.rm = TRUE) +
     scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
-    coord_flip(ylim = c(y_min, y_max)) +
-    theme_classic(base_size = 14) +
+    scale_color_attribute() +
+    scale_y_continuous(breaks = breaks) +
+    coord_flip(ylim = y_limits) +
+    theme_clean() +
     theme(
       axis.text.y = ggtext::element_markdown()
     ) +
-    scale_color_viridis(
-      discrete = TRUE,
-      end = .95,
-      option = "D"
-    ) +
     labs(
       x = NULL,
-      y = y_label,
-      color = "Attribute",
-      title = title
+      y = y_label
     )
 }
 
 choice_plot <- plot_emm(
   choice_df,
-  title   = "Estimated choice probabilities",
-  y_label = "Marginal means",
-  midline = 0.5
+  y_label = "Choice probability",
+  midline = 0.5,
+  breaks = choice_breaks
 )
 
 rating_plot <- plot_emm(
   rating_df,
-  title   = "Estimated rating scores",
-  y_label = "Marginal means",
-  midline = 3
+  y_label = "Estimated rating",
+  midline = 3,
+  symmetric = TRUE
 )
 
 ggsave(choice_out, choice_plot, width = 8, height = 9)
@@ -186,7 +187,8 @@ country_rating_df <- read_csv(country_rating_file, show_col_types = FALSE) |>
   ) |>
   mutate(country = factor(country, levels = country_levels))
 
-plot_emm_country <- function(df, title = NULL, y_label = NULL, midline = NULL) {
+plot_emm_country <- function(df, y_label = NULL, midline = NULL, symmetric = FALSE,
+                              breaks = waiver()) {
 
   df <- df |>
     mutate(
@@ -274,49 +276,49 @@ plot_emm_country <- function(df, title = NULL, y_label = NULL, midline = NULL) {
       )
     )
 
-  y_min <- min(df$asymp.LCL, na.rm = TRUE)
-  y_max <- max(df$asymp.UCL, na.rm = TRUE)
+  y_limits <- if (symmetric) {
+    symmetric_limits(c(df$asymp.LCL, df$asymp.UCL), midline)
+  } else {
+    c(min(df$asymp.LCL, na.rm = TRUE), max(df$asymp.UCL, na.rm = TRUE))
+  }
+  y_limits <- widen_limits_to_breaks(y_limits, breaks)
 
   ggplot(df, aes(x = code, y = prob, color = attribute)) +
-    geom_hline(yintercept = midline, color = "grey60", linetype = "dashed") +
+    geom_neutral_line(midline) +
     geom_point(size = 2, na.rm = TRUE) +
     geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL),
                   width = 0.2, na.rm = TRUE) +
     scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
-    coord_flip(ylim = c(y_min, y_max)) +
-    theme_classic(base_size = 11) +
+    scale_color_attribute() +
+    scale_y_continuous(breaks = breaks) +
+    coord_flip(ylim = y_limits) +
+    theme_clean(base_size = 11) +
     theme(
-      axis.text.y      = ggtext::element_markdown(),
-      legend.position  = "right",
-      strip.background = element_blank(),
-      strip.text       = element_text(face = "bold")
+      axis.text.y = ggtext::element_markdown()
     ) +
-    scale_color_viridis(discrete = TRUE, end = .95, option = "D") +
     labs(
-      x     = NULL,
-      y     = y_label,
-      color = "Attribute",
-      title = title
+      x = NULL,
+      y = y_label
     ) +
     facet_wrap(~ country, nrow = 1)
 }
 
 country_choice_plot <- plot_emm_country(
   country_choice_df,
-  title   = "Choice probabilities by country",
-  y_label = "Marginal means",
-  midline = 0.5
+  y_label = "Choice probability",
+  midline = 0.5,
+  breaks = choice_breaks
 )
 
 country_rating_plot <- plot_emm_country(
   country_rating_df,
-  title   = "Rating scores by country",
-  y_label = "Marginal means",
-  midline = 3
+  y_label = "Estimated rating",
+  midline = 3,
+  symmetric = TRUE
 )
 
-ggsave(country_choice_out, country_choice_plot, width = 18, height = 9)
-ggsave(country_rating_out, country_rating_plot, width = 18, height = 9)
+ggsave(country_choice_out, country_choice_plot, width = 10, height = 7)
+ggsave(country_rating_out, country_rating_plot, width = 10, height = 7)
 
 message("Plots saved: ", choice_out, " & ", rating_out)
 message("Country plots saved: ", country_choice_out, " & ", country_rating_out)
