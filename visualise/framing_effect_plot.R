@@ -12,15 +12,14 @@ if (exists("snakemake")) {
   plot_out    <- snakemake@output[["choice_plot"]]
 } else {
   choice_file <- here("data", "framing_effect_choice.csv")
-  plot_out    <- here("output", "framing_effect_choice_plot.png")
+  plot_out    <- here("output", "country_framing_choice.png")
 }
 
 country_levels <- c(
   "Australia", "Brazil", "Germany", "Kenya", "UAE", "Vietnam"
 )
 
-choice_df <- read_csv(choice_file, show_col_types = FALSE) |>
-  mutate(country = factor(country, levels = country_levels))
+framing_levels <- c("No information", "Net-zero information")
 
 plot_levels <- c(
   "Fuel",
@@ -36,7 +35,7 @@ plot_levels <- c(
   "10%", "30%", "50%"
 )
 
-df <- choice_df |>
+df <- read_csv(choice_file, show_col_types = FALSE) |>
   mutate(
     code = case_when(
       code == "trees"          ~ "Nature-based offsets",
@@ -64,18 +63,23 @@ df <- choice_df |>
       attribute == "responsibility_code" ~ "Responsible actors",
       attribute == "cost_code"           ~ "Increase in ticket cost",
       TRUE ~ attribute
+    ),
+    framing = recode(framing,
+      `0` = "No information",
+      `1` = "Net-zero information"
     )
   )
 
 empty_rows <- expand_grid(
-  attribute = c("Fuel", "Offsetting activity", "Durability of offsets",
-                "Responsible actors", "Increase in ticket cost"),
-  code      = c("Fuel", "Offsetting activity", "Durability of offsets",
-                "Responsible actors", "Increase in ticket cost"),
-  country   = levels(df$country)
+  attribute  = c("Fuel", "Offsetting activity", "Durability of offsets",
+                 "Responsible actors", "Increase in ticket cost"),
+  code       = c("Fuel", "Offsetting activity", "Durability of offsets",
+                 "Responsible actors", "Increase in ticket cost"),
+  country    = country_levels,
+  framing    = framing_levels
 ) |>
   mutate(
-    estimate  = NA_real_,
+    prob      = NA_real_,
     SE        = NA_real_,
     df        = NA_real_,
     asymp.LCL = NA_real_,
@@ -92,7 +96,15 @@ df <- bind_rows(df, empty_rows) |>
       "Responsible actors",
       "Increase in ticket cost"
     )),
-    country = factor(country, levels = country_levels)
+    country = factor(country, levels = country_levels),
+    framing = factor(framing, levels = framing_levels),
+    # Literal lighter hex for the net-zero arm (not alpha), so the fill stays
+    # fully opaque and the error bar drawn underneath can never show through.
+    point_color = if_else(
+      framing == "No information",
+      attribute_colors[as.character(attribute)],
+      attribute_colors_light[as.character(attribute)]
+    )
   )
 
 label_map <- tibble(code = levels(df$code)) |>
@@ -109,27 +121,59 @@ label_map <- tibble(code = levels(df$code)) |>
     )
   )
 
-y_limits <- symmetric_limits(c(df$asymp.LCL, df$asymp.UCL), 0)
+y_limits <- widen_limits_to_breaks(
+  c(min(df$asymp.LCL, na.rm = TRUE), max(df$asymp.UCL, na.rm = TRUE)),
+  choice_breaks
+)
 
-plot <- ggplot(df, aes(x = code, y = estimate, color = attribute)) +
-  geom_neutral_line(0) +
-  geom_point(size = 2, na.rm = TRUE) +
-  geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL),
-                width = 0.2, na.rm = TRUE) +
+# Both arms get a full error bar in their own (opaque) color, drawn before the
+# points so the points - also fully opaque - sit on top and cover whatever
+# error bar segment falls directly underneath them. No-framing is drawn last
+# within the point layer so it's the one left visible wherever the two arms
+# overlap.
+# The real points are colored per attribute x framing via scale_color_identity
+# (point_color is already a literal hex), so a generic black/grey dummy legend
+# is added separately to explain what "faded" means without implying framing
+# has its own attribute color.
+legend_dummy <- tibble(framing = factor(framing_levels, levels = framing_levels))
+
+plot <- ggplot(df, aes(x = code, y = prob)) +
+  geom_neutral_line(0.5) +
+  geom_errorbar(
+    aes(ymin = asymp.LCL, ymax = asymp.UCL, color = point_color),
+    width = 0.2, na.rm = TRUE
+  ) +
+  geom_point(
+    data = df |> arrange(desc(framing)),
+    aes(color = point_color), size = 2, na.rm = TRUE
+  ) +
+  scale_color_identity(guide = "none") +
+  geom_point(
+    data = legend_dummy,
+    aes(x = NA, y = NA, shape = framing),
+    color = "black", inherit.aes = FALSE, na.rm = TRUE
+  ) +
+  scale_shape_manual(
+    values = c("No information" = 16, "Net-zero information" = 16),
+    guide = guide_legend(
+      title = NULL,
+      override.aes = list(color = c("black", "grey60"))
+    )
+  ) +
   scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
-  scale_color_attribute() +
-  scale_y_continuous(breaks = scales::pretty_breaks()) +
+  scale_y_continuous(breaks = choice_breaks) +
   coord_flip(ylim = y_limits) +
   theme_clean(base_size = 11) +
   theme(
-    axis.text.y = ggtext::element_markdown()
+    axis.text.y = ggtext::element_markdown(),
+    legend.position = "bottom"
   ) +
   labs(
     x = NULL,
-    y = "Shift in choice probability"
+    y = "Choice probability"
   ) +
   facet_wrap(~ country, nrow = 1)
 
 ggsave(plot_out, plot, width = 11, height = 7)
 
-message("Framing-effect plot saved: ", plot_out)
+message("Country framing-effect plot saved: ", plot_out)

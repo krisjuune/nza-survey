@@ -23,6 +23,20 @@ scale_color_attribute <- function(...) {
   scale_color_manual(values = attribute_colors, ...)
 }
 
+# Lightened (toward white) version of each attribute color, for marking a
+# secondary/contrast condition with an actual paler hue rather than alpha
+# transparency - transparency would let anything drawn underneath (e.g. an
+# error bar) show through the fill; a literal lighter color stays opaque.
+lighten_color <- function(hex, factor = 0.55) {
+  rgb_mat <- col2rgb(hex) / 255
+  blended <- rgb_mat + (1 - rgb_mat) * factor
+  apply(blended, 2, function(x) rgb(x[1], x[2], x[3]))
+}
+
+attribute_colors_light <- setNames(
+  lighten_color(attribute_colors), names(attribute_colors)
+)
+
 theme_clean <- function(base_size = 11, base_family = "Helvetica") {
   theme_classic(base_size = base_size, base_family = base_family) +
     theme(

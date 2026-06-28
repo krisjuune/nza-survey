@@ -56,7 +56,7 @@ FLYER_TYPE_RATING_PLOT = "output/flyer_type_rating_plot.png"
 
 # net-zero framing effect by country (probability shift per attribute level)
 FRAMING_EFFECT_CHOICE = "data/framing_effect_choice.csv"
-FRAMING_EFFECT_CHOICE_PLOT = "output/framing_effect_choice_plot.png"
+FRAMING_EFFECT_CHOICE_PLOT = "output/country_framing_choice.png"
 
 # LPA model-selection diagnostics (AIC/BIC/SABIC/ICL/AWE across G, raw vs
 # within-person-centered items)

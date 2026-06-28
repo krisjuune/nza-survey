@@ -80,20 +80,22 @@ choice_model <- suppressWarnings(
   )
 )
 
-ts_msg("Choice model done (", elapsed(t0), "s). Computing framing-effect contrasts...")
+ts_msg("Choice model done (", elapsed(t0), "s). Computing per-framing-arm emmeans...")
 
-# Each contrast is the net-zero-framing minus no-information shift in choice
-# probability for one attribute level, within one country.
+# Conditional probability for each framing arm (rather than their contrast),
+# so the choice plot can overlay both arms directly - same model, so both
+# arms are on a like-for-like footing.
 framing_effect <- lapply(seq_along(attributes), function(i) {
   attr <- attributes[[i]]
   message(
     "  [", i, "/", length(attributes),
-    "] contrast for ", attr, " (", elapsed(t0), "s elapsed)"
+    "] emmeans for ", attr, " (", elapsed(t0), "s elapsed)"
   )
-  emm <- emmeans(choice_model, as.formula(paste0("~ framing | ", attr, " * country")))
-  regrid(emm, transform = "response") |>
-    contrast(method = "revpairwise", by = c(attr, "country")) |>
-    confint() |>
+  emmeans(
+    choice_model,
+    as.formula(paste0("~ framing | ", attr, " * country")),
+    type = "response"
+  ) |>
     as.data.frame() |>
     mutate(attribute = attr)
 }) |>
@@ -104,10 +106,10 @@ framing_effect <- lapply(seq_along(attributes), function(i) {
     values_to = "code"
   ) |>
   filter(!is.na(code)) |>
-  select(country, attribute, code, estimate, SE, df, asymp.LCL, asymp.UCL)
+  select(country, attribute, code, framing, prob, SE, df, asymp.LCL, asymp.UCL)
 
 write_csv(framing_effect, choice_out)
-ts_msg("Framing-effect contrasts written (", elapsed(t0), "s total).")
+ts_msg("Framing-effect emmeans written (", elapsed(t0), "s total).")
 
 message("Framing-effect analysis completed:")
 message("- Choice results: ", choice_out)
