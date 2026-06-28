@@ -23,6 +23,8 @@ QUALTRICS = config["raw_data_file"]
 RAW = "raw-data/raw_data.csv"
 CONJOINT_LONG = "data/conjoint_long.csv"
 COVARIATES = "data/covariates.csv"
+RESPONDENT_GROUPS = "data/respondent_groups.csv"
+LPA_SUMMARY = "output/lpa_profile_summary.txt"
 
 # results data
 POLICY_CHOICE = "data/policy_choice_emm.csv"
@@ -46,6 +48,21 @@ DURABILITY_COST_RATING = "data/durability_cost_rating_emm.csv"
 DURABILITY_COST_CHOICE_PLOT = "output/durability_cost_choice_plot.png"
 DURABILITY_COST_RATING_PLOT = "output/durability_cost_rating_plot.png"
 
+# flyer-type (flying-frequency) subgroup results
+FLYER_TYPE_CHOICE = "data/flyer_type_choice_emm.csv"
+FLYER_TYPE_RATING = "data/flyer_type_rating_emm.csv"
+FLYER_TYPE_CHOICE_PLOT = "output/flyer_type_choice_plot.png"
+FLYER_TYPE_RATING_PLOT = "output/flyer_type_rating_plot.png"
+
+# net-zero framing effect by country (probability shift per attribute level)
+FRAMING_EFFECT_CHOICE = "data/framing_effect_choice.csv"
+FRAMING_EFFECT_CHOICE_PLOT = "output/framing_effect_choice_plot.png"
+
+# LPA model-selection diagnostics (AIC/BIC/SABIC/ICL/AWE across G, raw vs
+# within-person-centered items)
+LPA_FIT_INDICES = "data/lpa_fit_indices.csv"
+LPA_FIT_INDICES_PLOT = "output/lpa_fit_indices_plot.png"
+
 # output plots and text files
 CHOICE_PLOT = "output/general_choice_conjoint.png"
 RATING_PLOT = "output/general_rating_conjoint.png"
@@ -63,6 +80,8 @@ rule all:
         RAW,
         CONJOINT_LONG,
         COVARIATES,
+        RESPONDENT_GROUPS,
+        LPA_SUMMARY,
         POLICY_CHOICE,
         POLICY_RATING,
         POLICY_CHOICE_PLOT,
@@ -79,6 +98,14 @@ rule all:
         DURABILITY_COST_RATING,
         DURABILITY_COST_CHOICE_PLOT,
         DURABILITY_COST_RATING_PLOT,
+        FLYER_TYPE_CHOICE,
+        FLYER_TYPE_RATING,
+        FLYER_TYPE_CHOICE_PLOT,
+        FLYER_TYPE_RATING_PLOT,
+        FRAMING_EFFECT_CHOICE,
+        FRAMING_EFFECT_CHOICE_PLOT,
+        LPA_FIT_INDICES,
+        LPA_FIT_INDICES_PLOT,
         CHOICE_PLOT,
         RATING_PLOT,
         COUNTRY_CHOICE_PLOT,
@@ -96,7 +123,7 @@ rule valid_responses:
     output:
         RAW
     script:
-        "scripts/preprocessing/00_valid_responses.R"
+        "scripts/preprocessing/valid_responses.R"
 
 # -------------------
 # Rule 1: Reshape conjoint data
@@ -107,7 +134,7 @@ rule reshape_conjoint:
     output:
         CONJOINT_LONG
     script:
-        "scripts/preprocessing/01_reshape_conjoint.R"
+        "scripts/preprocessing/reshape_conjoint.R"
 
 # -------------------
 # Rule 2: Get covariate data
@@ -118,7 +145,31 @@ rule covariates:
     output:
         COVARIATES
     script:
-        "scripts/preprocessing/02_respondent_data.R"
+        "scripts/preprocessing/respondent_data.R"
+
+# -------------------
+# Rule 2b: Derive respondent groups (flyer type, concern score, LPA profile)
+# -------------------
+rule respondent_groups:
+    input:
+        COVARIATES
+    output:
+        groups      = RESPONDENT_GROUPS,
+        lpa_summary = LPA_SUMMARY
+    script:
+        "scripts/preprocessing/respondent_groups.R"
+
+# -------------------
+# Rule 2c: LPA model-selection diagnostics (informs the profile count used in
+# respondent_groups)
+# -------------------
+rule lpa_fit_indices:
+    input:
+        COVARIATES
+    output:
+        LPA_FIT_INDICES
+    script:
+        "scripts/analysis/lpa_fit_indices.R"
 
 # -------------------
 # Rule 3: Run conjoint analysis
@@ -130,7 +181,7 @@ rule conjoint_analysis:
         choice = CHOICE_OUTPUT,
         rating = RATING_OUTPUT
     script:
-        "scripts/analysis/03_conjoint_analysis.R"
+        "scripts/analysis/conjoint_analysis.R"
 
 # -------------------
 # Rule 6: Policy type analysis
@@ -142,7 +193,7 @@ rule policy_type_analysis:
         choice = POLICY_CHOICE,
         rating = POLICY_RATING
     script:
-        "scripts/analysis/06_policy_types.R"
+        "scripts/analysis/policy_types.R"
 
 # -------------------
 # Rule 4: Run net-zero framing analysis
@@ -156,7 +207,7 @@ rule nz_framing_analysis:
         nz_choice = NZ_CHOICE,
         nz_rating = NZ_RATING
     script:
-        "scripts/analysis/04_nz_framing.R"
+        "scripts/analysis/nz_framing.R"
 
 # -------------------
 # Rule 5: Country subgroup analysis
@@ -169,7 +220,7 @@ rule country_analysis:
         choice = COUNTRY_CHOICE,
         rating = COUNTRY_RATING
     script:
-        "scripts/analysis/05_country.R"
+        "scripts/analysis/country.R"
 
 # -------------------
 # Rule 7: Durability x cost interaction analysis (willingness-to-pay)
@@ -182,7 +233,32 @@ rule durability_cost_analysis:
         choice = DURABILITY_COST_CHOICE,
         rating = DURABILITY_COST_RATING
     script:
-        "scripts/analysis/07_durability_cost.R"
+        "scripts/analysis/durability_cost.R"
+
+# -------------------
+# Rule 8: Flyer-type (flying-frequency) subgroup analysis
+# -------------------
+rule flyer_type_analysis:
+    input:
+        conjoint = CONJOINT_LONG,
+        groups   = RESPONDENT_GROUPS
+    output:
+        choice = FLYER_TYPE_CHOICE,
+        rating = FLYER_TYPE_RATING
+    script:
+        "scripts/analysis/flyer_type.R"
+
+# -------------------
+# Rule 9: Net-zero framing effect by country
+# -------------------
+rule framing_effect_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = FRAMING_EFFECT_CHOICE
+    script:
+        "scripts/analysis/framing_effect.R"
 
 # -------------------
 # Rule 12: Plot policy type results
@@ -195,7 +271,7 @@ rule plot_policy_types:
         choice_plot = POLICY_CHOICE_PLOT,
         rating_plot = POLICY_RATING_PLOT
     script:
-        "visualise/12_policy_plot.R"
+        "visualise/policy_plot.R"
 
 # -------------------
 # Rule 10: Plot basic conjoint results
@@ -212,7 +288,7 @@ rule plot_conjoint_general:
         country_choice_plot = COUNTRY_CHOICE_PLOT,
         country_rating_plot = COUNTRY_RATING_PLOT
     script:
-        "visualise/10_conjoint_general.R"
+        "visualise/conjoint_general_plot.R"
 
 # -------------------
 # Rule 11: Plot framing results and NZ summary
@@ -228,7 +304,7 @@ rule plot_nz_framing:
         framing_rating_plot = FRAMING_RATING_PLOT,
         nz_summary = NZ_SUMMARY
     script:
-        "visualise/11_nz_framing.R"
+        "visualise/nz_framing_plot.R"
 
 # -------------------
 # Rule 13: Plot durability x cost interaction (willingness-to-pay)
@@ -241,4 +317,39 @@ rule plot_durability_cost:
         choice_plot = DURABILITY_COST_CHOICE_PLOT,
         rating_plot = DURABILITY_COST_RATING_PLOT
     script:
-        "visualise/13_durability_cost_plot.R"
+        "visualise/durability_cost_plot.R"
+
+# -------------------
+# Rule 14: Plot flyer-type subgroup results
+# -------------------
+rule plot_flyer_type:
+    input:
+        choice = FLYER_TYPE_CHOICE,
+        rating = FLYER_TYPE_RATING
+    output:
+        choice_plot = FLYER_TYPE_CHOICE_PLOT,
+        rating_plot = FLYER_TYPE_RATING_PLOT
+    script:
+        "visualise/flyer_type_plot.R"
+
+# -------------------
+# Rule 15: Plot net-zero framing effect by country
+# -------------------
+rule plot_framing_effect:
+    input:
+        choice = FRAMING_EFFECT_CHOICE
+    output:
+        choice_plot = FRAMING_EFFECT_CHOICE_PLOT
+    script:
+        "visualise/framing_effect_plot.R"
+
+# -------------------
+# Rule 16: Plot LPA model-selection diagnostics
+# -------------------
+rule plot_lpa_fit_indices:
+    input:
+        LPA_FIT_INDICES
+    output:
+        LPA_FIT_INDICES_PLOT
+    script:
+        "visualise/lpa_fit_indices_plot.R"
