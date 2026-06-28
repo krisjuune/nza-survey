@@ -26,11 +26,16 @@ policy_labels <- c(
   "VCM_status_quo" = "VCM Status Quo"
 )
 
+# Top-to-bottom display order, highest choice probability first; reversed for
+# the factor levels since coord_flip puts the first level at the bottom.
+policy_order <- c("SAF_ETS", "GBF", "CORSIA", "VCM_SBTi", "VCM_status_quo")
+policy_level_labels <- policy_labels[rev(policy_order)]
+
 choice_df <- read_csv(policy_choice_emm, show_col_types = FALSE) |>
   mutate(
     policy_label = factor(
       policy_labels[policy_type],
-      levels = rev(policy_labels)
+      levels = policy_level_labels
     )
   )
 
@@ -82,7 +87,7 @@ policy_attrs <- tibble(
   )
 ) |>
   mutate(
-    policy_label = factor(policy_labels[policy_type], levels = rev(policy_labels))
+    policy_label = factor(policy_labels[policy_type], levels = policy_level_labels)
   )
 
 col_x <- c(fuel = 1, offsetting = 2.6, durability = 4.9, actor = 6.1)
@@ -120,7 +125,7 @@ rating_df <- read_csv(policy_rating_emm, show_col_types = FALSE) |>
   mutate(
     policy_label = factor(
       policy_labels[policy_type],
-      levels = rev(policy_labels)
+      levels = policy_level_labels
     )
   )
 
