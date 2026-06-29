@@ -45,8 +45,14 @@ COUNTRY_RATING = "data/country_rating_emm.csv"
 # durability x cost (willingness-to-pay) interaction results
 DURABILITY_COST_CHOICE = "data/durability_cost_choice_emm.csv"
 DURABILITY_COST_RATING = "data/durability_cost_rating_emm.csv"
-DURABILITY_COST_CHOICE_PLOT = "output/durability_cost_choice_plot.png"
-DURABILITY_COST_RATING_PLOT = "output/supp_figs/durability_cost_rating_plot.png"
+DURABILITY_COST_CHOICE_PLOT = "output/interact_durability_wtp.png"
+DURABILITY_COST_RATING_PLOT = "output/supp_figs/interact_durability_wtp_rating.png"
+
+# fuel (SAFs vs fossil fuels) x cost (willingness-to-pay) interaction results
+FUEL_COST_CHOICE = "data/fuel_cost_choice_emm.csv"
+FUEL_COST_RATING = "data/fuel_cost_rating_emm.csv"
+FUEL_COST_CHOICE_PLOT = "output/interact_fuel_wtp.png"
+FUEL_COST_RATING_PLOT = "output/supp_figs/interact_fuel_wtp_rating.png"
 
 # flyer-type (flying-frequency) subgroup results
 FLYER_TYPE_CHOICE = "data/flyer_type_choice_emm.csv"
@@ -98,6 +104,10 @@ rule all:
         DURABILITY_COST_RATING,
         DURABILITY_COST_CHOICE_PLOT,
         DURABILITY_COST_RATING_PLOT,
+        FUEL_COST_CHOICE,
+        FUEL_COST_RATING,
+        FUEL_COST_CHOICE_PLOT,
+        FUEL_COST_RATING_PLOT,
         FLYER_TYPE_CHOICE,
         FLYER_TYPE_RATING,
         FLYER_TYPE_CHOICE_PLOT,
@@ -236,6 +246,20 @@ rule durability_cost_analysis:
         "scripts/analysis/durability_cost.R"
 
 # -------------------
+# Rule 7b: Fuel (SAFs vs fossil fuels) x cost interaction analysis
+# (willingness-to-pay)
+# -------------------
+rule fuel_cost_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = FUEL_COST_CHOICE,
+        rating = FUEL_COST_RATING
+    script:
+        "scripts/analysis/fuel_cost.R"
+
+# -------------------
 # Rule 8: Flyer-type (flying-frequency) subgroup analysis
 # -------------------
 rule flyer_type_analysis:
@@ -318,6 +342,19 @@ rule plot_durability_cost:
         rating_plot = DURABILITY_COST_RATING_PLOT
     script:
         "visualise/durability_cost_plot.R"
+
+# -------------------
+# Rule 13b: Plot fuel x cost interaction (willingness-to-pay)
+# -------------------
+rule plot_fuel_cost:
+    input:
+        choice = FUEL_COST_CHOICE,
+        rating = FUEL_COST_RATING
+    output:
+        choice_plot = FUEL_COST_CHOICE_PLOT,
+        rating_plot = FUEL_COST_RATING_PLOT
+    script:
+        "visualise/fuel_cost_plot.R"
 
 # -------------------
 # Rule 14: Plot flyer-type subgroup results
