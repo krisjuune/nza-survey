@@ -126,32 +126,54 @@ y_limits <- widen_limits_to_breaks(
   choice_breaks
 )
 
-# Both arms get a full error bar in their own (opaque) color, drawn before the
-# points so the points - also fully opaque - sit on top and cover whatever
-# error bar segment falls directly underneath them. No-framing is drawn last
-# within the point layer so it's the one left visible wherever the two arms
-# overlap.
+# Each arm's error bar + point are drawn as a pair (error bar immediately
+# followed by its own point, which - being fully opaque - covers whatever
+# error bar segment falls directly underneath it), and the no-framing pair is
+# added as the last two layers, so it sits on top of the net-zero pair
+# entirely (both its error bar and its point), not just the point.
 # The real points are colored per attribute x framing via scale_color_identity
 # (point_color is already a literal hex), so a generic black/grey dummy legend
 # is added separately to explain what "faded" means without implying framing
-# has its own attribute color.
-legend_dummy <- tibble(framing = factor(framing_levels, levels = framing_levels))
+# has its own attribute color. geom_pointrange's key glyph draws a line
+# through the point, matching the error-bar-through-dot look of the real data.
+point_size <- 2
+
+no_info_df  <- df |> filter(framing == "No information")
+net_zero_df <- df |> filter(framing == "Net-zero information")
+
+legend_dummy <- tibble(
+  framing   = factor(framing_levels, levels = framing_levels),
+  prob      = NA_real_,
+  asymp.LCL = NA_real_,
+  asymp.UCL = NA_real_
+)
 
 plot <- ggplot(df, aes(x = code, y = prob)) +
   geom_neutral_line(0.5) +
   geom_errorbar(
+    data = net_zero_df,
     aes(ymin = asymp.LCL, ymax = asymp.UCL, color = point_color),
     width = 0.2, na.rm = TRUE
   ) +
   geom_point(
-    data = df |> arrange(desc(framing)),
-    aes(color = point_color), size = 2, na.rm = TRUE
+    data = net_zero_df,
+    aes(color = point_color), size = point_size, na.rm = TRUE
+  ) +
+  geom_errorbar(
+    data = no_info_df,
+    aes(ymin = asymp.LCL, ymax = asymp.UCL, color = point_color),
+    width = 0.2, na.rm = TRUE
+  ) +
+  geom_point(
+    data = no_info_df,
+    aes(color = point_color), size = point_size, na.rm = TRUE
   ) +
   scale_color_identity(guide = "none") +
-  geom_point(
+  geom_pointrange(
     data = legend_dummy,
-    aes(x = NA, y = NA, shape = framing),
-    color = "black", inherit.aes = FALSE, na.rm = TRUE
+    aes(x = NA, y = prob, ymin = asymp.LCL, ymax = asymp.UCL, shape = framing),
+    color = "black", inherit.aes = FALSE, na.rm = TRUE,
+    size = point_size / 4, linewidth = 0.5, orientation = "y"
   ) +
   scale_shape_manual(
     values = c("No information" = 16, "Net-zero information" = 16),
