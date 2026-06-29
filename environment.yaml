@@ -18,4 +18,4 @@ dependencies:
   - r-mclust
   - pip
   - pip:
-      - snakemake=9
+      - snakemake==9.*
