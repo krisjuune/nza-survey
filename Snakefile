@@ -24,13 +24,13 @@ RAW = "raw-data/raw_data.csv"
 CONJOINT_LONG = "data/conjoint_long.csv"
 COVARIATES = "data/covariates.csv"
 RESPONDENT_GROUPS = "data/respondent_groups.csv"
-LPA_SUMMARY = "output/lpa_profile_summary.txt"
+LPA_SUMMARY = "output/supp_figs/lpa_profile_summary.txt"
 
 # results data
 POLICY_CHOICE = "data/policy_choice_emm.csv"
 POLICY_RATING = "data/policy_rating_emm.csv"
 POLICY_CHOICE_PLOT = "output/policy_choice_plot.png"
-POLICY_RATING_PLOT = "output/policy_rating_plot.png"
+POLICY_RATING_PLOT = "output/supp_figs/policy_rating_plot.png"
 CHOICE_OUTPUT = "data/overall_choice_emm.csv"
 RATING_OUTPUT = "data/overall_rating_emm.csv"
 FRAMING_CHOICE = "data/framing_choice_emm.csv"
@@ -46,13 +46,13 @@ COUNTRY_RATING = "data/country_rating_emm.csv"
 DURABILITY_COST_CHOICE = "data/durability_cost_choice_emm.csv"
 DURABILITY_COST_RATING = "data/durability_cost_rating_emm.csv"
 DURABILITY_COST_CHOICE_PLOT = "output/durability_cost_choice_plot.png"
-DURABILITY_COST_RATING_PLOT = "output/durability_cost_rating_plot.png"
+DURABILITY_COST_RATING_PLOT = "output/supp_figs/durability_cost_rating_plot.png"
 
 # flyer-type (flying-frequency) subgroup results
 FLYER_TYPE_CHOICE = "data/flyer_type_choice_emm.csv"
 FLYER_TYPE_RATING = "data/flyer_type_rating_emm.csv"
 FLYER_TYPE_CHOICE_PLOT = "output/flyer_type_choice_plot.png"
-FLYER_TYPE_RATING_PLOT = "output/flyer_type_rating_plot.png"
+FLYER_TYPE_RATING_PLOT = "output/supp_figs/flyer_type_rating_plot.png"
 
 # net-zero framing effect by country (probability shift per attribute level)
 FRAMING_EFFECT_CHOICE = "data/framing_effect_choice.csv"
@@ -61,16 +61,16 @@ FRAMING_EFFECT_CHOICE_PLOT = "output/country_framing_choice.png"
 # LPA model-selection diagnostics (AIC/BIC/SABIC/ICL/AWE across G, raw vs
 # within-person-centered items)
 LPA_FIT_INDICES = "data/lpa_fit_indices.csv"
-LPA_FIT_INDICES_PLOT = "output/lpa_fit_indices_plot.png"
+LPA_FIT_INDICES_PLOT = "output/supp_figs/lpa_fit_indices_plot.png"
 
 # output plots and text files
-CHOICE_PLOT = "output/general_choice_conjoint.png"
-RATING_PLOT = "output/general_rating_conjoint.png"
+CHOICE_PLOT = "output/supp_figs/general_choice_conjoint.png"
+RATING_PLOT = "output/supp_figs/general_rating_conjoint.png"
 COUNTRY_CHOICE_PLOT = "output/country_choice_conjoint.png"
-COUNTRY_RATING_PLOT = "output/country_rating_conjoint.png"
-FRAMING_CHOICE_PLOT = "output/framing_choice_plot.png"
-FRAMING_RATING_PLOT = "output/framing_rating_plot.png"
-NZ_SUMMARY = "output/nz_summary.txt"
+COUNTRY_RATING_PLOT = "output/supp_figs/country_rating_conjoint.png"
+FRAMING_CHOICE_PLOT = "output/supp_figs/framing_choice_plot.png"
+FRAMING_RATING_PLOT = "output/supp_figs/framing_rating_plot.png"
+NZ_SUMMARY = "output/supp_figs/nz_summary.txt"
 
 # -------------------
 # Final target
