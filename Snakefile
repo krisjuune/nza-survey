@@ -63,7 +63,12 @@ FLYER_TYPE_RATING = "data/flyer_type_rating_emm.csv"
 FRAMING_EFFECT_CHOICE = "data/framing_effect_choice.csv"
 
 # LPA on conjoint choice data (preference profiles)
-LPA_CONJOINT_IC      = "data/lpa_conjoint_ic.csv"
+LPA_CONJOINT_IC       = "data/lpa_conjoint_ic.csv"
+LPA_CONJOINT_PROFILES = "data/lpa_conjoint_profiles.csv"
+LPA_CONJOINT_MEANS    = "data/lpa_conjoint_means.csv"
+
+# Policy preference by LPA profile
+POLICY_BY_PROFILE_CHOICE = "data/policy_by_profile_choice.csv"
 
 # output plots
 CHOICE_PLOT              = "output/supp_figs/general_choice_conjoint.png"
@@ -84,7 +89,9 @@ CONCERN_RATING_PLOT      = "output/supp_figs/concern_rating_plot.png"
 FLYER_TYPE_CHOICE_PLOT   = "output/supp_figs/flyer_type_choice_plot.png"
 FLYER_TYPE_RATING_PLOT   = "output/supp_figs/flyer_type_rating_plot.png"
 FRAMING_EFFECT_CHOICE_PLOT = "output/supp_figs/country_framing_choice.png"
-LPA_CONJOINT_IC_PLOT = "output/supp_figs/lpa_conjoint_ic.png"
+LPA_CONJOINT_IC_PLOT      = "output/supp_figs/lpa_conjoint_ic.png"
+LPA_CONJOINT_PROFILE_PLOT = "output/supp_figs/lpa_conjoint_profiles.png"
+POLICY_BY_PROFILE_PLOT    = "output/supp_figs/policy_by_profile_plot.png"
 
 # -------------------
 # Rule modules
@@ -124,6 +131,9 @@ rule all:
         FLYER_TYPE_RATING,
         FRAMING_EFFECT_CHOICE,
         LPA_CONJOINT_IC,
+        LPA_CONJOINT_PROFILES,
+        LPA_CONJOINT_MEANS,
+        POLICY_BY_PROFILE_CHOICE,
         # plots
         CHOICE_PLOT,
         RATING_PLOT,
@@ -144,3 +154,5 @@ rule all:
         FLYER_TYPE_RATING_PLOT,
         FRAMING_EFFECT_CHOICE_PLOT,
         LPA_CONJOINT_IC_PLOT,
+        LPA_CONJOINT_PROFILE_PLOT,
+        POLICY_BY_PROFILE_PLOT,

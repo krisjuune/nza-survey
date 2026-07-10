@@ -14,10 +14,14 @@ if (exists("snakemake")) {
   plot_levels     <- unlist(cfg$plot_levels)
   attribute_headers <- unlist(cfg$attribute_headers)
 
+  # Reproducibility
+  random_seed <- cfg$random_seed
+
   # Plot aesthetics
   attribute_colors  <- unlist(cfg$attribute_colors)
   accent_color      <- cfg$accent_color
   concern_colors    <- unlist(cfg$concern_colors)
+  profile_colors    <- unlist(cfg$profile_colors)
   plot_size         <- lapply(cfg$plot_size, function(s) list(width = s$width, height = s$height))
   point_size        <- cfg$point_size
   errorbar_width    <- cfg$errorbar_width
@@ -86,6 +90,12 @@ if (exists("snakemake")) {
     "High" = "#0d3a6e"
   )
 
+  profile_colors <- c(
+    "Profile 1" = "#66c2a5",
+    "Profile 2" = "#fc8d62",
+    "Profile 3" = "#8da0cb"
+  )
+
   plot_size <- list(
     narrow = list(width =  8, height = 9),
     wide   = list(width = 11, height = 7),
@@ -94,4 +104,6 @@ if (exists("snakemake")) {
 
   point_size     <- 2.0
   errorbar_width <- 0.2
+
+  random_seed <- 2024
 }

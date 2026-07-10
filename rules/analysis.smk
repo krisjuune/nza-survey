@@ -90,9 +90,21 @@ rule lpa_conjoint:
     input:
         conjoint = CONJOINT_LONG
     output:
-        ic = LPA_CONJOINT_IC
+        ic       = LPA_CONJOINT_IC,
+        profiles = LPA_CONJOINT_PROFILES,
+        means    = LPA_CONJOINT_MEANS
     script:
         "../scripts/analysis/lpa_conjoint.R"
+
+
+rule policy_by_profile_analysis:
+    input:
+        conjoint = CONJOINT_LONG,
+        profiles = LPA_CONJOINT_PROFILES
+    output:
+        choice = POLICY_BY_PROFILE_CHOICE
+    script:
+        "../scripts/analysis/policy_by_profile.R"
 
 
 rule framing_effect_analysis:

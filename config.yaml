@@ -6,6 +6,9 @@ raw_data_file: "raw-data/GBF_130626.csv"
 # set to false to run on real survey responses.
 use_test_data: false
 
+# Random seed for reproducibility of stochastic algorithms (e.g. mclust EM).
+random_seed: 2024
+
 # -------------------
 # Respondent groupings
 # -------------------
@@ -106,6 +109,13 @@ attribute_colors:
 # Single accent for plots with no attribute grouping (e.g. policy types)
 # Kept distinct from attribute_colors to avoid false associations.
 accent_color: "#e15759"
+
+# ColorBrewer Set2 — used for LPA preference profile plots.
+# Not reused elsewhere to avoid conflation with attribute colors.
+profile_colors:
+  "Profile 1": "#66c2a5"
+  "Profile 2": "#fc8d62"
+  "Profile 3": "#8da0cb"
 
 # Sequential blues (light → dark) for climate concern subgroup plots
 concern_colors:

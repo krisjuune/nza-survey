@@ -91,6 +91,24 @@ rule plot_lpa_conjoint_ic:
         "../visualise/lpa_conjoint_ic_plot.R"
 
 
+rule plot_lpa_conjoint_profiles:
+    input:
+        means = LPA_CONJOINT_MEANS
+    output:
+        profile_plot = LPA_CONJOINT_PROFILE_PLOT
+    script:
+        "../visualise/lpa_conjoint_profile_plot.R"
+
+
+rule plot_policy_by_profile:
+    input:
+        choice = POLICY_BY_PROFILE_CHOICE
+    output:
+        plot = POLICY_BY_PROFILE_PLOT
+    script:
+        "../visualise/policy_by_profile_plot.R"
+
+
 rule plot_framing_effect:
     input:
         choice = FRAMING_EFFECT_CHOICE
