@@ -19,11 +19,11 @@ if (exists("snakemake")) {
 }
 
 policy_labels <- c(
-  "GBF"            = "GBF",
-  "CORSIA"         = "CORSIA",
-  "SAF_ETS"        = "SAF + ETS Mandate",
-  "VCM_SBTi"       = "VCM SBTi",
-  "VCM_status_quo" = "VCM Status Quo"
+  "GBF"            = "Supplier-mandated carbon removal\n(geologically balanced fuels)",
+  "CORSIA"         = "Mandatory airline offsetting\n(like CORSIA)",
+  "SAF_ETS"        = "Regulated clean fuel transition\n(like SAF + ETS mandate)",
+  "VCM_SBTi"       = "Voluntary passenger-funded carbon removal\n(voluntary carbon market aligned with the SBTi)",
+  "VCM_status_quo" = "Voluntary passenger-funded offsetting\n(voluntary carbon market as currently practised)"
 )
 
 # Top-to-bottom display order, highest choice probability first; reversed for
@@ -64,7 +64,7 @@ policy_attrs <- tibble(
   fuel = c(
     "Fossil fuels",
     "Fossil fuels /\nBiofuels",
-    "Biofuels",
+    "Biofuels /\nSynthetic fuels",
     "Fossil fuels",
     "Fossil fuels"
   ),

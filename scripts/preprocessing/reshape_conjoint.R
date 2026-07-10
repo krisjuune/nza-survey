@@ -162,7 +162,7 @@ final_df <- final_df |>
       durability_code == "temporary" &
       responsibility_code == "airline" ~ "CORSIA",
 
-    fuel_code == "plants" &
+    fuel_code %in% c("plants", "electric") &
       activity_code %in% c("factory_ccs", "direct_air") &
       durability_code == "permanent" &
       responsibility_code %in% c("fuel_suppliers", "government") ~ "SAF_ETS",

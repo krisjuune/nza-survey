@@ -6,11 +6,9 @@ library(mclust)
 if (exists("snakemake")) {
   covariates_file <- snakemake@input[[1]]
   output_file     <- snakemake@output[["groups"]]
-  summary_file    <- snakemake@output[["lpa_summary"]]
 } else {
   covariates_file <- here("data", "covariates.csv")
   output_file     <- here("data", "respondent_groups.csv")
-  summary_file    <- here("output", "lpa_profile_summary.txt")
 }
 
 covariates <- read_csv(covariates_file, show_col_types = FALSE)
@@ -86,35 +84,3 @@ respondent_groups <- covariates |>
 
 write_csv(respondent_groups, output_file)
 message("Respondent groups written to: ", output_file)
-
-# -------------------
-# LPA summary: model selection and per-class item means, for interpreting
-# what each profile represents.
-# -------------------
-
-profile_sizes <- covariates |>
-  dplyr::count(pathway_class, name = "n")
-
-profile_means <- covariates |>
-  select(pathway_class, all_of(lpa_items)) |>
-  group_by(pathway_class) |>
-  summarise(across(everything(), mean), .groups = "drop")
-
-lpa_text <- c(
-  "=== LPA MODEL SELECTION ===",
-  "",
-  paste0("Selected model: ", lpa_model$modelName,
-         " with ", lpa_model$G, " profiles (BIC-based selection over G = 1:6)"),
-  paste0("BIC: ", round(lpa_model$bic, 1)),
-  "",
-  "=== PROFILE SIZES ===",
-  "",
-  capture.output(print(profile_sizes)),
-  "",
-  "=== PROFILE MEANS (raw 1-5 item scale) ===",
-  "",
-  capture.output(print(profile_means))
-)
-
-writeLines(lpa_text, con = summary_file)
-message("LPA summary written to: ", summary_file)
