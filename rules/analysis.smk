@@ -1,0 +1,96 @@
+rule conjoint_analysis:
+    input:
+        CONJOINT_LONG
+    output:
+        choice = CHOICE_OUTPUT,
+        rating = RATING_OUTPUT
+    script:
+        "scripts/analysis/conjoint_analysis.R"
+
+
+rule policy_type_analysis:
+    input:
+        CONJOINT_LONG
+    output:
+        choice = POLICY_CHOICE,
+        rating = POLICY_RATING
+    script:
+        "scripts/analysis/policy_types.R"
+
+
+rule nz_framing_analysis:
+    input:
+        CONJOINT_LONG
+    output:
+        framing_choice = FRAMING_CHOICE,
+        framing_rating = FRAMING_RATING,
+        nz_choice      = NZ_CHOICE,
+        nz_rating      = NZ_RATING
+    script:
+        "scripts/analysis/nz_framing.R"
+
+
+rule country_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = COUNTRY_CHOICE,
+        rating = COUNTRY_RATING
+    script:
+        "scripts/analysis/country.R"
+
+
+rule durability_cost_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = DURABILITY_COST_CHOICE,
+        rating = DURABILITY_COST_RATING
+    script:
+        "scripts/analysis/durability_cost.R"
+
+
+rule fuel_cost_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = FUEL_COST_CHOICE,
+        rating = FUEL_COST_RATING
+    script:
+        "scripts/analysis/fuel_cost.R"
+
+
+rule concern_group_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        groups     = RESPONDENT_GROUPS,
+        covariates = COVARIATES
+    output:
+        choice = CONCERN_CHOICE,
+        rating = CONCERN_RATING
+    script:
+        "scripts/analysis/concern_group.R"
+
+
+rule flyer_type_analysis:
+    input:
+        conjoint = CONJOINT_LONG,
+        groups   = RESPONDENT_GROUPS
+    output:
+        choice = FLYER_TYPE_CHOICE,
+        rating = FLYER_TYPE_RATING
+    script:
+        "scripts/analysis/flyer_type.R"
+
+
+rule framing_effect_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = FRAMING_EFFECT_CHOICE
+    script:
+        "scripts/analysis/framing_effect.R"
