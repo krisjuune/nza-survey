@@ -24,7 +24,6 @@ RAW = "raw-data/raw_data.csv"
 CONJOINT_LONG = "data/conjoint_long.csv"
 COVARIATES = "data/covariates.csv"
 RESPONDENT_GROUPS = "data/respondent_groups.csv"
-LPA_SUMMARY = "output/supp_figs/lpa_profile_summary.txt"
 
 # results data
 POLICY_CHOICE = "data/policy_choice_emm.csv"
@@ -54,20 +53,21 @@ FUEL_COST_RATING = "data/fuel_cost_rating_emm.csv"
 FUEL_COST_CHOICE_PLOT = "output/interact_fuel_wtp.png"
 FUEL_COST_RATING_PLOT = "output/supp_figs/interact_fuel_wtp_rating.png"
 
+# climate concern subgroup results
+CONCERN_CHOICE = "data/concern_choice_emm.csv"
+CONCERN_RATING = "data/concern_rating_emm.csv"
+CONCERN_CHOICE_PLOT = "output/supp_figs/concern_choice_plot.png"
+CONCERN_RATING_PLOT = "output/supp_figs/concern_rating_plot.png"
+
 # flyer-type (flying-frequency) subgroup results
 FLYER_TYPE_CHOICE = "data/flyer_type_choice_emm.csv"
 FLYER_TYPE_RATING = "data/flyer_type_rating_emm.csv"
-FLYER_TYPE_CHOICE_PLOT = "output/flyer_type_choice_plot.png"
+FLYER_TYPE_CHOICE_PLOT = "output/supp_figs/flyer_type_choice_plot.png"
 FLYER_TYPE_RATING_PLOT = "output/supp_figs/flyer_type_rating_plot.png"
 
 # net-zero framing effect by country (probability shift per attribute level)
 FRAMING_EFFECT_CHOICE = "data/framing_effect_choice.csv"
-FRAMING_EFFECT_CHOICE_PLOT = "output/country_framing_choice.png"
-
-# LPA model-selection diagnostics (AIC/BIC/SABIC/ICL/AWE across G, raw vs
-# within-person-centered items)
-LPA_FIT_INDICES = "data/lpa_fit_indices.csv"
-LPA_FIT_INDICES_PLOT = "output/supp_figs/lpa_fit_indices_plot.png"
+FRAMING_EFFECT_CHOICE_PLOT = "output/supp_figs/country_framing_choice.png"
 
 # output plots and text files
 CHOICE_PLOT = "output/supp_figs/general_choice_conjoint.png"
@@ -87,7 +87,6 @@ rule all:
         CONJOINT_LONG,
         COVARIATES,
         RESPONDENT_GROUPS,
-        LPA_SUMMARY,
         POLICY_CHOICE,
         POLICY_RATING,
         POLICY_CHOICE_PLOT,
@@ -108,14 +107,16 @@ rule all:
         FUEL_COST_RATING,
         FUEL_COST_CHOICE_PLOT,
         FUEL_COST_RATING_PLOT,
+        CONCERN_CHOICE,
+        CONCERN_RATING,
+        CONCERN_CHOICE_PLOT,
+        CONCERN_RATING_PLOT,
         FLYER_TYPE_CHOICE,
         FLYER_TYPE_RATING,
         FLYER_TYPE_CHOICE_PLOT,
         FLYER_TYPE_RATING_PLOT,
         FRAMING_EFFECT_CHOICE,
         FRAMING_EFFECT_CHOICE_PLOT,
-        LPA_FIT_INDICES,
-        LPA_FIT_INDICES_PLOT,
         CHOICE_PLOT,
         RATING_PLOT,
         COUNTRY_CHOICE_PLOT,
@@ -165,21 +166,8 @@ rule respondent_groups:
         COVARIATES
     output:
         groups      = RESPONDENT_GROUPS,
-        lpa_summary = LPA_SUMMARY
     script:
         "scripts/preprocessing/respondent_groups.R"
-
-# -------------------
-# Rule 2c: LPA model-selection diagnostics (informs the profile count used in
-# respondent_groups)
-# -------------------
-rule lpa_fit_indices:
-    input:
-        COVARIATES
-    output:
-        LPA_FIT_INDICES
-    script:
-        "scripts/analysis/lpa_fit_indices.R"
 
 # -------------------
 # Rule 3: Run conjoint analysis
@@ -260,7 +248,21 @@ rule fuel_cost_analysis:
         "scripts/analysis/fuel_cost.R"
 
 # -------------------
-# Rule 8: Flyer-type (flying-frequency) subgroup analysis
+# Rule 8a: Climate concern subgroup analysis
+# -------------------
+rule concern_group_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        groups     = RESPONDENT_GROUPS,
+        covariates = COVARIATES
+    output:
+        choice = CONCERN_CHOICE,
+        rating = CONCERN_RATING
+    script:
+        "scripts/analysis/concern_group.R"
+
+# -------------------
+# Rule 8b: Flyer-type (flying-frequency) subgroup analysis
 # -------------------
 rule flyer_type_analysis:
     input:
@@ -357,7 +359,20 @@ rule plot_fuel_cost:
         "visualise/fuel_cost_plot.R"
 
 # -------------------
-# Rule 14: Plot flyer-type subgroup results
+# Rule 14a: Plot climate concern subgroup results
+# -------------------
+rule plot_concern_group:
+    input:
+        choice = CONCERN_CHOICE,
+        rating = CONCERN_RATING
+    output:
+        choice_plot = CONCERN_CHOICE_PLOT,
+        rating_plot = CONCERN_RATING_PLOT
+    script:
+        "visualise/concern_group_plot.R"
+
+# -------------------
+# Rule 14b: Plot flyer-type subgroup results
 # -------------------
 rule plot_flyer_type:
     input:
@@ -379,14 +394,3 @@ rule plot_framing_effect:
         choice_plot = FRAMING_EFFECT_CHOICE_PLOT
     script:
         "visualise/framing_effect_plot.R"
-
-# -------------------
-# Rule 16: Plot LPA model-selection diagnostics
-# -------------------
-rule plot_lpa_fit_indices:
-    input:
-        LPA_FIT_INDICES
-    output:
-        LPA_FIT_INDICES_PLOT
-    script:
-        "visualise/lpa_fit_indices_plot.R"
