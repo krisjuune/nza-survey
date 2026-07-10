@@ -5,7 +5,7 @@ rule conjoint_analysis:
         choice = CHOICE_OUTPUT,
         rating = RATING_OUTPUT
     script:
-        "scripts/analysis/conjoint_analysis.R"
+        "../scripts/analysis/conjoint_analysis.R"
 
 
 rule policy_type_analysis:
@@ -15,7 +15,7 @@ rule policy_type_analysis:
         choice = POLICY_CHOICE,
         rating = POLICY_RATING
     script:
-        "scripts/analysis/policy_types.R"
+        "../scripts/analysis/policy_types.R"
 
 
 rule nz_framing_analysis:
@@ -27,7 +27,7 @@ rule nz_framing_analysis:
         nz_choice      = NZ_CHOICE,
         nz_rating      = NZ_RATING
     script:
-        "scripts/analysis/nz_framing.R"
+        "../scripts/analysis/nz_framing.R"
 
 
 rule country_analysis:
@@ -38,7 +38,7 @@ rule country_analysis:
         choice = COUNTRY_CHOICE,
         rating = COUNTRY_RATING
     script:
-        "scripts/analysis/country.R"
+        "../scripts/analysis/country.R"
 
 
 rule durability_cost_analysis:
@@ -49,7 +49,7 @@ rule durability_cost_analysis:
         choice = DURABILITY_COST_CHOICE,
         rating = DURABILITY_COST_RATING
     script:
-        "scripts/analysis/durability_cost.R"
+        "../scripts/analysis/durability_cost.R"
 
 
 rule fuel_cost_analysis:
@@ -60,7 +60,7 @@ rule fuel_cost_analysis:
         choice = FUEL_COST_CHOICE,
         rating = FUEL_COST_RATING
     script:
-        "scripts/analysis/fuel_cost.R"
+        "../scripts/analysis/fuel_cost.R"
 
 
 rule concern_group_analysis:
@@ -72,7 +72,7 @@ rule concern_group_analysis:
         choice = CONCERN_CHOICE,
         rating = CONCERN_RATING
     script:
-        "scripts/analysis/concern_group.R"
+        "../scripts/analysis/concern_group.R"
 
 
 rule flyer_type_analysis:
@@ -83,7 +83,16 @@ rule flyer_type_analysis:
         choice = FLYER_TYPE_CHOICE,
         rating = FLYER_TYPE_RATING
     script:
-        "scripts/analysis/flyer_type.R"
+        "../scripts/analysis/flyer_type.R"
+
+
+rule lpa_conjoint:
+    input:
+        conjoint = CONJOINT_LONG
+    output:
+        ic = LPA_CONJOINT_IC
+    script:
+        "../scripts/analysis/lpa_conjoint.R"
 
 
 rule framing_effect_analysis:
@@ -93,4 +102,4 @@ rule framing_effect_analysis:
     output:
         choice = FRAMING_EFFECT_CHOICE
     script:
-        "scripts/analysis/framing_effect.R"
+        "../scripts/analysis/framing_effect.R"

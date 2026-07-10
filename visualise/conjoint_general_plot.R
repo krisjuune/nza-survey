@@ -70,25 +70,9 @@ plot_emm <- function(df, y_label = NULL, midline = NULL, symmetric = FALSE,
       )
     )
 
-  plot_levels <- c(
-    "Fuel",
-    "Fossil fuels", "Biofuels", "Synthetic fuels",
-    "Offsetting activity",
-    "Traditional offsets", "Direct air capture",
-    "Point source capture", "Nature-based offsets",
-    "Durability of offsets",
-    "Temporary", "Permanent",
-    "Responsible actors",
-    "Fuel suppliers", "Airlines", "Government", "Passengers",
-    "Increase in ticket cost",
-    "10%", "30%", "50%"
-  )
-
   empty_rows <- tibble(
-    attribute = c("Fuel", "Offsetting activity", "Durability of offsets",
-                  "Responsible actors", "Increase in ticket cost"),
-    code = c("Fuel", "Offsetting activity", "Durability of offsets",
-             "Responsible actors", "Increase in ticket cost"),
+    attribute = attribute_headers,
+    code      = attribute_headers,
     prob = NA_real_,
     SE = NA_real_,
     df = NA_real_,
@@ -174,8 +158,6 @@ ggsave(rating_out, rating_plot, width = 8, height = 9)
 # Country subgroup plots
 # -------------------
 
-country_levels <- c("Australia", "Brazil", "Germany", "Kenya", "Vietnam", "UAE")
-
 country_choice_df <- read_csv(country_choice_file, show_col_types = FALSE) |>
   mutate(country = factor(country, levels = country_levels))
 
@@ -221,25 +203,9 @@ plot_emm_country <- function(df, y_label = NULL, midline = NULL, symmetric = FAL
       )
     )
 
-  plot_levels <- c(
-    "Fuel",
-    "Fossil fuels", "Biofuels", "Synthetic fuels",
-    "Offsetting activity",
-    "Traditional offsets", "Direct air capture",
-    "Point source capture", "Nature-based offsets",
-    "Durability of offsets",
-    "Temporary", "Permanent",
-    "Responsible actors",
-    "Fuel suppliers", "Airlines", "Government", "Passengers",
-    "Increase in ticket cost",
-    "10%", "30%", "50%"
-  )
-
   empty_rows <- expand_grid(
-    attribute = c("Fuel", "Offsetting activity", "Durability of offsets",
-                  "Responsible actors", "Increase in ticket cost"),
-    code      = c("Fuel", "Offsetting activity", "Durability of offsets",
-                  "Responsible actors", "Increase in ticket cost"),
+    attribute = attribute_headers,
+    code      = attribute_headers,
     country   = levels(df$country)
   ) |>
     mutate(

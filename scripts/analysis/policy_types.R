@@ -6,6 +6,8 @@ library(emmeans)
 library(readr)
 library(here)
 
+source(here("scripts", "shared", "constants.R"))
+
 if (exists("snakemake")) {
   input_file  <- snakemake@input[[1]]
   choice_out  <- snakemake@output[["choice"]]
@@ -15,8 +17,6 @@ if (exists("snakemake")) {
   choice_out  <- here("data", "policy_choice_emm.csv")
   rating_out  <- here("data", "policy_rating_emm.csv")
 }
-
-policy_levels <- c("GBF", "CORSIA", "SAF_ETS", "VCM_SBTi", "VCM_status_quo")
 
 df <- read_csv(
   input_file,

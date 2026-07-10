@@ -19,16 +19,6 @@ if (exists("snakemake")) {
   rating_out  <- here("output", "supp_figs", "concern_rating_plot.png")
 }
 
-concern_levels <- c("Low", "Mid", "High")
-country_levels <- c("Australia", "Brazil", "Germany", "Kenya", "Vietnam", "UAE")
-
-# Sequential shades: light (Low concern) → dark (High concern)
-concern_colors <- c(
-  "Low"  = "#a8c8e8",
-  "Mid"  = "#3a82c4",
-  "High" = "#0d3a6e"
-)
-
 read_and_factor <- function(path, rename_cols = NULL) {
   df <- read_csv(path, show_col_types = FALSE)
   if (!is.null(rename_cols)) df <- rename(df, !!!rename_cols)
@@ -77,25 +67,6 @@ recode_attributes <- function(attribute) {
     TRUE ~ attribute
   )
 }
-
-plot_levels <- c(
-  "Fuel",
-  "Fossil fuels", "Biofuels", "Synthetic fuels",
-  "Offsetting activity",
-  "Traditional offsets", "Direct air capture",
-  "Point source capture", "Nature-based offsets",
-  "Durability of offsets",
-  "Temporary", "Permanent",
-  "Responsible actors",
-  "Fuel suppliers", "Airlines", "Government", "Passengers",
-  "Increase in ticket cost",
-  "10%", "30%", "50%"
-)
-
-attribute_headers <- c(
-  "Fuel", "Offsetting activity", "Durability of offsets",
-  "Responsible actors", "Increase in ticket cost"
-)
 
 plot_emm_concern <- function(df, y_label = NULL, midline = NULL,
                               symmetric = FALSE, breaks = waiver()) {
@@ -183,7 +154,7 @@ rating_plot <- plot_emm_concern(
   symmetric = TRUE
 )
 
-ggsave(choice_out, choice_plot, width = 20, height = 9)
-ggsave(rating_out, rating_plot, width = 20, height = 9)
+ggsave(choice_out, choice_plot, width = 11, height = 7)
+ggsave(rating_out, rating_plot, width = 11, height = 7)
 
 message("Concern-group plots saved: ", choice_out, " & ", rating_out)

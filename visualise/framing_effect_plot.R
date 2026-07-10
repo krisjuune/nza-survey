@@ -15,25 +15,7 @@ if (exists("snakemake")) {
   plot_out    <- here("output", "country_framing_choice.png")
 }
 
-country_levels <- c(
-  "Australia", "Brazil", "Germany", "Kenya", "UAE", "Vietnam"
-)
-
 framing_levels <- c("No information", "Net-zero information")
-
-plot_levels <- c(
-  "Fuel",
-  "Fossil fuels", "Biofuels", "Synthetic fuels",
-  "Offsetting activity",
-  "Traditional offsets", "Direct air capture",
-  "Point source capture", "Nature-based offsets",
-  "Durability of offsets",
-  "Temporary", "Permanent",
-  "Responsible actors",
-  "Fuel suppliers", "Airlines", "Government", "Passengers",
-  "Increase in ticket cost",
-  "10%", "30%", "50%"
-)
 
 df <- read_csv(choice_file, show_col_types = FALSE) |>
   mutate(
@@ -71,10 +53,8 @@ df <- read_csv(choice_file, show_col_types = FALSE) |>
   )
 
 empty_rows <- expand_grid(
-  attribute  = c("Fuel", "Offsetting activity", "Durability of offsets",
-                 "Responsible actors", "Increase in ticket cost"),
-  code       = c("Fuel", "Offsetting activity", "Durability of offsets",
-                 "Responsible actors", "Increase in ticket cost"),
+  attribute  = attribute_headers,
+  code       = attribute_headers,
   country    = country_levels,
   framing    = framing_levels
 ) |>

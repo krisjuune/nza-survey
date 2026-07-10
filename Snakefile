@@ -62,6 +62,9 @@ FLYER_TYPE_RATING = "data/flyer_type_rating_emm.csv"
 # net-zero framing effect by country
 FRAMING_EFFECT_CHOICE = "data/framing_effect_choice.csv"
 
+# LPA on conjoint choice data (preference profiles)
+LPA_CONJOINT_IC      = "data/lpa_conjoint_ic.csv"
+
 # output plots
 CHOICE_PLOT              = "output/supp_figs/general_choice_conjoint.png"
 RATING_PLOT              = "output/supp_figs/general_rating_conjoint.png"
@@ -81,6 +84,7 @@ CONCERN_RATING_PLOT      = "output/supp_figs/concern_rating_plot.png"
 FLYER_TYPE_CHOICE_PLOT   = "output/supp_figs/flyer_type_choice_plot.png"
 FLYER_TYPE_RATING_PLOT   = "output/supp_figs/flyer_type_rating_plot.png"
 FRAMING_EFFECT_CHOICE_PLOT = "output/supp_figs/country_framing_choice.png"
+LPA_CONJOINT_IC_PLOT = "output/supp_figs/lpa_conjoint_ic.png"
 
 # -------------------
 # Rule modules
@@ -119,6 +123,7 @@ rule all:
         FLYER_TYPE_CHOICE,
         FLYER_TYPE_RATING,
         FRAMING_EFFECT_CHOICE,
+        LPA_CONJOINT_IC,
         # plots
         CHOICE_PLOT,
         RATING_PLOT,
@@ -138,3 +143,4 @@ rule all:
         FLYER_TYPE_CHOICE_PLOT,
         FLYER_TYPE_RATING_PLOT,
         FRAMING_EFFECT_CHOICE_PLOT,
+        LPA_CONJOINT_IC_PLOT,

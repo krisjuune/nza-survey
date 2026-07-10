@@ -5,3 +5,123 @@ raw_data_file: "raw-data/GBF_130626.csv"
 # with JS attribute columns filled in by sampling from preview responses.
 # set to false to run on real survey responses.
 use_test_data: false
+
+# -------------------
+# Respondent groupings
+# -------------------
+country_recode:
+  "1": "Australia"
+  "2": "Brazil"
+  "3": "Germany"
+  "4": "Kenya"
+  "5": "Vietnam"
+  "6": "UAE"
+
+country_levels:
+  - "Australia"
+  - "Brazil"
+  - "Germany"
+  - "Kenya"
+  - "Vietnam"
+  - "UAE"
+
+flyer_recode:
+  "Non- Flyer":       "Never-flyer"
+  "Infrequent Flyer": "Infrequent/lapsed flyer"
+  "Occasional Flyer": "Occasional flyer"
+  "Frequent Flyer":   "Frequent flyer"
+
+flyer_levels:
+  - "Never-flyer"
+  - "Infrequent/lapsed flyer"
+  - "Occasional flyer"
+  - "Frequent flyer"
+
+concern_levels:
+  - "Low"
+  - "Mid"
+  - "High"
+
+policy_levels:
+  - "GBF"
+  - "CORSIA"
+  - "SAF_ETS"
+  - "VCM_SBTi"
+  - "VCM_status_quo"
+
+# -------------------
+# Conjoint attributes
+# -------------------
+attributes:
+  - "fuel_code"
+  - "activity_code"
+  - "durability_code"
+  - "responsibility_code"
+  - "cost_code"
+
+# Display order for plot y-axis (attribute headers interspersed with their codes)
+plot_levels:
+  - "Fuel"
+  - "Fossil fuels"
+  - "Biofuels"
+  - "Synthetic fuels"
+  - "Offsetting activity"
+  - "Traditional offsets"
+  - "Direct air capture"
+  - "Point source capture"
+  - "Nature-based offsets"
+  - "Durability of offsets"
+  - "Temporary"
+  - "Permanent"
+  - "Responsible actors"
+  - "Fuel suppliers"
+  - "Airlines"
+  - "Government"
+  - "Passengers"
+  - "Increase in ticket cost"
+  - "10%"
+  - "30%"
+  - "50%"
+
+attribute_headers:
+  - "Fuel"
+  - "Offsetting activity"
+  - "Durability of offsets"
+  - "Responsible actors"
+  - "Increase in ticket cost"
+
+# -------------------
+# Plot aesthetics
+# -------------------
+
+# One color per conjoint attribute — fixed across all figures so each attribute
+# is always the same hue. Do not reuse these for other encodings.
+attribute_colors:
+  Fuel:                    "#4e79a7"
+  Offsetting activity:     "#f28e2b"
+  Durability of offsets:   "#59a14f"
+  Responsible actors:      "#b07aa1"
+  Increase in ticket cost: "#76b7b2"
+
+# Single accent for plots with no attribute grouping (e.g. policy types)
+# Kept distinct from attribute_colors to avoid false associations.
+accent_color: "#e15759"
+
+# Sequential blues (light → dark) for climate concern subgroup plots
+concern_colors:
+  Low:  "#a8c8e8"
+  Mid:  "#3a82c4"
+  High: "#0d3a6e"
+
+# Plot dimensions (inches, for ggsave)
+# narrow: single-panel plots (general conjoint, NZ framing)
+# wide:   6-country facet plots (country conjoint, flyer type etc, framing effect)
+# strip:  low-height plots with a few rows (interaction, policy)
+plot_size:
+  narrow:    {width:  8, height: 9}
+  wide:  {width: 11, height: 7}
+  strip: {width: 11, height: 4}
+
+# Shared geom parameters
+point_size:    2.0
+errorbar_width: 0.2

@@ -17,7 +17,6 @@ if (exists("snakemake")) {
   rating_out      <- here("output", "durability_cost_rating_plot.png")
 }
 
-country_levels <- c("Australia", "Brazil", "Germany", "Kenya", "UAE", "Vietnam")
 
 recode_durability_cost <- function(df) {
   df |>

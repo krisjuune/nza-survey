@@ -17,7 +17,6 @@ if (exists("snakemake")) {
   rating_out      <- here("output", "supp_figs", "interact_fuel_wtp_rating.png")
 }
 
-country_levels <- c("Australia", "Brazil", "Germany", "Kenya", "UAE", "Vietnam")
 
 recode_fuel_cost <- function(df) {
   df |>

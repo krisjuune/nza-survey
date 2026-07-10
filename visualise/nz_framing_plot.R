@@ -134,25 +134,9 @@ plot_emm <- function(df, y_label = NULL, midline = NULL, symmetric = FALSE,
       )
     )
 
-  plot_levels <- c(
-    "Fuel",
-    "Fossil fuels", "Biofuels", "Synthetic fuels",
-    "Offsetting activity",
-    "Traditional offsets", "Direct air capture",
-    "Point source capture", "Nature-based offsets",
-    "Durability of offsets",
-    "Temporary", "Permanent",
-    "Responsible actors",
-    "Fuel suppliers", "Airlines", "Government", "Passengers",
-    "Increase in ticket cost",
-    "10%", "30%", "50%"
-  )
-
   empty_rows <- expand_grid(
-    attribute = c("Fuel", "Offsetting activity", "Durability of offsets",
-                  "Responsible actors", "Increase in ticket cost"),
-    code = c("Fuel", "Offsetting activity", "Durability of offsets",
-             "Responsible actors", "Increase in ticket cost"),
+    attribute = attribute_headers,
+    code      = attribute_headers,
     framing = levels(df$framing)
   ) |>
     mutate(

@@ -3,6 +3,8 @@ library(readr)
 library(here)
 library(mclust)
 
+source(here("scripts", "shared", "constants.R"))
+
 if (exists("snakemake")) {
   covariates_file <- snakemake@input[[1]]
   output_file     <- snakemake@output[["groups"]]
@@ -18,18 +20,9 @@ covariates <- read_csv(covariates_file, show_col_types = FALSE)
 # variable (not derived from num_flying - see num_flying_6_TEXT for why).
 # -------------------
 
-flyer_levels <- c(
-  "Never-flyer", "Infrequent/lapsed flyer", "Occasional flyer", "Frequent flyer"
-)
-
 covariates <- covariates |>
   mutate(
-    flyer_type = recode(flyer_type,
-      "Non- Flyer"       = "Never-flyer",
-      "Infrequent Flyer" = "Infrequent/lapsed flyer",
-      "Occasional Flyer" = "Occasional flyer",
-      "Frequent Flyer"   = "Frequent flyer"
-    ),
+    flyer_type = recode(flyer_type, !!!flyer_recode),
     flyer_type = factor(flyer_type, levels = flyer_levels)
   )
 

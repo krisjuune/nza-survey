@@ -6,6 +6,8 @@ library(emmeans)
 library(readr)
 library(here)
 
+source(here("scripts", "shared", "constants.R"))
+
 if (exists("snakemake")) {
   conjoint_file <- snakemake@input[["conjoint"]]
   groups_file   <- snakemake@input[["groups"]]
@@ -22,10 +24,6 @@ conjoint <- read_csv(
   conjoint_file,
   show_col_types = FALSE,
   col_types = cols(cost_code = col_character())
-)
-
-flyer_levels <- c(
-  "Never-flyer", "Infrequent/lapsed flyer", "Occasional flyer", "Frequent flyer"
 )
 
 # 1 respondent has a missing flyer_type and is dropped here only (kept in

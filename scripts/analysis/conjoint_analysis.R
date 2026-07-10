@@ -6,6 +6,8 @@ library(emmeans)
 library(readr)
 library(here)
 
+source(here("scripts", "shared", "constants.R"))
+
 if (exists("snakemake")) {
   input_file   <- snakemake@input[[1]]
   choice_out   <- snakemake@output[["choice"]]
@@ -22,14 +24,6 @@ df <- read_csv(
   col_types = cols(
     cost_code = col_character()
   )
-)
-
-attributes <- c(
-  "fuel_code",
-  "activity_code",
-  "durability_code",
-  "responsibility_code",
-  "cost_code"
 )
 
 elapsed <- function(t0) {

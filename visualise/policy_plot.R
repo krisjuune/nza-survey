@@ -44,7 +44,7 @@ choice_plot <- ggplot(choice_df, aes(x = policy_label, y = prob)) +
   geom_point(size = 3, color = accent_color) +
   geom_errorbar(
     aes(ymin = asymp.LCL, ymax = asymp.UCL),
-    width = 0.2, color = accent_color
+    width = 0.1, color = accent_color
   ) +
   scale_y_continuous(breaks = choice_breaks) +
   coord_flip() +

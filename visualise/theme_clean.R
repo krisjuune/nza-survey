@@ -1,23 +1,6 @@
 library(ggplot2)
 
-# Single accent color for plots with no attribute grouping to encode (e.g.
-# policy types, where each row is already its own top-level category).
-# Deliberately not one of the attribute_colors below, so it never implies a
-# false association with a specific attribute.
-accent_color <- "#e15759"
-
-# One color per conjoint attribute, fixed so they stay consistent across
-# figures. Each color is "claimed" by exactly one attribute and should not be
-# reused elsewhere (e.g. for level-level distinctions within an attribute -
-# use shape/linetype for that instead, see durability in
-# durability_cost_plot.R).
-attribute_colors <- c(
-  "Fuel"                    = "#4e79a7",
-  "Offsetting activity"     = "#f28e2b",
-  "Durability of offsets"   = "#59a14f",
-  "Responsible actors"      = "#b07aa1",
-  "Increase in ticket cost" = "#76b7b2"
-)
+source(here::here("scripts", "shared", "constants.R"))
 
 scale_color_attribute <- function(...) {
   scale_color_manual(values = attribute_colors, ...)

@@ -5,6 +5,8 @@ library(emmeans)
 library(readr)
 library(here)
 
+source(here("scripts", "shared", "constants.R"))
+
 if (exists("snakemake")) {
   conjoint_file   <- snakemake@input[["conjoint"]]
   covariates_file <- snakemake@input[["covariates"]]
@@ -26,21 +28,10 @@ conjoint <- read_csv(
 covariates <- read_csv(covariates_file, show_col_types = FALSE) |>
   select(id, country)
 
-country_levels <- c(
-  "Australia", "Brazil", "Germany", "Kenya", "UAE", "Vietnam"
-)
-
 df <- conjoint |>
   left_join(covariates, by = "id") |>
   mutate(
-    country = recode(as.character(country),
-      "1" = "Australia",
-      "2" = "Brazil",
-      "3" = "Germany",
-      "4" = "Kenya",
-      "5" = "Vietnam",
-      "6" = "UAE"
-    ),
+    country = recode(as.character(country), !!!country_recode),
     country = factor(country, levels = country_levels),
     cost_code = factor(cost_code, levels = c("10", "30", "50"))
   )

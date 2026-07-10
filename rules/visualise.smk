@@ -10,7 +10,7 @@ rule plot_conjoint_general:
         country_choice_plot = COUNTRY_CHOICE_PLOT,
         country_rating_plot = COUNTRY_RATING_PLOT
     script:
-        "visualise/conjoint_general_plot.R"
+        "../visualise/conjoint_general_plot.R"
 
 
 rule plot_nz_framing:
@@ -24,7 +24,7 @@ rule plot_nz_framing:
         framing_rating_plot = FRAMING_RATING_PLOT,
         nz_summary          = NZ_SUMMARY
     script:
-        "visualise/nz_framing_plot.R"
+        "../visualise/nz_framing_plot.R"
 
 
 rule plot_policy_types:
@@ -35,7 +35,7 @@ rule plot_policy_types:
         choice_plot = POLICY_CHOICE_PLOT,
         rating_plot = POLICY_RATING_PLOT
     script:
-        "visualise/policy_plot.R"
+        "../visualise/policy_plot.R"
 
 
 rule plot_durability_cost:
@@ -46,7 +46,7 @@ rule plot_durability_cost:
         choice_plot = DURABILITY_COST_CHOICE_PLOT,
         rating_plot = DURABILITY_COST_RATING_PLOT
     script:
-        "visualise/durability_cost_plot.R"
+        "../visualise/durability_cost_plot.R"
 
 
 rule plot_fuel_cost:
@@ -57,7 +57,7 @@ rule plot_fuel_cost:
         choice_plot = FUEL_COST_CHOICE_PLOT,
         rating_plot = FUEL_COST_RATING_PLOT
     script:
-        "visualise/fuel_cost_plot.R"
+        "../visualise/fuel_cost_plot.R"
 
 
 rule plot_concern_group:
@@ -68,7 +68,7 @@ rule plot_concern_group:
         choice_plot = CONCERN_CHOICE_PLOT,
         rating_plot = CONCERN_RATING_PLOT
     script:
-        "visualise/concern_group_plot.R"
+        "../visualise/concern_group_plot.R"
 
 
 rule plot_flyer_type:
@@ -79,7 +79,16 @@ rule plot_flyer_type:
         choice_plot = FLYER_TYPE_CHOICE_PLOT,
         rating_plot = FLYER_TYPE_RATING_PLOT
     script:
-        "visualise/flyer_type_plot.R"
+        "../visualise/flyer_type_plot.R"
+
+
+rule plot_lpa_conjoint_ic:
+    input:
+        ic = LPA_CONJOINT_IC
+    output:
+        ic_plot = LPA_CONJOINT_IC_PLOT
+    script:
+        "../visualise/lpa_conjoint_ic_plot.R"
 
 
 rule plot_framing_effect:
@@ -88,4 +97,4 @@ rule plot_framing_effect:
     output:
         choice_plot = FRAMING_EFFECT_CHOICE_PLOT
     script:
-        "visualise/framing_effect_plot.R"
+        "../visualise/framing_effect_plot.R"

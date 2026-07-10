@@ -6,6 +6,8 @@ library(emmeans)
 library(readr)
 library(here)
 
+source(here("scripts", "shared", "constants.R"))
+
 if (exists("snakemake")) {
   conjoint_file   <- snakemake@input[["conjoint"]]
   groups_file     <- snakemake@input[["groups"]]
@@ -19,9 +21,6 @@ if (exists("snakemake")) {
   choice_out      <- here("data", "concern_choice_emm.csv")
   rating_out      <- here("data", "concern_rating_emm.csv")
 }
-
-concern_levels <- c("Low", "Mid", "High")
-country_levels <- c("Australia", "Brazil", "Germany", "Kenya", "Vietnam", "UAE")
 
 conjoint <- read_csv(
   conjoint_file,
@@ -37,10 +36,7 @@ groups <- read_csv(groups_file, show_col_types = FALSE) |>
 covariates <- read_csv(covariates_file, show_col_types = FALSE) |>
   select(id, country) |>
   mutate(
-    country = recode(as.character(country),
-      "1" = "Australia", "2" = "Brazil", "3" = "Germany",
-      "4" = "Kenya",     "5" = "Vietnam", "6" = "UAE"
-    ),
+    country = recode(as.character(country), !!!country_recode),
     country = factor(country, levels = country_levels)
   )
 
