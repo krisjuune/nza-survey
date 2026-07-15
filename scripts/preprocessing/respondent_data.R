@@ -50,6 +50,16 @@ covariates <- df |>
     wtp_flying_likert,
     wtp_flying_amount,
     govspend_flying,
+    publicinput_co2na,
+
+    # Actor responsibility beliefs
+    actor_role_airlines,
+    actor_role_fuelsuppliers,
+    actor_role_government,
+    actor_role_manufacturers,
+    actor_role_nonprofit,
+    actor_role_passengers,
+    actor_role_researchers,
 
     # LPA columnes
     pref_path_trad_offset,

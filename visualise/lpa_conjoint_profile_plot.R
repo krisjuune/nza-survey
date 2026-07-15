@@ -16,7 +16,11 @@ if (exists("snakemake")) {
 }
 
 # ColorBrewer Set2 — qualitatively distinct, not reused elsewhere in the theme.
-profile_colors <- c("Profile 1" = "#66c2a5", "Profile 2" = "#fc8d62", "Profile 3" = "#8da0cb")
+profile_colors <- c(
+  "Permanence sceptics"      = "#66c2a5",
+  "Moderate demanders"       = "#fc8d62",
+  "High-integrity demanders" = "#8da0cb"
+)
 
 recode_codes <- function(code) {
   case_when(
@@ -56,20 +60,21 @@ df <- read_csv(means_file, show_col_types = FALSE) |>
     code      = recode_codes(level),
     attribute = recode_attributes(attribute),
     profile   = factor(profile, levels = c(1, 2, 3),
-                       labels = paste("Profile", 1:3))
+                       labels = c("Permanence sceptics", "Moderate demanders", "High-integrity demanders"))
   )
 
 empty_rows <- expand_grid(
   attribute = attribute_headers,
   code      = attribute_headers,
-  profile   = paste("Profile", 1:3)
+  profile   = c("Permanence sceptics", "Moderate demanders", "High-integrity demanders")
 ) |>
   mutate(mean_pref = NA_real_, sd_pref = NA_real_)
 
 df <- bind_rows(df, empty_rows) |>
   mutate(
     code      = factor(code,      levels = rev(plot_levels)),
-    attribute = factor(attribute, levels = attribute_headers)
+    attribute = factor(attribute, levels = attribute_headers),
+    profile   = factor(profile,   levels = c("High-integrity demanders", "Moderate demanders", "Permanence sceptics"))
   )
 
 label_map <- tibble(code = levels(df$code)) |>

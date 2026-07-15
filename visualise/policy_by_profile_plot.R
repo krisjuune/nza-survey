@@ -24,8 +24,18 @@ policy_labels <- c(
 policy_order <- c("SAF_ETS", "GBF", "CORSIA", "VCM_SBTi", "VCM_status_quo")
 level_labels <- policy_labels[rev(policy_order)]
 
+profile_names <- c(
+  "Profile 1" = "Permanence sceptics",
+  "Profile 2" = "Moderate demanders",
+  "Profile 3" = "High-integrity demanders"
+)
+profile_levels <- c("High-integrity demanders", "Moderate demanders", "Permanence sceptics")
+
 raw <- read_csv(choice_file, show_col_types = FALSE) |>
-  mutate(profile = factor(profile, levels = paste("Profile", 1:3)))
+  mutate(
+    profile = recode(profile, !!!profile_names),
+    profile = factor(profile, levels = profile_levels)
+  )
 
 profile_label_map <- raw |>
   distinct(profile, n_profile) |>
@@ -55,5 +65,5 @@ p <- ggplot(df, aes(x = policy_label, y = prob)) +
 
 ggsave(plot_out, p,
        width  = plot_size$strip$width,
-       height = plot_size$strip$height + 1)
+       height = plot_size$strip$height)
 message("Policy by profile plot saved: ", plot_out)

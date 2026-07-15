@@ -117,7 +117,7 @@ attrs_plot <- ggplot(policy_attrs, aes(y = policy_label)) +
 choice_with_attrs <- choice_plot + attrs_plot +
   plot_layout(widths = c(0.4, 0.6))
 
-ggsave(choice_out, choice_with_attrs, width = 11, height = 4)
+ggsave(choice_out, choice_with_attrs, width = plot_size$strip$width, height = plot_size$strip$height)
 message("Policy choice plot saved: ", choice_out)
 
 rating_df <- read_csv(policy_rating_emm, show_col_types = FALSE) |>
@@ -145,5 +145,5 @@ rating_plot <- ggplot(rating_df, aes(x = policy_label, y = prob)) +
     y = "Estimated rating"
   )
 
-ggsave(rating_out, rating_plot, width = 7, height = 4)
+ggsave(rating_out, rating_plot, width = 7, height = plot_size$strip$height)
 message("Policy rating plot saved: ", rating_out)
