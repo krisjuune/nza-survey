@@ -73,6 +73,25 @@ if (use_test_data) {
 } else {
   df <- df |>
     filter(distribution_channel == "anonymous")
+
+  # Remove non-completions
+  df <- df |>
+    filter(finished == "1")
+
+  # Remove respondents flagged by the panel provider's quality algorithm.
+  df <- df |>
+    filter(is.na(q_quality_score) | as.numeric(q_quality_score) < 30)
+
+  # Remove 4 respondents excluded by the panel provider for exceeding
+  # country-level sampling quotas
+  over_quota_ids <- c(
+    "R_2eOuGvOUfqiWv9c",
+    "R_Q4egNxhvkJmU7sJ",
+    "R_3GfRIsw7iwZRYXA",
+    "R_1E59NC7c6jiXkUB"
+  )
+  df <- df |>
+    filter(!response_id %in% over_quota_ids)
 }
 
 # -------------------
