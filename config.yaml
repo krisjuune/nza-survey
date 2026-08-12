@@ -25,8 +25,8 @@ country_levels:
   - "Brazil"
   - "Germany"
   - "Kenya"
-  - "Vietnam"
   - "UAE"
+  - "Vietnam"
 
 flyer_recode:
   "Non- Flyer":       "Never-flyer"
@@ -100,15 +100,25 @@ attribute_headers:
 # One color per conjoint attribute — fixed across all figures so each attribute
 # is always the same hue. Do not reuse these for other encodings.
 attribute_colors:
-  Fuel:                    "#4e79a7"
-  Offsetting activity:     "#f28e2b"
-  Durability of offsets:   "#59a14f"
-  Responsible actors:      "#b07aa1"
-  Increase in ticket cost: "#76b7b2"
+  Fuel:                    "#555555"
+  Offsetting activity:     "#555555"
+  Durability of offsets:   "#555555"
+  Responsible actors:      "#555555"
+  Increase in ticket cost: "#555555"
 
 # Single accent for plots with no attribute grouping (e.g. policy types)
-# Kept distinct from attribute_colors to avoid false associations.
-accent_color: "#e15759"
+accent_color: "#555555"
+
+# Colour for attribute-level plots (country choice, interact)
+attribute_color: "#4a5897"
+
+# Colour for policy-level single-colour plots (policy choice)
+policy_color: "#d73027"
+
+# Contrasting pair for two-policy comparisons (breakeven curves, profile heatmap)
+policy_contrast_colors:
+  saf: "#4575b4"
+  gbf: "#d73027"
 
 # ColorBrewer Set2 — used for LPA preference profile plots.
 # Not reused elsewhere to avoid conflation with attribute colors.
@@ -128,10 +138,13 @@ concern_colors:
 # wide:   6-country facet plots (country conjoint, flyer type etc, framing effect)
 # strip:  low-height plots with a few rows (interaction, policy)
 plot_size:
-  narrow:    {width:  8, height: 9}
-  wide:  {width: 11, height: 7}
-  strip: {width: 11, height: 4}
+  narrow:     {width:  8, height: 9}
+  wide:       {width: 11, height: 7}
+  strip:      {width: 11, height: 4}
+  strip_wide: {width: 13.5, height: 4}
+  combined:   {width: 13.5, height: 8}
 
 # Shared geom parameters
 point_size:    2.0
-errorbar_width: 0.2
+errorbar_width: 0
+base_font_size: 12

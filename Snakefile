@@ -70,6 +70,14 @@ LPA_CONJOINT_MEANS    = "data/lpa_conjoint_means.csv"
 # Policy preference by LPA profile
 POLICY_BY_PROFILE_CHOICE = "data/policy_by_profile_choice.csv"
 
+# Multinomial predictors of LPA profile membership
+PROFILE_PREDICTORS = "data/profile_predictors.csv"
+
+# Compensating price differential: GBF vs SAF_ETS breakeven
+POLICY_BREAKEVEN             = "data/policy_breakeven.csv"
+POLICY_BREAKEVEN_GRID        = "data/policy_breakeven_grid.csv"
+POLICY_BREAKEVEN_INTERACTION = "output/supp_figs/policy_breakeven_interaction.txt"
+
 # output plots
 CHOICE_PLOT              = "output/supp_figs/general_choice_conjoint.png"
 RATING_PLOT              = "output/supp_figs/general_rating_conjoint.png"
@@ -80,10 +88,7 @@ FRAMING_RATING_PLOT      = "output/supp_figs/framing_rating_plot.png"
 NZ_SUMMARY               = "output/supp_figs/nz_summary.txt"
 POLICY_CHOICE_PLOT       = "output/policy_choice_plot.png"
 POLICY_RATING_PLOT       = "output/supp_figs/policy_rating_plot.png"
-DURABILITY_COST_CHOICE_PLOT = "output/interact_durability_wtp.png"
-DURABILITY_COST_RATING_PLOT = "output/supp_figs/interact_durability_wtp_rating.png"
-FUEL_COST_CHOICE_PLOT    = "output/interact_fuel_wtp.png"
-FUEL_COST_RATING_PLOT    = "output/supp_figs/interact_fuel_wtp_rating.png"
+INTERACT_COMBINED_PLOT   = "output/interact_combined_plot.png"
 CONCERN_CHOICE_PLOT      = "output/supp_figs/concern_choice_plot.png"
 CONCERN_RATING_PLOT      = "output/supp_figs/concern_rating_plot.png"
 FLYER_TYPE_CHOICE_PLOT   = "output/supp_figs/flyer_type_choice_plot.png"
@@ -92,6 +97,13 @@ FRAMING_EFFECT_CHOICE_PLOT = "output/supp_figs/country_framing_choice.png"
 LPA_CONJOINT_IC_PLOT      = "output/supp_figs/lpa_conjoint_ic.png"
 LPA_CONJOINT_PROFILE_PLOT = "output/supp_figs/lpa_conjoint_profiles.png"
 POLICY_BY_PROFILE_PLOT    = "output/supp_figs/policy_by_profile_plot.png"
+PROFILE_PREDICTORS_PLOT   = "output/supp_figs/profile_predictors_plot.png"
+PROFILES_COMBINED_PLOT       = "output/profiles_combined_plot.png"
+# Country-level cost-preference breakeven
+AIRFARE_RAW                      = "raw-data/airfare.csv"
+AIRFARE_COST_SCENARIOS           = "data/airfare_cost_scenarios.csv"
+POLICY_BREAKEVEN_COUNTRY_GRID    = "data/policy_breakeven_country_grid.csv"
+POLICY_BREAKEVEN_COMBINED        = "output/policy_breakeven_combined.png"
 
 # -------------------
 # Rule modules
@@ -134,6 +146,12 @@ rule all:
         LPA_CONJOINT_PROFILES,
         LPA_CONJOINT_MEANS,
         POLICY_BY_PROFILE_CHOICE,
+        PROFILE_PREDICTORS,
+        POLICY_BREAKEVEN,
+        POLICY_BREAKEVEN_GRID,
+        POLICY_BREAKEVEN_INTERACTION,
+        AIRFARE_COST_SCENARIOS,
+        POLICY_BREAKEVEN_COUNTRY_GRID,
         # plots
         CHOICE_PLOT,
         RATING_PLOT,
@@ -144,10 +162,7 @@ rule all:
         NZ_SUMMARY,
         POLICY_CHOICE_PLOT,
         POLICY_RATING_PLOT,
-        DURABILITY_COST_CHOICE_PLOT,
-        DURABILITY_COST_RATING_PLOT,
-        FUEL_COST_CHOICE_PLOT,
-        FUEL_COST_RATING_PLOT,
+        INTERACT_COMBINED_PLOT,
         CONCERN_CHOICE_PLOT,
         CONCERN_RATING_PLOT,
         FLYER_TYPE_CHOICE_PLOT,
@@ -156,3 +171,6 @@ rule all:
         LPA_CONJOINT_IC_PLOT,
         LPA_CONJOINT_PROFILE_PLOT,
         POLICY_BY_PROFILE_PLOT,
+        PROFILE_PREDICTORS_PLOT,
+        PROFILES_COMBINED_PLOT,
+        POLICY_BREAKEVEN_COMBINED,

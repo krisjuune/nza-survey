@@ -38,26 +38,14 @@ rule plot_policy_types:
         "../visualise/policy_plot.R"
 
 
-rule plot_durability_cost:
+rule plot_interact_combined:
     input:
-        choice = DURABILITY_COST_CHOICE,
-        rating = DURABILITY_COST_RATING
+        durability_choice = DURABILITY_COST_CHOICE,
+        fuel_choice       = FUEL_COST_CHOICE
     output:
-        choice_plot = DURABILITY_COST_CHOICE_PLOT,
-        rating_plot = DURABILITY_COST_RATING_PLOT
+        plot = INTERACT_COMBINED_PLOT
     script:
-        "../visualise/durability_cost_plot.R"
-
-
-rule plot_fuel_cost:
-    input:
-        choice = FUEL_COST_CHOICE,
-        rating = FUEL_COST_RATING
-    output:
-        choice_plot = FUEL_COST_CHOICE_PLOT,
-        rating_plot = FUEL_COST_RATING_PLOT
-    script:
-        "../visualise/fuel_cost_plot.R"
+        "../visualise/interact_combined_plot.R"
 
 
 rule plot_concern_group:
@@ -98,6 +86,35 @@ rule plot_lpa_conjoint_profiles:
         profile_plot = LPA_CONJOINT_PROFILE_PLOT
     script:
         "../visualise/lpa_conjoint_profile_plot.R"
+
+
+rule plot_profiles_combined:
+    input:
+        choice  = POLICY_BY_PROFILE_CHOICE,
+        results = PROFILE_PREDICTORS
+    output:
+        plot = PROFILES_COMBINED_PLOT
+    script:
+        "../visualise/profiles_combined_plot.R"
+
+
+rule plot_policy_breakeven_combined:
+    input:
+        grid           = POLICY_BREAKEVEN_COUNTRY_GRID,
+        cost_scenarios = AIRFARE_COST_SCENARIOS
+    output:
+        combined = POLICY_BREAKEVEN_COMBINED
+    script:
+        "../visualise/policy_breakeven_combined_plot.R"
+
+
+rule plot_profile_predictors:
+    input:
+        results = PROFILE_PREDICTORS
+    output:
+        plot = PROFILE_PREDICTORS_PLOT
+    script:
+        "../visualise/profile_predictors_plot.R"
 
 
 rule plot_policy_by_profile:

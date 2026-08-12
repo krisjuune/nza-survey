@@ -97,6 +97,17 @@ rule lpa_conjoint:
         "../scripts/analysis/lpa_conjoint.R"
 
 
+rule profile_predictors_analysis:
+    input:
+        profiles   = LPA_CONJOINT_PROFILES,
+        groups     = RESPONDENT_GROUPS,
+        covariates = COVARIATES
+    output:
+        results = PROFILE_PREDICTORS
+    script:
+        "../scripts/analysis/profile_predictors.R"
+
+
 rule policy_by_profile_analysis:
     input:
         conjoint = CONJOINT_LONG,
@@ -105,6 +116,27 @@ rule policy_by_profile_analysis:
         choice = POLICY_BY_PROFILE_CHOICE
     script:
         "../scripts/analysis/policy_by_profile.R"
+
+
+rule policy_breakeven_analysis:
+    input:
+        conjoint = CONJOINT_LONG
+    output:
+        results     = POLICY_BREAKEVEN,
+        grid        = POLICY_BREAKEVEN_GRID,
+        interaction = POLICY_BREAKEVEN_INTERACTION
+    script:
+        "../scripts/analysis/policy_breakeven.R"
+
+
+rule policy_breakeven_country_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        grid = POLICY_BREAKEVEN_COUNTRY_GRID
+    script:
+        "../scripts/analysis/policy_breakeven_country.R"
 
 
 rule framing_effect_analysis:

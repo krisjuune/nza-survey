@@ -16,6 +16,7 @@ dependencies:
   - r-viridis
   - r-patchwork
   - r-mclust
+  - r-nnet
   - pip
   - pip:
       - snakemake==9.*

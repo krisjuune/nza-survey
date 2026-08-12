@@ -21,3 +21,9 @@ rule respondent_groups:
     output:
         groups = RESPONDENT_GROUPS
     script: "../scripts/preprocessing/respondent_groups.R"
+
+
+rule preprocess_airfare_scenarios:
+    input:  airfare   = AIRFARE_RAW
+    output: scenarios = AIRFARE_COST_SCENARIOS
+    script: "../scripts/preprocessing/airfare_cost_scenarios.R"
