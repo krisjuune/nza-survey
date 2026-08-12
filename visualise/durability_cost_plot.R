@@ -65,7 +65,7 @@ plot_interaction <- function(df, y_label, midline, breaks = waiver(),
     geom_errorbar(
       aes(ymin = asymp.LCL, ymax = asymp.UCL),
       color = durability_color, linetype = "solid",
-      width = 0.15, position = position_dodge(width = 0.15)
+      width = 0, position = position_dodge(width = 0.15)
     ) +
     geom_line(aes(linetype = durability_code), color = durability_color,
               position = position_dodge(width = 0.15), linewidth = 0.5) +

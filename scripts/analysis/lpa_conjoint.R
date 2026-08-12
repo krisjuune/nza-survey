@@ -64,13 +64,13 @@ ids <- pref_wide$id
 X <- pref_wide |> select(-id) |> as.matrix() |> scale()
 
 # -------------------------------------------------------------------
-# LPA model selection: G = 2:8 profiles, diagonal covariance only.
+# LPA model selection: G = 1:8 profiles, diagonal covariance only.
 # -------------------------------------------------------------------
 set.seed(random_seed)
-message("Fitting LPA models for G = 2 to 8...")
+message("Fitting LPA models for G = 1 to 8...")
 t0 <- Sys.time()
 
-lpa_ic <- lapply(2:8, function(g) {
+lpa_ic <- lapply(1:8, function(g) {
   message("  G = ", g, " [", round(difftime(Sys.time(), t0, units = "secs")), "s]")
 
   m <- Mclust(X, G = g, modelNames = c("EEI", "VEI", "EVI", "VVI"),

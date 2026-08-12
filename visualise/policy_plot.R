@@ -41,10 +41,10 @@ choice_df <- read_csv(policy_choice_emm, show_col_types = FALSE) |>
 
 choice_plot <- ggplot(choice_df, aes(x = policy_label, y = prob)) +
   geom_neutral_line(0.5) +
-  geom_point(size = 3, color = accent_color) +
+  geom_point(size = 3, color = policy_color) +
   geom_errorbar(
     aes(ymin = asymp.LCL, ymax = asymp.UCL),
-    width = 0.1, color = accent_color
+    width = 0, color = policy_color
   ) +
   scale_y_continuous(breaks = choice_breaks) +
   coord_flip() +
@@ -134,7 +134,7 @@ rating_plot <- ggplot(rating_df, aes(x = policy_label, y = prob)) +
   geom_point(size = 3, color = accent_color) +
   geom_errorbar(
     aes(ymin = asymp.LCL, ymax = asymp.UCL),
-    width = 0.2, color = accent_color
+    width = 0, color = accent_color
   ) +
   coord_flip(
     ylim = symmetric_limits(c(rating_df$asymp.LCL, rating_df$asymp.UCL), 3)

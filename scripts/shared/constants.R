@@ -20,11 +20,15 @@ if (exists("snakemake")) {
   # Plot aesthetics
   attribute_colors  <- unlist(cfg$attribute_colors)
   accent_color      <- cfg$accent_color
+  attribute_color   <- cfg$attribute_color
+  policy_color           <- cfg$policy_color
+  policy_contrast_colors <- unlist(cfg$policy_contrast_colors)
   concern_colors    <- unlist(cfg$concern_colors)
   profile_colors    <- unlist(cfg$profile_colors)
   plot_size         <- lapply(cfg$plot_size, function(s) list(width = s$width, height = s$height))
   point_size        <- cfg$point_size
   errorbar_width    <- cfg$errorbar_width
+  base_font_size    <- cfg$base_font_size
 
 } else {
   # Fallback values for running scripts standalone (outside Snakemake).
@@ -34,7 +38,7 @@ if (exists("snakemake")) {
     "1" = "Australia", "2" = "Brazil",  "3" = "Germany",
     "4" = "Kenya",     "5" = "Vietnam", "6" = "UAE"
   )
-  country_levels <- c("Australia", "Brazil", "Germany", "Kenya", "Vietnam", "UAE")
+  country_levels <- c("Australia", "Brazil", "Germany", "Kenya", "UAE", "Vietnam")
 
   flyer_recode <- c(
     "Non- Flyer"       = "Never-flyer",
@@ -75,14 +79,17 @@ if (exists("snakemake")) {
   )
 
   attribute_colors <- c(
-    "Fuel"                    = "#4e79a7",
-    "Offsetting activity"     = "#f28e2b",
-    "Durability of offsets"   = "#59a14f",
-    "Responsible actors"      = "#b07aa1",
-    "Increase in ticket cost" = "#76b7b2"
+    "Fuel"                    = "#555555",
+    "Offsetting activity"     = "#555555",
+    "Durability of offsets"   = "#555555",
+    "Responsible actors"      = "#555555",
+    "Increase in ticket cost" = "#555555"
   )
 
-  accent_color <- "#e15759"
+  accent_color    <- "#555555"
+  attribute_color <- "#4a5897"
+  policy_color           <- "#d73027"
+  policy_contrast_colors <- c(saf = "#4575b4", gbf = "#d73027")
 
   concern_colors <- c(
     "Low"  = "#a8c8e8",
@@ -97,13 +104,16 @@ if (exists("snakemake")) {
   )
 
   plot_size <- list(
-    narrow = list(width =  8, height = 9),
-    wide   = list(width = 11, height = 7),
-    strip  = list(width = 11, height = 4)
+    narrow     = list(width =  8,   height = 9),
+    wide       = list(width = 11,   height = 7),
+    strip      = list(width = 11,   height = 4),
+    strip_wide = list(width = 13.5, height = 4),
+    combined   = list(width = 13.5, height = 8)
   )
 
   point_size     <- 2.0
-  errorbar_width <- 0.2
+  errorbar_width <- 0
+  base_font_size <- 12
 
   random_seed <- 2024
 }

@@ -133,7 +133,7 @@ plot <- ggplot(df, aes(x = code, y = prob)) +
   geom_errorbar(
     data = net_zero_df,
     aes(ymin = asymp.LCL, ymax = asymp.UCL, color = point_color),
-    width = 0.2, na.rm = TRUE
+    width = 0, na.rm = TRUE
   ) +
   geom_point(
     data = net_zero_df,
@@ -142,7 +142,7 @@ plot <- ggplot(df, aes(x = code, y = prob)) +
   geom_errorbar(
     data = no_info_df,
     aes(ymin = asymp.LCL, ymax = asymp.UCL, color = point_color),
-    width = 0.2, na.rm = TRUE
+    width = 0, na.rm = TRUE
   ) +
   geom_point(
     data = no_info_df,

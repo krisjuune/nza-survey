@@ -18,6 +18,8 @@ ic_df <- read_csv(ic_file, show_col_types = FALSE)
 
 ic_long <- ic_df |>
   select(G, AIC, BIC, SABIC, AWE, ICL) |>
+  # Convert to minimisation form (−2·loglik + penalty): positive values, lower = better
+  mutate(across(c(AIC, BIC, SABIC, AWE, ICL), ~ -.x)) |>
   pivot_longer(
     cols      = c(AIC, BIC, SABIC, AWE, ICL),
     names_to  = "criterion",
@@ -28,12 +30,12 @@ ic_long <- ic_df |>
 ic_plot <- ggplot(ic_long, aes(x = G, y = value)) +
   geom_line(color = accent_color, linewidth = 0.7) +
   geom_point(color = accent_color, size = point_size) +
-  scale_x_continuous(breaks = 2:8) +
+  scale_x_continuous(breaks = 1:8) +
   facet_wrap(~ criterion, scales = "free_y", nrow = 1) +
   theme_clean(base_size = 11) +
   labs(
     x = "Number of profiles",
-    y = "Information criterion value"
+    y = "Information criterion\n(lower = better)"
   )
 
 ggsave(plot_out, ic_plot, width = 14, height = 4)

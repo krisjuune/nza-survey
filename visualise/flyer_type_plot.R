@@ -115,7 +115,7 @@ plot_emm_flyer_type <- function(df, y_label = NULL, midline = NULL,
     geom_neutral_line(midline) +
     geom_point(size = 2, na.rm = TRUE) +
     geom_errorbar(aes(ymin = asymp.LCL, ymax = asymp.UCL),
-                  width = 0.2, na.rm = TRUE) +
+                  width = 0, na.rm = TRUE) +
     scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
     scale_color_attribute() +
     scale_y_continuous(breaks = breaks) +

@@ -70,10 +70,10 @@ choice_df <- raw_choice |>
 
 panel_a <- ggplot(choice_df, aes(x = policy_label, y = prob)) +
   geom_neutral_line(0.5) +
-  geom_point(size = point_size + 1, color = accent_color) +
+  geom_point(size = point_size + 1, color = policy_color) +
   geom_errorbar(
     aes(ymin = asymp.LCL, ymax = asymp.UCL),
-    width = 0.1, color = accent_color
+    width = errorbar_width, color = policy_color
   ) +
   facet_wrap(~profile_label, nrow = 1) +
   coord_flip() +
@@ -169,9 +169,17 @@ results_hm <- read_csv(results_file, show_col_types = FALSE) |>
     fill_val   = if_else(comparison %in% flipped_comparisons, -fill_val, fill_val)
   )
 
+# Keep only predictors with at least one significant effect across comparisons
+keys_with_effects <- results_hm |>
+  filter(key %in% y_structure$key, p_value < 0.05) |>
+  pull(key) |>
+  unique()
+
+filtered_y_levels <- y_levels[y_levels %in% keys_with_effects]
+
 hm_df <- results_hm |>
-  filter(key %in% y_structure$key) |>
-  mutate(key = factor(key, levels = y_levels))
+  filter(key %in% keys_with_effects) |>
+  mutate(key = factor(key, levels = filtered_y_levels))
 
 panel_b <- ggplot(hm_df, aes(x = comparison, y = key)) +
   geom_tile(aes(fill = fill_val), color = "white", linewidth = 0.3) +
@@ -180,9 +188,9 @@ panel_b <- ggplot(hm_df, aes(x = comparison, y = key)) +
     aes(label = sig), size = 3, color = "grey20"
   ) +
   scale_fill_gradient2(
-    low      = "#d73027",
+    low      = policy_contrast_colors[["gbf"]],
     mid      = "white",
-    high     = "#4575b4",
+    high     = policy_contrast_colors[["saf"]],
     midpoint = 0,
     na.value = "grey92",
     name     = "log(OR)",
@@ -203,9 +211,9 @@ panel_b <- ggplot(hm_df, aes(x = comparison, y = key)) +
 # Combine
 # -------------------------------------------------------------------
 combined <- panel_a / panel_b +
-  plot_layout(heights = c(1, 2.5)) +
+  plot_layout(heights = c(1, 1.5)) +
   plot_annotation(tag_levels = "a") &
   theme(plot.tag = element_text(face = "bold"))
 
-ggsave(plot_out, combined, width = 11, height = 11)
+ggsave(plot_out, combined, width = 11, height = 8)
 message("Profiles combined plot saved: ", plot_out)

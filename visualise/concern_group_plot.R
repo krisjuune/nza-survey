@@ -122,7 +122,7 @@ plot_emm_concern <- function(df, y_label = NULL, midline = NULL,
     geom_point(size = 1.8, na.rm = TRUE, position = dodge) +
     geom_errorbar(
       aes(ymin = asymp.LCL, ymax = asymp.UCL),
-      width = 0.15, na.rm = TRUE, position = dodge
+      width = 0, na.rm = TRUE, position = dodge
     ) +
     scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
     scale_color_manual(

@@ -15,11 +15,10 @@ if (exists("snakemake")) {
   plot_out   <- here("output", "supp_figs", "lpa_conjoint_profiles.png")
 }
 
-# ColorBrewer Set2 — qualitatively distinct, not reused elsewhere in the theme.
-profile_colors <- c(
-  "Permanence sceptics"      = "#66c2a5",
-  "Moderate demanders"       = "#fc8d62",
-  "High-integrity demanders" = "#8da0cb"
+profile_alphas <- c(
+  "High-integrity demanders" = 1.0,
+  "Moderate demanders"       = 0.6,
+  "Permanence sceptics"      = 0.3
 )
 
 recode_codes <- function(code) {
@@ -89,15 +88,15 @@ label_map <- tibble(code = levels(df$code)) |>
 dodge <- position_dodge(width = 0.6)
 
 profile_plot <- ggplot(df, aes(x = code, y = mean_pref,
-                                color = profile, group = profile)) +
+                                alpha = profile, group = profile)) +
   geom_neutral_line(0) +
-  geom_point(size = point_size, na.rm = TRUE, position = dodge) +
+  geom_point(size = point_size, na.rm = TRUE, position = dodge, color = accent_color) +
   geom_errorbar(
     aes(ymin = mean_pref - sd_pref, ymax = mean_pref + sd_pref),
-    width = errorbar_width, na.rm = TRUE, position = dodge
+    width = errorbar_width, na.rm = TRUE, position = dodge, color = accent_color
   ) +
   scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
-  scale_color_manual(values = profile_colors, name = "Preference profile") +
+  scale_alpha_manual(values = profile_alphas, name = "Preference profile") +
   coord_flip() +
   theme_clean(base_size = 11) +
   theme(

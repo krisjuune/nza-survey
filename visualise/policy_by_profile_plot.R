@@ -56,7 +56,7 @@ p <- ggplot(df, aes(x = policy_label, y = prob)) +
   geom_point(size = point_size + 1, color = accent_color) +
   geom_errorbar(
     aes(ymin = asymp.LCL, ymax = asymp.UCL),
-    width = 0.1, color = accent_color
+    width = 0, color = accent_color
   ) +
   facet_wrap(~profile_label, nrow = 1) +
   coord_flip() +
