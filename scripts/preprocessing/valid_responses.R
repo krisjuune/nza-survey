@@ -15,11 +15,23 @@ if (exists("snakemake")) {
   use_test_data <- TRUE
 }
 
-df <- read_csv(
+df_raw <- read_csv(
   input_file,
   show_col_types = FALSE
-) |>
-  slice(-(1:2)) |>
+)
+
+# Row 1 (after read_csv consumes the column-name row as headers) is always
+# the Qualtrics question-text label row and must be dropped. Row 2 is only
+# a header row too (Qualtrics' "ImportId" metadata row) in some exports —
+# in others it's already the first real response, so check before dropping it.
+has_import_id_row <- any(
+  str_detect(as.character(unlist(df_raw[2, ], use.names = FALSE)), "ImportId"),
+  na.rm = TRUE
+)
+rows_to_drop <- if (has_import_id_row) 1:2 else 1
+
+df <- df_raw |>
+  slice(-rows_to_drop) |>
   clean_names()
 
 if (use_test_data) {
@@ -78,7 +90,7 @@ if (use_test_data) {
   df <- df |>
     filter(finished == "1")
 
-  # Remove respondents flagged by the panel provider's quality algorithm.
+  # Remove respondents flagged by the panel provider's quality algorithm
   df <- df |>
     filter(is.na(q_quality_score) | as.numeric(q_quality_score) < 30)
 
