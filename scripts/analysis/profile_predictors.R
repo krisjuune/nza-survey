@@ -11,11 +11,13 @@ if (exists("snakemake")) {
   groups_file     <- snakemake@input[["groups"]]
   covariates_file <- snakemake@input[["covariates"]]
   results_out     <- snakemake@output[["results"]]
+  ame_out         <- snakemake@output[["ame"]]
 } else {
   profiles_file   <- here("data", "lpa_conjoint_profiles.csv")
   groups_file     <- here("data", "respondent_groups.csv")
   covariates_file <- here("data", "covariates.csv")
   results_out     <- here("data", "profile_predictors.csv")
+  ame_out         <- here("data", "profile_predictors_ame.csv")
 }
 
 profiles <- read_csv(profiles_file, show_col_types = FALSE) |>
@@ -114,3 +116,77 @@ results <- bind_rows(
 write_csv(results, results_out)
 message("Profile predictor results written: ", nrow(results), " rows, ",
         n_distinct(results$comparison), " comparisons")
+
+# ── Average marginal effects on profile membership probability ───────────────
+# For each predictor, the average change in every respondent's predicted
+# probability of belonging to each profile (percentage points):
+#   categorical: predictor set to the level vs set to its reference level
+#   continuous:  +1 SD from each respondent's observed value
+# Effects for one predictor sum to zero across the three profiles. 95% CIs
+# from parametric draws of the multinomial coefficients.
+
+n_draws <- 1000
+
+set.seed(random_seed)
+m_ame <- multinom(formula, data = df, trace = FALSE, Hess = TRUE)
+
+profile_levels_ame <- levels(df$profile)
+rhs   <- delete.response(terms(m_ame))
+coefs <- coef(m_ame)                        # (K-1) x p, reference = Profile 1
+beta_names <- as.vector(t(outer(rownames(coefs), colnames(coefs), paste, sep = ":")))
+beta_hat   <- as.vector(t(coefs))
+beta_draws <- MASS::mvrnorm(n_draws, mu = beta_hat,
+                            Sigma = vcov(m_ame)[beta_names, beta_names])
+
+# Mean predicted membership probabilities for design matrix X, for each
+# coefficient vector in B (rows); returns n_B x K.
+mean_probs <- function(X, B) {
+  t(apply(B, 1, function(b) {
+    eta <- cbind(0, X %*% t(matrix(b, nrow = nrow(coefs), byrow = TRUE)))
+    p   <- exp(eta - apply(eta, 1, max))
+    colMeans(p / rowSums(p))
+  }))
+}
+
+design_for <- function(newdata) {
+  model.matrix(rhs, model.frame(rhs, newdata, xlev = m_ame$xlevels))
+}
+
+contrasts_list <- c(
+  # categorical predictors: every non-reference level
+  unlist(lapply(names(m_ame$xlevels), function(v) {
+    lv <- m_ame$xlevels[[v]]
+    lapply(lv[-1], function(l) list(variable = v, level = l, ref = lv[1]))
+  }), recursive = FALSE),
+  # continuous predictors: +1 SD
+  lapply(setdiff(all.vars(rhs), names(m_ame$xlevels)),
+         function(v) list(variable = v, level = v, ref = NA))
+)
+
+ame <- lapply(contrasts_list, function(cn) {
+  d1 <- df; d0 <- df
+  if (is.na(cn$ref)) {
+    d1[[cn$variable]] <- d1[[cn$variable]] + sd(df[[cn$variable]])
+  } else {
+    d1[[cn$variable]] <- factor(cn$level, levels = m_ame$xlevels[[cn$variable]])
+    d0[[cn$variable]] <- factor(cn$ref,   levels = m_ame$xlevels[[cn$variable]])
+  }
+  X1 <- design_for(d1); X0 <- design_for(d0)
+  est   <- mean_probs(X1, rbind(beta_hat))   - mean_probs(X0, rbind(beta_hat))
+  draws <- mean_probs(X1, beta_draws)        - mean_probs(X0, beta_draws)
+  tibble(
+    variable  = cn$variable,
+    level     = cn$level,
+    reference = cn$ref,
+    profile   = profile_levels_ame,
+    ame       = 100 * est[1, ],
+    lower     = 100 * apply(draws, 2, quantile, 0.025),
+    upper     = 100 * apply(draws, 2, quantile, 0.975)
+  )
+}) |>
+  bind_rows() |>
+  mutate(significant = lower > 0 | upper < 0)
+
+write_csv(ame, ame_out)
+message("Profile membership AMEs written: ", ame_out, " (",
+        n_distinct(paste(ame$variable, ame$level)), " predictors)")

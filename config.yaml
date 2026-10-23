@@ -52,6 +52,31 @@ policy_levels:
   - "VCM_SBTi"
   - "VCM_status_quo"
 
+# Display names for the policy packages, used in every figure. `long` for
+# axis/legend labels with room; `short` (the tag) for tight panels and text.
+policy_labels:
+  SAF_ETS:        {long: "Clean fuel transition (SAF mandate + carbon removal)", short: "SAF mandate + carbon removal"}
+  GBF:            {long: "Geologically balanced fuels (GBF)",        short: "GBF"}
+  CORSIA:         {long: "Mandatory airline offsetting (CORSIA-like)", short: "CORSIA-like"}
+  VCM_SBTi:       {long: "Voluntary carbon removal (SBTi-aligned)",  short: "SBTi-aligned"}
+  VCM_status_quo: {long: "Voluntary offsetting (status quo)",        short: "Status quo"}
+
+# -------------------
+# Airfare cost projections (breakeven analysis)
+# -------------------
+# Which source the 2050 airfare increases come from:
+#   cost_paper - the (unpublished) cost paper's "Results 2050 Different rate" tab
+#   published  - published cost data in the tidy schema of
+#                scripts/preprocessing/airfare_costs_template.csv
+cost_source: "cost_paper"
+cost_files:
+  cost_paper: "raw-data/airfare.csv"
+  published:  "raw-data/airfare_costs_published.csv"
+
+# Price range tested in the survey (ticket price increase, %). Predictions
+# outside it are extrapolations and are drawn dashed.
+tested_cost_range: [10, 50]
+
 # -------------------
 # Conjoint attributes
 # -------------------
@@ -62,76 +87,79 @@ attributes:
   - "responsibility_code"
   - "cost_code"
 
-# Display order for plot y-axis (attribute headers interspersed with their codes)
-plot_levels:
-  - "Fuel"
-  - "Fossil fuels"
-  - "Biofuels"
-  - "Synthetic fuels"
-  - "Offsetting activity"
-  - "Traditional offsets"
-  - "Direct air capture"
-  - "Point source capture"
-  - "Nature-based offsets"
-  - "Durability of offsets"
-  - "Temporary"
-  - "Permanent"
-  - "Responsible actors"
-  - "Fuel suppliers"
-  - "Airlines"
-  - "Government"
-  - "Passengers"
-  - "Increase in ticket cost"
-  - "10%"
-  - "30%"
-  - "50%"
-
-attribute_headers:
-  - "Fuel"
-  - "Offsetting activity"
-  - "Durability of offsets"
-  - "Responsible actors"
-  - "Increase in ticket cost"
+# Display names for the conjoint attributes and their levels, used in every
+# figure. Attributes and levels are listed in display order (top to bottom);
+# each level maps its data code to its display label.
+attribute_display:
+  fuel_code:
+    label: "Fuel"
+    levels: {fossil: "Fossil fuels", plants: "Biofuels", electric: "Synthetic fuels"}
+  activity_code:
+    label: "Offsetting activity"
+    levels: {cookstoves: "Traditional offsets", direct_air: "Direct air capture",
+             factory_ccs: "Point source capture", trees: "Nature-based offsets"}
+  durability_code:
+    label: "Durability of offsets"
+    levels: {temporary: "Temporary", permanent: "Permanent"}
+  responsibility_code:
+    label: "Responsible actor"
+    levels: {fuel_suppliers: "Fuel suppliers", airline: "Airlines",
+             government: "Government", passenger: "Passengers"}
+  cost_code:
+    label: "Ticket price increase"
+    levels: {"10": "+10%", "30": "+30%", "50": "+50%"}
 
 # -------------------
 # Plot aesthetics
 # -------------------
 
-# One color per conjoint attribute — fixed across all figures so each attribute
-# is always the same hue. Do not reuse these for other encodings.
-attribute_colors:
-  Fuel:                    "#555555"
-  Offsetting activity:     "#555555"
-  Durability of offsets:   "#555555"
-  Responsible actors:      "#555555"
-  Increase in ticket cost: "#555555"
+# All plot colours live here; scripts never hardcode a colour (except white,
+# the page background). Hue is reserved for meaning: the two focal policy
+# packages, the main-figure highlight and the LPA profiles. Palettes were
+# validated for colour-vision deficiency (OKLab dE under protan/deutan
+# simulation) against every other colour in the paper.
 
-# Single accent for plots with no attribute grouping (e.g. policy types)
-accent_color: "#555555"
+# Dark ink: single-series plots with no other encoding (supplementary
+# attribute plots, LPA diagnostics, interaction plot), and in-plot text
+attribute_color: "#333333"
+accent_color:    "#333333"
 
-# Colour for attribute-level plots (country choice, interact)
-attribute_color: "#4a5897"
+# Indigo highlight for the attribute-level main figures (WTP, country choice).
+# Deep enough to stay distinct from the SAF blue and the profile plum (the
+# earlier #4a5897 was indistinguishable from the SAF blue, dE 4.7).
+highlight_color: "#3f3d99"
 
-# Colour for policy-level single-colour plots (policy choice)
-policy_color: "#d73027"
-
-# Contrasting pair for two-policy comparisons (breakeven curves, profile heatmap)
+# The two focal policy packages (breakeven figure; CVD dE 20.9)
 policy_contrast_colors:
   saf: "#4575b4"
   gbf: "#d73027"
 
-# ColorBrewer Set2 — used for LPA preference profile plots.
-# Not reused elsewhere to avoid conflation with attribute colors.
-profile_colors:
-  "Profile 1": "#66c2a5"
-  "Profile 2": "#fc8d62"
-  "Profile 3": "#8da0cb"
+# Single colour for policy-level dot plots (policy choice, policy by profile)
+policy_color: "#d73027"
 
-# Sequential blues (light → dark) for climate concern subgroup plots
+# LPA preference profiles: teal / gold / plum. Never shown in the same figure
+# as the policy pair (worst CVD dE 10.3, normal dE 17.1).
+profile_colors:
+  "Profile 1": "#1b9e77"
+  "Profile 2": "#b07d1a"
+  "Profile 3": "#9b4f96"
+
+# Sequential blues (light -> dark) for climate concern subgroup plots
 concern_colors:
   Low:  "#a8c8e8"
   Mid:  "#3a82c4"
   High: "#0d3a6e"
+
+# Second group in two-arm comparisons (net-zero information arm)
+secondary_color: "#999999"
+
+# Structural greys and black
+reference_line_color: "#999999"   # dashed lines at 0.5 / neutral rating / OR = 1
+axis_color:           "#000000"   # axis lines, ticks, table column heads
+
+# Also save main figures as vector PDF (for journal submission) next to the PNG.
+# Off while drafting; switch on for the final figure set.
+save_pdf: false
 
 # Plot dimensions (inches, for ggsave)
 # narrow: single-panel plots (general conjoint, NZ framing)

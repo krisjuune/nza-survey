@@ -91,7 +91,7 @@ rule plot_lpa_conjoint_profiles:
 rule plot_profiles_combined:
     input:
         choice  = POLICY_BY_PROFILE_CHOICE,
-        results = PROFILE_PREDICTORS
+        ame     = PROFILE_PREDICTORS_AME
     output:
         plot = PROFILES_COMBINED_PLOT
     script:
@@ -100,8 +100,8 @@ rule plot_profiles_combined:
 
 rule plot_policy_breakeven_combined:
     input:
-        grid           = POLICY_BREAKEVEN_COUNTRY_GRID,
-        cost_scenarios = AIRFARE_COST_SCENARIOS
+        grid    = POLICY_BREAKEVEN_COUNTRY_GRID,
+        summary = POLICY_BREAKEVEN_COUNTRY_SUMMARY
     output:
         combined = POLICY_BREAKEVEN_COMBINED
     script:
@@ -110,7 +110,7 @@ rule plot_policy_breakeven_combined:
 
 rule plot_profile_predictors:
     input:
-        results = PROFILE_PREDICTORS
+        ame     = PROFILE_PREDICTORS_AME
     output:
         plot = PROFILE_PREDICTORS_PLOT
     script:
@@ -133,3 +133,12 @@ rule plot_framing_effect:
         choice_plot = FRAMING_EFFECT_CHOICE_PLOT
     script:
         "../visualise/framing_effect_plot.R"
+
+
+rule plot_wtp:
+    input:
+        wtp = WTP_COUNTRY
+    output:
+        plot = WTP_PLOT
+    script:
+        "../visualise/wtp_plot.R"

@@ -28,15 +28,15 @@ ic_long <- ic_df |>
   mutate(criterion = factor(criterion, levels = c("AIC", "BIC", "SABIC", "AWE", "ICL")))
 
 ic_plot <- ggplot(ic_long, aes(x = G, y = value)) +
-  geom_line(color = accent_color, linewidth = 0.7) +
-  geom_point(color = accent_color, size = point_size) +
+  geom_line(color = accent_color, linewidth = paper_line_width) +
+  geom_point(color = accent_color, size = paper_point_size) +
   scale_x_continuous(breaks = 1:8) +
   facet_wrap(~ criterion, scales = "free_y", nrow = 1) +
-  theme_clean(base_size = 11) +
+  theme_paper(legend = "none") +
   labs(
     x = "Number of profiles",
     y = "Information criterion\n(lower = better)"
   )
 
-ggsave(plot_out, ic_plot, width = 14, height = 4)
+save_paper_figure(ic_plot, plot_out, height_mm = 55)
 message("LPA information criteria plot saved: ", plot_out)

@@ -3,27 +3,29 @@ library(tidyr)
 library(readr)
 library(here)
 
+source(here("scripts", "shared", "constants.R"))
+
 if (exists("snakemake")) {
   airfare_file <- snakemake@input[["airfare"]]
-  out_file     <- snakemake@output[["scenarios"]]
+  out_file     <- snakemake@output[["costs"]]
 } else {
-  airfare_file <- here("raw-data", "airfare.csv")
-  out_file     <- here("data", "airfare_cost_scenarios.csv")
+  airfare_file <- here(switch(cost_source,
+    cost_paper = "raw-data/airfare.csv",
+    published  = "raw-data/airfare_costs_published.csv"
+  ))
+  out_file <- here("data", "airfare_costs.csv")
 }
 
-# CSV exported from "Results 2050 Different rate" Excel tab.
-# Structure:
-#   Rows 1-3:  metadata / blank
-#   Row  4:    main column headers (merged cells → blanks for sub-columns)
-#   Row  5:    sub-headers: cols 9-20 have Median / Lower / Upper
-#   Rows 6+:   data (fuel pathway × country)
-#
-# Columns by position (1-indexed):
-#   1  = Fuel pathway
-#   2  = Region
-#   18 = 2050 Airfare change — Median  (% vs kerosene, e.g. "38%")
-#   19 = 2050 Airfare change — Lower
-#   20 = 2050 Airfare change — Upper
+# Output schema (one row per country x fuel pathway), shared by all sources.
+# fare_change_* are 2050 airfare increases vs a kerosene counterfactual (%).
+# low/high are the min/max across the source's scenarios (e.g. kerosene price),
+# so low <= median <= high regardless of how the source labels them.
+# gbf_share is only set for mixed GBF-SAF pathways.
+cost_schema <- c(
+  "source", "country", "fuel_family", "pathway", "gbf_share",
+  "fare_change_median", "fare_change_low", "fare_change_high", "reference"
+)
+fuel_families <- c("eSAF", "GBF", "mixed")
 
 parse_pct <- function(x) {
   x <- trimws(x)
@@ -31,77 +33,84 @@ parse_pct <- function(x) {
   as.numeric(sub("%", "", x))
 }
 
-raw <- read_csv(
-  airfare_file,
-  skip      = 5,   # skip rows 1-5 (metadata + header + sub-header)
-  col_names = FALSE,
-  show_col_types = FALSE
-)
-
-airfare <- raw |>
-  filter(!is.na(X1), X1 != "") |>
-  transmute(
-    fuel_pathway  = trimws(X1),
-    country       = trimws(X2),
-    change_median = parse_pct(X18),
-    change_lower  = parse_pct(X19),
-    change_upper  = parse_pct(X20)
-  ) |>
-  filter(
-    !is.na(change_median),
-    !country %in% c("UAE", ""),
-    fuel_pathway != "keresene"
+# CSV exported from the cost paper's "Results 2050 Different rate" Excel tab.
+#   Rows 1-5:  metadata, main headers, sub-headers (Median / Lower / Upper)
+#   Rows 6+:   data (fuel pathway x country)
+# Columns by position: 1 = fuel pathway, 2 = region,
+#   18-20 = 2050 airfare change Median / Lower / Upper (e.g. "38%").
+# Lower/Upper refer to the kerosene price scenario (lower kerosene -> larger
+# premium), so "Lower" is usually the larger number.
+read_cost_paper <- function(path) {
+  pathway_recode <- c(
+    "Green DAC synfuel"          = "eSAF: green H2 + DAC",
+    "Green point-source synfuel" = "eSAF: green H2 + PS",
+    "Blue DAC synfuel"           = "eSAF: blue H2 + DAC",
+    "Blue point-source synfuel"  = "eSAF: blue H2 + PS",
+    "Point-source GBF"           = "GBF: PS",
+    "DAC GBF"                    = "GBF: DAC"
   )
 
-esaf_recode <- c(
-  "Green DAC synfuel"         = "Green H2 + DAC eSAF",
-  "Green point-source synfuel" = "Green H2 + PS eSAF",
-  "Blue DAC synfuel"           = "Blue H2 + DAC eSAF",
-  "Blue point-source synfuel"  = "Blue H2 + PS eSAF"
+  read_csv(path, skip = 5, col_names = FALSE, show_col_types = FALSE) |>
+    filter(!is.na(X1), X1 != "") |>
+    transmute(
+      pathway_raw = trimws(X1),
+      country     = trimws(X2),
+      median      = parse_pct(X18),
+      a           = parse_pct(X19),
+      b           = parse_pct(X20)
+    ) |>
+    filter(pathway_raw %in% names(pathway_recode)) |>
+    transmute(
+      source             = "cost_paper",
+      country,
+      fuel_family        = sub(":.*$", "", pathway_recode[pathway_raw]),
+      pathway            = unname(pathway_recode[pathway_raw]),
+      gbf_share          = NA_real_,
+      fare_change_median = median,
+      fare_change_low    = pmin(a, b, median),
+      fare_change_high   = pmax(a, b, median),
+      reference          = "Cost paper (in revision)"
+    )
+}
+
+# Published cost data, already in `cost_schema` (see
+# scripts/preprocessing/airfare_costs_template.csv).
+read_published <- function(path) {
+  df <- read_csv(path, show_col_types = FALSE, comment = "#")
+  missing <- setdiff(cost_schema, names(df))
+  if (length(missing) > 0) {
+    stop("Published cost file is missing columns: ", paste(missing, collapse = ", "))
+  }
+  bad_family <- setdiff(unique(df$fuel_family), fuel_families)
+  if (length(bad_family) > 0) {
+    stop("Unknown fuel_family values: ", paste(bad_family, collapse = ", "))
+  }
+  df |>
+    mutate(
+      source             = "published",
+      fare_change_low    = pmin(fare_change_low, fare_change_median),
+      fare_change_high   = pmax(fare_change_high, fare_change_median)
+    )
+}
+
+costs <- switch(cost_source,
+  cost_paper = read_cost_paper(airfare_file),
+  published  = read_published(airfare_file),
+  stop("Unknown cost_source: ", cost_source)
 )
-gbf_recode <- c(
-  "Point-source GBF" = "PS GBF",
-  "DAC GBF"          = "DAC GBF"
-)
 
-esaf <- airfare |>
-  filter(fuel_pathway %in% names(esaf_recode)) |>
-  mutate(esaf_pathway = esaf_recode[fuel_pathway]) |>
-  select(country, esaf_pathway,
-         esaf_median = change_median,
-         esaf_lower  = change_lower,
-         esaf_upper  = change_upper)
+# Countries without a 2050 projection (e.g. UAE in the cost paper) drop out
+# here; downstream scripts treat them as "no cost projection".
+costs <- costs |>
+  filter(!is.na(fare_change_median), country %in% country_levels) |>
+  select(all_of(cost_schema)) |>
+  arrange(country, fuel_family, pathway)
 
-gbf <- airfare |>
-  filter(fuel_pathway %in% names(gbf_recode)) |>
-  mutate(gbf_pathway = gbf_recode[fuel_pathway]) |>
-  select(country, gbf_pathway,
-         gbf_median = change_median,
-         gbf_lower  = change_lower,
-         gbf_upper  = change_upper)
-
-# All eSAF × GBF combinations per country.
-# Differential = eSAF change - GBF change, matched by scenario
-# (Lower/Upper refer to the kerosene price scenario: Lower kerosene →
-# larger premium for both pathways, Upper kerosene → smaller premium).
-scenarios <- cross_join(
-  esaf |> rename(c_esaf = country),
-  gbf  |> rename(c_gbf  = country)
-) |>
-  filter(c_esaf == c_gbf) |>
-  rename(country = c_esaf) |>
-  select(-c_gbf) |>
-  mutate(
-    x       = esaf_median - gbf_median,
-    x_lower = esaf_lower  - gbf_lower,
-    x_upper = esaf_upper  - gbf_upper
-  ) |>
-  select(country, esaf_pathway, gbf_pathway,
-         esaf_median, esaf_lower, esaf_upper,
-         gbf_median,  gbf_lower,  gbf_upper,
-         x, x_lower, x_upper)
-
-write_csv(scenarios, out_file)
-message("Airfare cost scenarios written: ", out_file)
-message(sprintf("  %d rows (%d countries × eSAF × GBF combinations)",
-                nrow(scenarios), n_distinct(scenarios$country)))
+write_csv(costs, out_file)
+message("Airfare costs written (source: ", cost_source, "): ", out_file)
+message(sprintf("  %d rows; countries: %s", nrow(costs),
+                paste(sort(unique(costs$country)), collapse = ", ")))
+missing_ctry <- setdiff(country_levels, costs$country)
+if (length(missing_ctry) > 0) {
+  message("  no cost projection for: ", paste(missing_ctry, collapse = ", "))
+}

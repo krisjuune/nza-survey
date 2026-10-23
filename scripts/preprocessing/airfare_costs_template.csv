@@ -1,0 +1,10 @@
+# Template for published 2050 airfare cost data (cost_source: published).
+# Save filled-in copy as raw-data/airfare_costs_published.csv. Lines starting with # are ignored.
+# One row per country x fuel pathway. fare_change_* = % airfare increase in 2050 vs a kerosene counterfactual.
+# fuel_family: eSAF | GBF | mixed. gbf_share (0-1): GBF share of fuel, mixed rows only (leave empty otherwise).
+# fare_change_low/high: range across the study's scenarios (any order is fine; it is sorted on read).
+# reference: short citation for the source of each row.
+source,country,fuel_family,pathway,gbf_share,fare_change_median,fare_change_low,fare_change_high,reference
+published,Germany,eSAF,eSAF: example pathway,,35,20,60,Author et al. (2025)
+published,Germany,GBF,GBF: example pathway,,15,10,25,Author et al. (2025)
+published,Germany,mixed,Mixed: 50% GBF,0.5,25,15,40,Author et al. (2025)

@@ -13,124 +13,63 @@ if (exists("snakemake")) {
 } else {
   durability_choice_file <- here("data", "durability_cost_choice_emm.csv")
   fuel_choice_file       <- here("data", "fuel_cost_choice_emm.csv")
-  combined_out           <- here("output", "interact_combined_plot.png")
+  combined_out           <- here("output", "supp_figs", "interact_combined_plot.png")
 }
 
-plot_color <- attribute_color
+ink   <- attribute_color
+dodge <- position_dodge(width = 0.2)
 
-shared_theme <- list(
-  theme_clean(base_size = base_font_size),
-  theme(
-    strip.text    = element_text(face = "bold"),
-    panel.spacing = unit(10, "pt"),
-    axis.title.y  = element_text(angle = 0, vjust = 0.5, hjust = 1)
-  )
-)
+# Choice probability by ticket price, one line per level of `group`.
+# The first level of `levels` is drawn solid/filled, the second dashed/open.
+plot_by_cost <- function(df, group, levels, legend_title) {
+  df <- df |>
+    mutate(
+      group     = factor(.data[[group]], levels = levels),
+      cost_code = factor(cost_level_label(cost_code), levels = cost_levels),
+      country   = factor(country, levels = country_levels)
+    )
 
-# -------------------------------------------------------------------
-# Fuel type × cost (panel a)
-# -------------------------------------------------------------------
-choice_fuel_df <- read_csv(fuel_choice_file, show_col_types = FALSE) |>
-  mutate(
-    fuel_binary = factor(fuel_binary, levels = c("Fossil fuels", "SAFs")),
-    cost_code = recode(as.character(cost_code),
-      "10" = "10%", "30" = "30%", "50" = "50%"
-    ),
-    cost_code = factor(cost_code, levels = c("10%", "30%", "50%")),
-    country = factor(country, levels = country_levels)
-  )
+  y_breaks <- c(0.3, 0.4, 0.5, 0.6, 0.7)
+  y_limits <- range(c(df$asymp.LCL, df$asymp.UCL))
 
-y_limits_fuel <- widen_limits_to_breaks(
-  range(c(choice_fuel_df$asymp.LCL, choice_fuel_df$asymp.UCL), na.rm = TRUE),
-  choice_breaks
-)
+  ggplot(df, aes(x = cost_code, y = prob, group = group)) +
+    geom_neutral_line(0.5) +
+    geom_linerange(aes(ymin = asymp.LCL, ymax = asymp.UCL), color = ink,
+                   linewidth = paper_ci_width, position = dodge) +
+    geom_line(aes(linetype = group), color = ink,
+              linewidth = paper_line_width, position = dodge) +
+    geom_point(aes(fill = group), shape = 21, color = ink, stroke = 0.6,
+               size = paper_point_size, position = dodge) +
+    scale_fill_manual(values = setNames(c(ink, "white"), levels)) +
+    scale_linetype_manual(values = setNames(c("solid", "22"), levels)) +
+    scale_y_continuous(breaks = y_breaks, limits = y_limits) +
+    facet_wrap(~country, nrow = 1) +
+    theme_paper() +
+    labs(x = "Ticket price increase", y = "Choice probability",
+         fill = legend_title, linetype = legend_title)
+}
 
-p_fuel <- ggplot(choice_fuel_df,
-                 aes(x = cost_code, y = prob, group = fuel_binary)) +
-  geom_hline(yintercept = 0.5, color = "grey60", linetype = "dashed", linewidth = 0.3) +
-  geom_errorbar(
-    aes(ymin = asymp.LCL, ymax = asymp.UCL),
-    color = plot_color, linetype = "solid",
-    width = 0, position = position_dodge(width = 0.15)
-  ) +
-  geom_line(aes(linetype = fuel_binary), color = plot_color,
-            position = position_dodge(width = 0.15), linewidth = 0.5) +
-  geom_point(aes(fill = fuel_binary), shape = 21,
-             color = plot_color, stroke = 0.8, size = 2.5,
-             position = position_dodge(width = 0.15)) +
-  scale_y_continuous(breaks = choice_breaks, limits = y_limits_fuel) +
-  scale_fill_manual(values = c("Fossil fuels" = "white", "SAFs" = plot_color),
-                    guide = guide_legend(reverse = TRUE)) +
-  scale_linetype_manual(values = c("Fossil fuels" = "dashed", "SAFs" = "solid"),
-                        guide = guide_legend(reverse = TRUE)) +
-  facet_wrap(~ country, nrow = 1) +
-  shared_theme +
-  theme(legend.position = "right") +
-  labs(
-    x        = "Ticket price increase",
-    y        = "Choice\nprobability",
-    fill     = "Fuel type",
-    linetype = "Fuel type"
-  )
+# ── A: fuel type × ticket price ──────────────────────────────────────────────
 
-# -------------------------------------------------------------------
-# Durability × cost (panel b)
-# -------------------------------------------------------------------
-choice_durability_df <- read_csv(durability_choice_file, show_col_types = FALSE) |>
-  mutate(
-    durability_code = recode(durability_code,
-      "temporary" = "Temporary",
-      "permanent" = "Permanent"
-    ),
-    durability_code = factor(durability_code, levels = c("Temporary", "Permanent")),
-    cost_code = recode(as.character(cost_code),
-      "10" = "10%", "30" = "30%", "50" = "50%"
-    ),
-    cost_code = factor(cost_code, levels = c("10%", "30%", "50%")),
-    country = factor(country, levels = country_levels)
-  )
+fuel_df <- read_csv(fuel_choice_file, show_col_types = FALSE) |>
+  mutate(fuel_binary = recode(fuel_binary, "SAFs" = "SAF"))
 
-y_limits_dur <- widen_limits_to_breaks(
-  range(c(choice_durability_df$asymp.LCL, choice_durability_df$asymp.UCL), na.rm = TRUE),
-  choice_breaks
-)
+p_fuel <- plot_by_cost(fuel_df, "fuel_binary",
+                       levels = c("SAF", "Fossil fuels"),
+                       legend_title = "Fuel")
 
-p_durability <- ggplot(choice_durability_df,
-                       aes(x = cost_code, y = prob, group = durability_code)) +
-  geom_hline(yintercept = 0.5, color = "grey60", linetype = "dashed", linewidth = 0.3) +
-  geom_errorbar(
-    aes(ymin = asymp.LCL, ymax = asymp.UCL),
-    color = plot_color, linetype = "solid",
-    width = 0, position = position_dodge(width = 0.15)
-  ) +
-  geom_line(aes(linetype = durability_code), color = plot_color,
-            position = position_dodge(width = 0.15), linewidth = 0.5) +
-  geom_point(aes(fill = durability_code), shape = 21,
-             color = plot_color, stroke = 0.8, size = 2.5,
-             position = position_dodge(width = 0.15)) +
-  scale_y_continuous(breaks = choice_breaks, limits = y_limits_dur) +
-  scale_fill_manual(values = c(Temporary = "white", Permanent = plot_color),
-                    guide = guide_legend(reverse = TRUE)) +
-  scale_linetype_manual(values = c(Temporary = "dashed", Permanent = "solid"),
-                        guide = guide_legend(reverse = TRUE)) +
-  facet_wrap(~ country, nrow = 1) +
-  shared_theme +
-  theme(legend.position = "right") +
-  labs(
-    x        = "Ticket price increase",
-    y        = "Choice\nprobability",
-    fill     = "Offset durability",
-    linetype = "Offset durability"
-  )
+# ── B: offset durability × ticket price ──────────────────────────────────────
 
-# -------------------------------------------------------------------
-# Combine with a/b tags
-# -------------------------------------------------------------------
-combined <- (p_fuel / p_durability) +
-  plot_annotation(tag_levels = "a") &
-  theme(plot.tag = element_text(face = "bold"))
+durability_df <- read_csv(durability_choice_file, show_col_types = FALSE) |>
+  mutate(durability_code = level_label("durability_code", durability_code))
 
-ggsave(combined_out, combined,
-       width  = plot_size$combined$width,
-       height = plot_size$combined$height)
+p_durability <- plot_by_cost(durability_df, "durability_code",
+                             levels = c("Permanent", "Temporary"),
+                             legend_title = "Durability of offsets")
+
+# ── Assemble and save ────────────────────────────────────────────────────────
+
+combined <- (p_fuel / p_durability) + panel_tags()
+
+save_paper_figure(combined, combined_out, height_mm = 115)
 message("Combined interaction plot saved: ", combined_out)

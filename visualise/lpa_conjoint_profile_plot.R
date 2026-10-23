@@ -15,97 +15,34 @@ if (exists("snakemake")) {
   plot_out   <- here("output", "supp_figs", "lpa_conjoint_profiles.png")
 }
 
-profile_alphas <- c(
-  "High-integrity demanders" = 1.0,
-  "Moderate demanders"       = 0.6,
-  "Permanence sceptics"      = 0.3
+profile_names <- c("High-integrity demanders", "Moderate demanders",
+                   "Permanence sceptics")
+# Profile colours from config, keyed by LPA profile number
+profile_values <- setNames(
+  unname(profile_colors[c("Profile 3", "Profile 2", "Profile 1")]),
+  profile_names
 )
 
-recode_codes <- function(code) {
-  case_when(
-    code == "trees"          ~ "Nature-based offsets",
-    code == "factory_ccs"    ~ "Point source capture",
-    code == "direct_air"     ~ "Direct air capture",
-    code == "cookstoves"     ~ "Traditional offsets",
-    code == "fossil"         ~ "Fossil fuels",
-    code == "plants"         ~ "Biofuels",
-    code == "electric"       ~ "Synthetic fuels",
-    code == "temporary"      ~ "Temporary",
-    code == "permanent"      ~ "Permanent",
-    code == "fuel_suppliers" ~ "Fuel suppliers",
-    code == "airline"        ~ "Airlines",
-    code == "government"     ~ "Government",
-    code == "passenger"      ~ "Passengers",
-    code == "10"             ~ "10%",
-    code == "30"             ~ "30%",
-    code == "50"             ~ "50%",
-    TRUE                     ~ as.character(code)
-  )
-}
-
-recode_attributes <- function(attribute) {
-  case_when(
-    attribute == "activity_code"       ~ "Offsetting activity",
-    attribute == "fuel_code"           ~ "Fuel",
-    attribute == "durability_code"     ~ "Durability of offsets",
-    attribute == "responsibility_code" ~ "Responsible actors",
-    attribute == "cost_code"           ~ "Increase in ticket cost",
-    TRUE ~ attribute
-  )
-}
-
+# Mean +/- 1 SD of individual preference scores, in the shared plot's columns
 df <- read_csv(means_file, show_col_types = FALSE) |>
-  mutate(
-    code      = recode_codes(level),
-    attribute = recode_attributes(attribute),
-    profile   = factor(profile, levels = c(1, 2, 3),
-                       labels = c("Permanence sceptics", "Moderate demanders", "High-integrity demanders"))
+  transmute(
+    attribute,
+    code      = level,
+    profile   = as.character(factor(profile, levels = c(1, 2, 3),
+                                    labels = rev(profile_names))),
+    prob      = mean_pref,
+    asymp.LCL = mean_pref - sd_pref,
+    asymp.UCL = mean_pref + sd_pref
   )
 
-empty_rows <- expand_grid(
-  attribute = attribute_headers,
-  code      = attribute_headers,
-  profile   = c("Permanence sceptics", "Moderate demanders", "High-integrity demanders")
-) |>
-  mutate(mean_pref = NA_real_, sd_pref = NA_real_)
+profile_plot <- plot_attribute_emm(df,
+                                   x_label = "Mean preference score (\u22121 to +1)",
+                                   midline = 0, group = "profile",
+                                   group_values = profile_values,
+                                   group_name = NULL) +
+  # single-column width: stack the legend entries
+  guides(color = guide_legend(ncol = 1))
 
-df <- bind_rows(df, empty_rows) |>
-  mutate(
-    code      = factor(code,      levels = rev(plot_levels)),
-    attribute = factor(attribute, levels = attribute_headers),
-    profile   = factor(profile,   levels = c("High-integrity demanders", "Moderate demanders", "Permanence sceptics"))
-  )
-
-label_map <- tibble(code = levels(df$code)) |>
-  mutate(
-    code_label = if_else(
-      code %in% attribute_headers,
-      paste0("<b>", code, "</b>"),
-      code
-    )
-  )
-
-dodge <- position_dodge(width = 0.6)
-
-profile_plot <- ggplot(df, aes(x = code, y = mean_pref,
-                                alpha = profile, group = profile)) +
-  geom_neutral_line(0) +
-  geom_point(size = point_size, na.rm = TRUE, position = dodge, color = accent_color) +
-  geom_errorbar(
-    aes(ymin = mean_pref - sd_pref, ymax = mean_pref + sd_pref),
-    width = errorbar_width, na.rm = TRUE, position = dodge, color = accent_color
-  ) +
-  scale_x_discrete(labels = setNames(label_map$code_label, label_map$code)) +
-  scale_alpha_manual(values = profile_alphas, name = "Preference profile") +
-  coord_flip() +
-  theme_clean(base_size = 11) +
-  theme(
-    axis.text.y     = ggtext::element_markdown(),
-    legend.position = "bottom"
-  ) +
-  labs(x = NULL, y = "Mean preference score (−1 to +1)")
-
-ggsave(plot_out, profile_plot,
-       width  = plot_size$narrow$width,
-       height = plot_size$narrow$height)
+save_paper_figure(profile_plot, plot_out, width_mm = paper_width_single_mm,
+                  height_mm = 130)
 message("LPA profile plot saved: ", plot_out)

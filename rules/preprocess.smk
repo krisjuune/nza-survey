@@ -25,5 +25,5 @@ rule respondent_groups:
 
 rule preprocess_airfare_scenarios:
     input:  airfare   = AIRFARE_RAW
-    output: scenarios = AIRFARE_COST_SCENARIOS
+    output: costs     = AIRFARE_COSTS
     script: "../scripts/preprocessing/airfare_cost_scenarios.R"

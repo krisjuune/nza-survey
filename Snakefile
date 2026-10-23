@@ -51,6 +51,10 @@ DURABILITY_COST_RATING = "data/durability_cost_rating_emm.csv"
 FUEL_COST_CHOICE = "data/fuel_cost_choice_emm.csv"
 FUEL_COST_RATING = "data/fuel_cost_rating_emm.csv"
 
+# willingness to pay (conditional logit, linear price) by country
+WTP_COUNTRY = "data/wtp_country.csv"
+WTP_SUMMARY = "output/supp_figs/wtp_summary.txt"
+
 # climate concern subgroup results
 CONCERN_CHOICE = "data/concern_choice_emm.csv"
 CONCERN_RATING = "data/concern_rating_emm.csv"
@@ -72,6 +76,7 @@ POLICY_BY_PROFILE_CHOICE = "data/policy_by_profile_choice.csv"
 
 # Multinomial predictors of LPA profile membership
 PROFILE_PREDICTORS = "data/profile_predictors.csv"
+PROFILE_PREDICTORS_AME = "data/profile_predictors_ame.csv"
 
 # Compensating price differential: GBF vs SAF_ETS breakeven
 POLICY_BREAKEVEN             = "data/policy_breakeven.csv"
@@ -88,7 +93,8 @@ FRAMING_RATING_PLOT      = "output/supp_figs/framing_rating_plot.png"
 NZ_SUMMARY               = "output/supp_figs/nz_summary.txt"
 POLICY_CHOICE_PLOT       = "output/policy_choice_plot.png"
 POLICY_RATING_PLOT       = "output/supp_figs/policy_rating_plot.png"
-INTERACT_COMBINED_PLOT   = "output/interact_combined_plot.png"
+INTERACT_COMBINED_PLOT   = "output/supp_figs/interact_combined_plot.png"
+WTP_PLOT                 = "output/wtp_plot.png"
 CONCERN_CHOICE_PLOT      = "output/supp_figs/concern_choice_plot.png"
 CONCERN_RATING_PLOT      = "output/supp_figs/concern_rating_plot.png"
 FLYER_TYPE_CHOICE_PLOT   = "output/supp_figs/flyer_type_choice_plot.png"
@@ -100,9 +106,11 @@ POLICY_BY_PROFILE_PLOT    = "output/supp_figs/policy_by_profile_plot.png"
 PROFILE_PREDICTORS_PLOT   = "output/supp_figs/profile_predictors_plot.png"
 PROFILES_COMBINED_PLOT       = "output/profiles_combined_plot.png"
 # Country-level cost-preference breakeven
-AIRFARE_RAW                      = "raw-data/airfare.csv"
-AIRFARE_COST_SCENARIOS           = "data/airfare_cost_scenarios.csv"
+AIRFARE_RAW                      = config["cost_files"][config["cost_source"]]
+AIRFARE_COSTS                    = "data/airfare_costs.csv"
 POLICY_BREAKEVEN_COUNTRY_GRID    = "data/policy_breakeven_country_grid.csv"
+POLICY_BREAKEVEN_COUNTRY_SUMMARY = "data/policy_breakeven_country_summary.csv"
+POLICY_BREAKEVEN_COUNTRY_TXT     = "output/supp_figs/policy_breakeven_country.txt"
 POLICY_BREAKEVEN_COMBINED        = "output/policy_breakeven_combined.png"
 
 # -------------------
@@ -147,11 +155,14 @@ rule all:
         LPA_CONJOINT_MEANS,
         POLICY_BY_PROFILE_CHOICE,
         PROFILE_PREDICTORS,
+        PROFILE_PREDICTORS_AME,
         POLICY_BREAKEVEN,
         POLICY_BREAKEVEN_GRID,
         POLICY_BREAKEVEN_INTERACTION,
-        AIRFARE_COST_SCENARIOS,
+        AIRFARE_COSTS,
         POLICY_BREAKEVEN_COUNTRY_GRID,
+        POLICY_BREAKEVEN_COUNTRY_SUMMARY,
+        POLICY_BREAKEVEN_COUNTRY_TXT,
         # plots
         CHOICE_PLOT,
         RATING_PLOT,
@@ -163,6 +174,9 @@ rule all:
         POLICY_CHOICE_PLOT,
         POLICY_RATING_PLOT,
         INTERACT_COMBINED_PLOT,
+        WTP_COUNTRY,
+        WTP_SUMMARY,
+        WTP_PLOT,
         CONCERN_CHOICE_PLOT,
         CONCERN_RATING_PLOT,
         FLYER_TYPE_CHOICE_PLOT,

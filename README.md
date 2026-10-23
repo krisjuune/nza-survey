@@ -81,6 +81,21 @@ raw-data/                   raw Qualtrics export (not tracked)
    colors, dashed neutral/reference lines, and consistent country/attribute
    ordering across figures.
 
+## Airfare cost data (breakeven analysis)
+
+The 2050 airfare increases for the breakeven figure come from the source set by
+`cost_source` in `config.yaml`:
+
+- `cost_paper` - `raw-data/airfare.csv`, the cost paper's "Results 2050 Different
+  rate" tab (100% GBF and 100% eSAF pathways; no UAE projection).
+- `published` - `raw-data/airfare_costs_published.csv`, filled in from
+  `scripts/preprocessing/airfare_costs_template.csv`.
+
+Either way, `scripts/preprocessing/airfare_cost_scenarios.R` writes the same tidy
+`data/airfare_costs.csv` (one row per country x fuel pathway, with
+`fuel_family` = `eSAF` / `GBF` / `mixed`). Mixed GBF-SAF rows are carried
+through but not yet used, since respondents never saw a mixed package.
+
 ## Environment notes
 
 The `Snakefile` pins `PATH` and `R_LIBS_USER` at the top so R scripts always

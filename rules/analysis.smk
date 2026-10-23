@@ -103,7 +103,8 @@ rule profile_predictors_analysis:
         groups     = RESPONDENT_GROUPS,
         covariates = COVARIATES
     output:
-        results = PROFILE_PREDICTORS
+        results = PROFILE_PREDICTORS,
+        ame     = PROFILE_PREDICTORS_AME
     script:
         "../scripts/analysis/profile_predictors.R"
 
@@ -132,9 +133,12 @@ rule policy_breakeven_analysis:
 rule policy_breakeven_country_analysis:
     input:
         conjoint   = CONJOINT_LONG,
-        covariates = COVARIATES
+        covariates = COVARIATES,
+        costs      = AIRFARE_COSTS
     output:
-        grid = POLICY_BREAKEVEN_COUNTRY_GRID
+        grid    = POLICY_BREAKEVEN_COUNTRY_GRID,
+        summary = POLICY_BREAKEVEN_COUNTRY_SUMMARY,
+        txt     = POLICY_BREAKEVEN_COUNTRY_TXT
     script:
         "../scripts/analysis/policy_breakeven_country.R"
 
@@ -147,3 +151,14 @@ rule framing_effect_analysis:
         choice = FRAMING_EFFECT_CHOICE
     script:
         "../scripts/analysis/framing_effect.R"
+
+
+rule wtp_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        wtp = WTP_COUNTRY,
+        txt = WTP_SUMMARY
+    script:
+        "../scripts/analysis/wtp.R"
