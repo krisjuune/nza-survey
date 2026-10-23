@@ -34,7 +34,9 @@ raw <- read_csv(choice_file, show_col_types = FALSE) |>
 profile_label_map <- raw |>
   distinct(profile, n_profile) |>
   arrange(profile) |>
-  mutate(profile_label = paste0(profile, "\n(n = ", n_profile, ")"))
+  mutate(profile_label = paste0(
+    profile, "\n(", round(100 * n_profile / sum(n_profile)), "% of sample)"
+  ))
 
 profile_label_levels <- profile_label_map$profile_label
 

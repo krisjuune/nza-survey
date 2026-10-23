@@ -63,11 +63,11 @@ if (exists("snakemake")) {
   policy_levels  <- c("GBF", "CORSIA", "SAF_ETS", "VCM_SBTi", "VCM_status_quo")
 
   policy_labels <- list(
-    SAF_ETS        = list(long = "Clean fuel transition (SAF mandate + carbon removal)",
-                          short = "SAF mandate + carbon removal"),
-    GBF            = list(long = "Geologically balanced fuels (GBF)",          short = "GBF"),
+    SAF_ETS        = list(long = "Clean fuel transition (SAF mandate + carbon storage)",
+                          short = "SAF mandate + carbon storage"),
+    GBF            = list(long = "Supplier-mandated carbon storage (GBF)",     short = "GBF"),
     CORSIA         = list(long = "Mandatory airline offsetting (CORSIA-like)", short = "CORSIA-like"),
-    VCM_SBTi       = list(long = "Voluntary carbon removal (SBTi-aligned)",    short = "SBTi-aligned"),
+    VCM_SBTi       = list(long = "Voluntary carbon storage (SBTi-aligned)",    short = "SBTi-aligned"),
     VCM_status_quo = list(long = "Voluntary offsetting (status quo)",          short = "Status quo")
   )
 

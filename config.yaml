@@ -55,10 +55,10 @@ policy_levels:
 # Display names for the policy packages, used in every figure. `long` for
 # axis/legend labels with room; `short` (the tag) for tight panels and text.
 policy_labels:
-  SAF_ETS:        {long: "Clean fuel transition (SAF mandate + carbon removal)", short: "SAF mandate + carbon removal"}
-  GBF:            {long: "Geologically balanced fuels (GBF)",        short: "GBF"}
+  SAF_ETS:        {long: "Clean fuel transition (SAF mandate + carbon storage)", short: "SAF mandate + carbon storage"}
+  GBF:            {long: "Supplier-mandated carbon storage (GBF)", short: "GBF"}
   CORSIA:         {long: "Mandatory airline offsetting (CORSIA-like)", short: "CORSIA-like"}
-  VCM_SBTi:       {long: "Voluntary carbon removal (SBTi-aligned)",  short: "SBTi-aligned"}
+  VCM_SBTi:       {long: "Voluntary carbon storage (SBTi-aligned)",  short: "SBTi-aligned"}
   VCM_status_quo: {long: "Voluntary offsetting (status quo)",        short: "Status quo"}
 
 # -------------------

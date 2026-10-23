@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(ggtext)
 library(readr)
 library(tidyr)
 library(here)
@@ -32,12 +33,18 @@ shared_theme <- theme_paper()
 
 # Panel a shows every country; countries without a 2050 cost projection (UAE)
 # get curves but no projected-fare dots, and are left out of panel b.
-summary_df <- read_csv(summary_file, show_col_types = FALSE) |>
-  filter(!is.na(gbf_central))
+all_summary <- read_csv(summary_file, show_col_types = FALSE)
+
+summary_df <- all_summary |>
+  filter(!is.na(gbf_central), country != "All countries")
 cost_countries <- intersect(country_levels, summary_df$country)
 
 summary_df <- summary_df |>
   mutate(country = factor(country, levels = cost_countries))
+
+# Pooled estimate (no country term), evaluated at the median projected fare
+# among cost_countries; shown as an extra row at the top of panel b only.
+pooled_df <- filter(all_summary, country == "All countries")
 
 prob_df <- read_csv(grid_file, show_col_types = FALSE) |>
   mutate(country = factor(country, levels = country_levels),
@@ -88,46 +95,63 @@ p_a <- ggplot(filter(prob_df, cost_pct <= x_max), aes(x = cost_pct)) +
 # same in both columns and only the SAF dot moves.
 scenario_levels <- c("If both cost\nthe same", "At projected\n2050 fares")
 
-panel_b_df <- bind_rows(
-  summary_df |> transmute(
-    country, scenario = scenario_levels[1], policy = "SAF_ETS",
-    prob = prob_saf_equal_price,
-    lo = prob_saf_equal_price_lower, hi = prob_saf_equal_price_upper),
-  summary_df |> transmute(
-    country, scenario = scenario_levels[2], policy = "SAF_ETS",
-    prob = prob_saf_at_projected,
-    lo = prob_saf_at_projected_lower, hi = prob_saf_at_projected_upper),
-  summary_df |> transmute(
-    country, scenario = scenario_levels[1], policy = "GBF",
-    prob = prob_gbf_at_projected,
-    lo = prob_gbf_at_projected_lower, hi = prob_gbf_at_projected_upper),
-  summary_df |> transmute(
-    country, scenario = scenario_levels[2], policy = "GBF",
-    prob = prob_gbf_at_projected,
-    lo = prob_gbf_at_projected_lower, hi = prob_gbf_at_projected_upper)
-) |>
+panel_b_rows <- function(d) {
+  bind_rows(
+    d |> transmute(
+      country = as.character(country), scenario = scenario_levels[1], policy = "SAF_ETS",
+      prob = prob_saf_equal_price,
+      lo = prob_saf_equal_price_lower, hi = prob_saf_equal_price_upper),
+    d |> transmute(
+      country = as.character(country), scenario = scenario_levels[2], policy = "SAF_ETS",
+      prob = prob_saf_at_projected,
+      lo = prob_saf_at_projected_lower, hi = prob_saf_at_projected_upper),
+    d |> transmute(
+      country = as.character(country), scenario = scenario_levels[1], policy = "GBF",
+      prob = prob_gbf_at_projected,
+      lo = prob_gbf_at_projected_lower, hi = prob_gbf_at_projected_upper),
+    d |> transmute(
+      country = as.character(country), scenario = scenario_levels[2], policy = "GBF",
+      prob = prob_gbf_at_projected,
+      lo = prob_gbf_at_projected_lower, hi = prob_gbf_at_projected_upper)
+  )
+}
+
+# Pooled estimate on top (bold), then countries; a gap separates the two,
+# matching the WTP plot's row layout.
+row_labels  <- c("All countries", cost_countries)
+row_pos     <- setNames(c(length(cost_countries) + 1.6, rev(seq_along(cost_countries))),
+                        row_labels)
+axis_labels <- if_else(row_labels == "All countries",
+                       "<b>All countries</b><br>(excl. UAE)", row_labels)
+
+# Dodge SAF/GBF rows manually (rather than via position_dodge, which doesn't
+# reliably offset points and linerange the same way against a continuous,
+# non-factor y axis): shift each policy's y by a fixed amount either side of
+# the row center.
+dodge_offset <- c(SAF_ETS = 0.125, GBF = -0.125)
+
+panel_b_df <- bind_rows(panel_b_rows(summary_df), panel_b_rows(pooled_df)) |>
   mutate(
     scenario = factor(scenario, levels = scenario_levels),
     policy   = factor(policy, levels = policies),
-    country  = factor(country, levels = rev(cost_countries))
+    y        = row_pos[country] + dodge_offset[policy]
   )
 
-dodge <- position_dodge(width = 0.5)
-
-p_b <- ggplot(panel_b_df,
-              aes(x = prob, y = country, color = policy,
-                  group = factor(policy, levels = rev(policies)))) +
+p_b <- ggplot(panel_b_df, aes(x = prob, y = y, color = policy)) +
   geom_vline(xintercept = 0.5, color = reference_line_color, linetype = "dashed",
              linewidth = 0.3) +
-  geom_linerange(aes(xmin = lo, xmax = hi), position = dodge, linewidth = 0.5) +
-  geom_point(position = dodge, size = 1.8) +
+  geom_linerange(aes(xmin = lo, xmax = hi), linewidth = 0.5) +
+  geom_point(size = 1.8) +
   facet_wrap(~scenario, nrow = 1) +
   color_scale +
   scale_x_continuous(breaks = c(0.5, 0.6, 0.7)) +
+  scale_y_continuous(breaks = row_pos, labels = axis_labels,
+                     expand = expansion(add = 0.6)) +
   coord_cartesian(xlim = c(0.44, 0.76)) +
   shared_theme +
   guides(color = "none") +  # legend comes from panel a
   theme(axis.title.y    = element_blank(),
+        axis.text.y     = ggtext::element_markdown(),
         axis.ticks.y    = element_blank(),
         axis.line.y     = element_blank()) +
   labs(x = "Choice probability")

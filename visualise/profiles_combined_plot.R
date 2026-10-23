@@ -38,7 +38,9 @@ raw_choice <- read_csv(choice_file, show_col_types = FALSE) |>
 profile_label_map <- raw_choice |>
   distinct(profile, n_profile) |>
   arrange(profile) |>
-  mutate(profile_label = paste0(profile, "\n(n = ", n_profile, ")"))
+  mutate(profile_label = paste0(
+    profile, "\n(", round(100 * n_profile / sum(n_profile)), "% of sample)"
+  ))
 
 choice_df <- raw_choice |>
   left_join(select(profile_label_map, profile, profile_label), by = "profile") |>
@@ -60,9 +62,12 @@ panel_a <- ggplot(choice_df, aes(x = policy_label, y = prob)) +
 
 # -------------------------------------------------------------------
 # Panel b: predictors of profile membership (average marginal effects),
-# predictors with at least one significant effect
+# predictors with at least one significant effect. Public input is excluded
+# here (shown in the supplementary all-predictors figure instead).
 # -------------------------------------------------------------------
-panel_b <- plot_profile_ame(read_profile_ame(ame_file), significant_only = TRUE)
+panel_b <- read_profile_ame(ame_file) |>
+  filter(key != "publicinput_co2na|publicinput_co2na") |>
+  plot_profile_ame(significant_only = TRUE)
 
 # -------------------------------------------------------------------
 # Combine

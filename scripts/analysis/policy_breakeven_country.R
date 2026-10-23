@@ -241,7 +241,97 @@ summarise_country <- function(ctry) {
 
 summary_tbl <- map_dfr(country_levels, summarise_country)
 
-write_csv(summary_tbl, summary_file)
+# ── Pooled ("All countries") summary ─────────────────────────────────────────
+# Per-country pathway samples are small and noisy, so we also fit a pooled
+# model with no country term, evaluated at the median of the per-country
+# projected fares among the countries already shown in panel b (i.e. those
+# with both an eSAF and a GBF cost projection).
+
+model_pooled <- suppressWarnings(
+  glmer(
+    binary_choice ~ policy_type * cost_pct + (1 | id),
+    data    = df,
+    family  = binomial,
+    control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
+  )
+)
+
+betas_pooled <- fixef(model_pooled)
+vcov_pooled  <- as.matrix(vcov(model_pooled))
+
+set.seed(random_seed)
+beta_draws_pooled <- MASS::mvrnorm(n_draws, mu = betas_pooled, Sigma = vcov_pooled)
+
+design_ab_pooled <- function(policy) {
+  rows <- tibble(
+    policy_type = factor(policy, levels = levels(df$policy_type)),
+    cost_pct    = c(0, 1)
+  )
+  X <- model.matrix(~ policy_type * cost_pct, data = rows)
+  list(a = X[1, ], b = X[2, ] - X[1, ])
+}
+
+pooled_fare <- projected_premium |>
+  summarise(esaf_central = median(esaf_central), gbf_central = median(gbf_central))
+
+summarise_pooled <- function() {
+  s <- design_ab_pooled("SAF_ETS")
+  g <- design_ab_pooled("GBF")
+  a_s <- sum(s$a * betas_pooled); b_s <- sum(s$b * betas_pooled)
+  a_g <- sum(g$a * betas_pooled); b_g <- sum(g$b * betas_pooled)
+  a_s_d <- as.numeric(beta_draws_pooled %*% s$a); b_s_d <- as.numeric(beta_draws_pooled %*% s$b)
+  a_g_d <- as.numeric(beta_draws_pooled %*% g$a); b_g_d <- as.numeric(beta_draws_pooled %*% g$b)
+
+  c_s <- pooled_fare$esaf_central
+  c_g <- pooled_fare$gbf_central
+
+  premium   <- (a_g + b_g * c_g - a_s) / b_s - c_g
+  premium_d <- (a_g_d + b_g_d * c_g - a_s_d) / b_s_d - c_g
+  premium_d[b_s_d >= 0] <- NA
+
+  p_s   <- plogis(a_s + b_s * c_s);       p_g   <- plogis(a_g + b_g * c_g)
+  p_s_d <- plogis(a_s_d + b_s_d * c_s);   p_g_d <- plogis(a_g_d + b_g_d * c_g)
+
+  p_s_eq   <- plogis(a_s + b_s * c_g)
+  p_s_eq_d <- plogis(a_s_d + b_s_d * c_g)
+
+  tibble(
+    country                    = "All countries",
+    saf_slope                  = b_s,
+    gbf_slope                  = b_g,
+    share_saf_slope_nonneg      = mean(b_s_d >= 0),
+    esaf_central                = c_s,
+    gbf_central                 = c_g,
+    projected_central           = c_s - c_g,
+    prob_saf_equal_price        = p_s_eq,
+    prob_saf_equal_price_lower  = ci(p_s_eq_d)[1],
+    prob_saf_equal_price_upper  = ci(p_s_eq_d)[2],
+    prob_gap_equal_price        = p_s_eq - p_g,
+    prob_gap_equal_price_lower  = ci(p_s_eq_d - p_g_d)[1],
+    prob_gap_equal_price_upper  = ci(p_s_eq_d - p_g_d)[2],
+    accepted_premium            = premium,
+    accepted_premium_lower      = ci(premium_d)[1],
+    accepted_premium_upper      = ci(premium_d)[2],
+    accepted_saf_cost           = c_g + premium,
+    prob_saf_at_projected       = p_s,
+    prob_saf_at_projected_lower = ci(p_s_d)[1],
+    prob_saf_at_projected_upper = ci(p_s_d)[2],
+    prob_gbf_at_projected       = p_g,
+    prob_gbf_at_projected_lower = ci(p_g_d)[1],
+    prob_gbf_at_projected_upper = ci(p_g_d)[2],
+    prob_gap_at_projected       = p_s - p_g,
+    prob_gap_at_projected_lower = ci(p_s_d - p_g_d)[1],
+    prob_gap_at_projected_upper = ci(p_s_d - p_g_d)[2]
+  )
+}
+
+pooled_row <- summarise_pooled()
+message(sprintf(
+  "Pooled (all countries) estimate: median fares eSAF +%.0f%%, GBF +%.0f%%.",
+  pooled_fare$esaf_central, pooled_fare$gbf_central
+))
+
+write_csv(bind_rows(summary_tbl, pooled_row), summary_file)
 message("Country breakeven summary saved: ", summary_file)
 
 # ── Text summary ─────────────────────────────────────────────────────────────
