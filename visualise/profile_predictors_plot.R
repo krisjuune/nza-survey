@@ -12,7 +12,7 @@ if (exists("snakemake")) {
   plot_out <- snakemake@output[["plot"]]
 } else {
   ame_file <- here("data", "profile_predictors_ame.csv")
-  plot_out <- here("output", "supp_figs", "profile_predictors_plot.png")
+  plot_out <- here("output", "supp_figs", "lpa_profile_predictors.png")
 }
 
 # All predictors of profile membership (average marginal effects); the main

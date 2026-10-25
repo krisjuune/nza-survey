@@ -15,7 +15,7 @@ if (exists("snakemake")) {
   conjoint_file   <- here("data", "conjoint_long.csv")
   covariates_file <- here("data", "covariates.csv")
   wtp_out         <- here("data", "wtp_country.csv")
-  txt_out         <- here("output", "supp_figs", "wtp_summary.txt")
+  txt_out         <- here("output", "text-files", "wtp_summary.txt")
 }
 
 n_draws <- 5000

@@ -5,8 +5,7 @@ rule plot_conjoint_general:
         country_choice = COUNTRY_CHOICE,
         country_rating = COUNTRY_RATING
     output:
-        choice_plot         = CHOICE_PLOT,
-        rating_plot         = RATING_PLOT,
+        general_plot        = GENERAL_CONJOINT_PLOT,
         country_choice_plot = COUNTRY_CHOICE_PLOT,
         country_rating_plot = COUNTRY_RATING_PLOT,
         **pdf_output(COUNTRY_CHOICE_PLOT, "country_choice_pdf")
@@ -21,8 +20,6 @@ rule plot_nz_framing:
         nz_choice      = NZ_CHOICE,
         nz_rating      = NZ_RATING
     output:
-        framing_choice_plot = FRAMING_CHOICE_PLOT,
-        framing_rating_plot = FRAMING_RATING_PLOT,
         nz_summary          = NZ_SUMMARY
     script:
         "../visualise/nz_framing_plot.R"
@@ -30,11 +27,9 @@ rule plot_nz_framing:
 
 rule plot_policy_types:
     input:
-        choice = POLICY_CHOICE,
-        rating = POLICY_RATING
+        choice = POLICY_CHOICE
     output:
         choice_plot = POLICY_CHOICE_PLOT,
-        rating_plot = POLICY_RATING_PLOT,
         **pdf_output(POLICY_CHOICE_PLOT, "choice_pdf")
     script:
         "../visualise/policy_plot.R"
@@ -121,20 +116,13 @@ rule plot_profile_predictors:
         "../visualise/profile_predictors_plot.R"
 
 
-rule plot_policy_by_profile:
-    input:
-        choice = POLICY_BY_PROFILE_CHOICE
-    output:
-        plot = POLICY_BY_PROFILE_PLOT
-    script:
-        "../visualise/policy_by_profile_plot.R"
-
-
 rule plot_framing_effect:
     input:
-        choice = FRAMING_EFFECT_CHOICE
+        choice    = FRAMING_EFFECT_CHOICE,
+        nz_choice = NZ_CHOICE
     output:
-        choice_plot = FRAMING_EFFECT_CHOICE_PLOT
+        choice_plot  = FRAMING_EFFECT_CHOICE_PLOT,
+        results_plot = FRAMING_RESULTS_PLOT
     script:
         "../visualise/framing_effect_plot.R"
 

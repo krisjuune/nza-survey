@@ -63,12 +63,12 @@ FUEL_COST_RATING = "data/fuel_cost_rating_emm.csv"
 
 # willingness to pay (conditional logit, linear price) by country
 WTP_COUNTRY = "data/wtp_country.csv"
-WTP_SUMMARY = "output/supp_figs/wtp_summary.txt"
+WTP_SUMMARY = "output/text-files/wtp_summary.txt"
 
 # robustness checks (sample variants, income weighting, internal validation)
 ROBUSTNESS_VARIANTS   = "data/robustness_country_choice.csv"
 ROBUSTNESS_VALIDATION = "data/robustness_validation.csv"
-ROBUSTNESS_SUMMARY    = "output/supp_figs/robustness_summary.txt"
+ROBUSTNESS_SUMMARY    = "output/text-files/robustness_summary.txt"
 ROBUSTNESS_SAMPLE_PLOT = "output/supp_figs/robustness_sample.png"
 ROBUSTNESS_INCOME_PLOT = "output/supp_figs/robustness_income.png"
 VALIDATION_STATED_PLOT = "output/supp_figs/validation_stated.png"
@@ -100,18 +100,15 @@ PROFILE_PREDICTORS_AME = "data/profile_predictors_ame.csv"
 # Compensating price differential: GBF vs SAF_ETS breakeven
 POLICY_BREAKEVEN             = "data/policy_breakeven.csv"
 POLICY_BREAKEVEN_GRID        = "data/policy_breakeven_grid.csv"
-POLICY_BREAKEVEN_INTERACTION = "output/supp_figs/policy_breakeven_interaction.txt"
+POLICY_BREAKEVEN_INTERACTION = "output/text-files/policy_breakeven_interaction.txt"
 
 # output plots
-CHOICE_PLOT              = "output/supp_figs/general_choice_conjoint.png"
-RATING_PLOT              = "output/supp_figs/general_rating_conjoint.png"
+GENERAL_CONJOINT_PLOT    = "output/supp_figs/general_conjoint.png"
 COUNTRY_CHOICE_PLOT      = "output/country_choice_conjoint.png"
 COUNTRY_RATING_PLOT      = "output/supp_figs/country_rating_conjoint.png"
-FRAMING_CHOICE_PLOT      = "output/supp_figs/framing_choice_plot.png"
-FRAMING_RATING_PLOT      = "output/supp_figs/framing_rating_plot.png"
-NZ_SUMMARY               = "output/supp_figs/nz_summary.txt"
+FRAMING_RESULTS_PLOT     = "output/supp_figs/framing_results.png"
+NZ_SUMMARY               = "output/text-files/nz_summary.txt"
 POLICY_CHOICE_PLOT       = "output/policy_choice_plot.png"
-POLICY_RATING_PLOT       = "output/supp_figs/policy_rating_plot.png"
 INTERACT_COMBINED_PLOT   = "output/supp_figs/interact_combined_plot.png"
 WTP_PLOT                 = "output/wtp_plot.png"
 CONCERN_CHOICE_PLOT      = "output/supp_figs/concern_choice_plot.png"
@@ -121,15 +118,14 @@ FLYER_TYPE_RATING_PLOT   = "output/supp_figs/flyer_type_rating_plot.png"
 FRAMING_EFFECT_CHOICE_PLOT = "output/supp_figs/country_framing_choice.png"
 LPA_CONJOINT_IC_PLOT      = "output/supp_figs/lpa_conjoint_ic.png"
 LPA_CONJOINT_PROFILE_PLOT = "output/supp_figs/lpa_conjoint_profiles.png"
-POLICY_BY_PROFILE_PLOT    = "output/supp_figs/policy_by_profile_plot.png"
-PROFILE_PREDICTORS_PLOT   = "output/supp_figs/profile_predictors_plot.png"
+PROFILE_PREDICTORS_PLOT   = "output/supp_figs/lpa_profile_predictors.png"
 PROFILES_COMBINED_PLOT       = "output/profiles_combined_plot.png"
 # Country-level cost-preference breakeven
 AIRFARE_RAW                      = config["cost_files"][config["cost_source"]]
 AIRFARE_COSTS                    = "data/airfare_costs.csv"
 POLICY_BREAKEVEN_COUNTRY_GRID    = "data/policy_breakeven_country_grid.csv"
 POLICY_BREAKEVEN_COUNTRY_SUMMARY = "data/policy_breakeven_country_summary.csv"
-POLICY_BREAKEVEN_COUNTRY_TXT     = "output/supp_figs/policy_breakeven_country.txt"
+POLICY_BREAKEVEN_COUNTRY_TXT     = "output/text-files/policy_breakeven_country.txt"
 POLICY_BREAKEVEN_COMBINED        = "output/policy_breakeven_combined.png"
 
 # Main-paper figures (PNG, plus PDF when save_pdf is on); everything under
@@ -193,15 +189,12 @@ rule all:
         POLICY_BREAKEVEN_COUNTRY_SUMMARY,
         POLICY_BREAKEVEN_COUNTRY_TXT,
         # plots
-        CHOICE_PLOT,
-        RATING_PLOT,
+        GENERAL_CONJOINT_PLOT,
         COUNTRY_CHOICE_PLOT,
         COUNTRY_RATING_PLOT,
-        FRAMING_CHOICE_PLOT,
-        FRAMING_RATING_PLOT,
+        FRAMING_RESULTS_PLOT,
         NZ_SUMMARY,
         POLICY_CHOICE_PLOT,
-        POLICY_RATING_PLOT,
         INTERACT_COMBINED_PLOT,
         WTP_COUNTRY,
         WTP_SUMMARY,
@@ -220,7 +213,6 @@ rule all:
         FRAMING_EFFECT_CHOICE_PLOT,
         LPA_CONJOINT_IC_PLOT,
         LPA_CONJOINT_PROFILE_PLOT,
-        POLICY_BY_PROFILE_PLOT,
         PROFILE_PREDICTORS_PLOT,
         PROFILES_COMBINED_PLOT,
         POLICY_BREAKEVEN_COMBINED,

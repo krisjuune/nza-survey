@@ -30,7 +30,7 @@ if (exists("snakemake")) {
   policy_rating_file  <- here("data", "policy_rating_emm.csv")
   variants_out        <- here("data", "robustness_country_choice.csv")
   validation_out      <- here("data", "robustness_validation.csv")
-  txt_out             <- here("output", "supp_figs", "robustness_summary.txt")
+  txt_out             <- here("output", "text-files", "robustness_summary.txt")
 }
 
 speeder_share  <- 0.05

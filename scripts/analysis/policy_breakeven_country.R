@@ -20,7 +20,7 @@ if (exists("snakemake")) {
   cost_file      <- here("data", "airfare_costs.csv")
   grid_file      <- here("data", "policy_breakeven_country_grid.csv")
   summary_file   <- here("data", "policy_breakeven_country_summary.csv")
-  txt_file       <- here("output", "supp_figs", "policy_breakeven_country.txt")
+  txt_file       <- here("output", "text-files", "policy_breakeven_country.txt")
 }
 
 n_draws <- 4000

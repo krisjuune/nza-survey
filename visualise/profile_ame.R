@@ -30,7 +30,7 @@ ame_rows <- tibble::tribble(
   "Education (vs secondary or below)",            "education_cat|Post-secondary",           "Post-secondary",
   "Education (vs secondary or below)",            "education_cat|Tertiary or above",        "Tertiary or above",
   "Age (per SD)",                                 "age|age",                                "Age",
-  "Responsibility ratings (per SD)",              "publicinput_co2na|publicinput_co2na",    "Public input in decisions",
+  "Decision-making (per SD)",                     "publicinput_co2na|publicinput_co2na",    "Public input in decisions",
   "Responsibility ratings (per SD)",              "actor_role_airlines|actor_role_airlines", "Airlines",
   "Responsibility ratings (per SD)",              "actor_role_fuelsuppliers|actor_role_fuelsuppliers", "Fuel suppliers",
   "Responsibility ratings (per SD)",              "actor_role_government|actor_role_government", "Government",

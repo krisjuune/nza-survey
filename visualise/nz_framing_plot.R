@@ -12,17 +12,13 @@ if (exists("snakemake")) {
   framing_rating_emm   <- snakemake@input[["framing_rating"]]
   nz_choice_emm   <- snakemake@input[["nz_choice"]]
   nz_rating_emm   <- snakemake@input[["nz_rating"]]
-  choice_out <- snakemake@output[["framing_choice_plot"]]
-  rating_out <- snakemake@output[["framing_rating_plot"]]
   nz_summary_out <- snakemake@output[["nz_summary"]]
 } else {
   framing_choice_emm   <- here("data", "framing_choice_emm.csv")
   framing_rating_emm   <- here("data", "framing_rating_emm.csv")
   nz_choice_emm   <- here("data", "nz_choice_emm.csv")
   nz_rating_emm   <- here("data", "nz_rating_emm.csv")
-  choice_out <- here("output", "supp_figs", "framing_choice_plot.png")
-  rating_out <- here("output", "supp_figs", "framing_rating_plot.png")
-  nz_summary_out <- here("output", "supp_figs", "nz_summary.txt")
+  nz_summary_out <- here("output", "text-files", "nz_summary.txt")
 }
 
 
@@ -97,19 +93,6 @@ nz_rating <- read_csv(nz_rating_emm, show_col_types = FALSE) |>
 
 
 # -------------------
-# Plot framing results
-# -------------------
-
-choice_plot <- plot_attribute_emm(framing_choice_df, x_label = "Choice probability",
-                                  midline = 0.5, breaks = choice_breaks,
-                                  facet = "framing")
-rating_plot <- plot_attribute_emm(framing_rating_df, x_label = "Estimated rating",
-                                  midline = 3, symmetric = TRUE, facet = "framing")
-
-save_paper_figure(choice_plot, choice_out, height_mm = 110)
-save_paper_figure(rating_plot, rating_out, height_mm = 110)
-
-# -------------------
 # Get text file with for net zero packages
 # -------------------
 
@@ -125,5 +108,4 @@ nz_text <- c(
 
 writeLines(nz_text, con = nz_summary_out)
 
-message("Plots saved: ", choice_out, " & ", rating_out)
 message("NZ summary saved: ", nz_summary_out)

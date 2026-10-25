@@ -14,7 +14,7 @@ if (exists("snakemake")) {
   input_file        <- here("data", "conjoint_long.csv")
   out_file          <- here("data", "policy_breakeven.csv")
   grid_file         <- here("data", "policy_breakeven_grid.csv")
-  interaction_file  <- here("output", "supp_figs", "policy_breakeven_interaction.txt")
+  interaction_file  <- here("output", "text-files", "policy_breakeven_interaction.txt")
 }
 
 # Policy-type trials only; treat cost as continuous

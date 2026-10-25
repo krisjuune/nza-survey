@@ -17,11 +17,8 @@ if (exists("snakemake")) {
 
 profile_names <- c("High-integrity demanders", "Moderate demanders",
                    "Permanence sceptics")
-# Profile colours from config, keyed by LPA profile number
-profile_values <- setNames(
-  unname(profile_colors[c("Profile 3", "Profile 2", "Profile 1")]),
-  profile_names
-)
+# One ink at decreasing opacity, strongest for high-integrity demanders
+profile_values <- setNames(tint(attribute_color, c(1, 0.6, 0.3)), profile_names)
 
 # Mean +/- 1 SD of individual preference scores, in the shared plot's columns
 df <- read_csv(means_file, show_col_types = FALSE) |>
@@ -39,10 +36,8 @@ profile_plot <- plot_attribute_emm(df,
                                    x_label = "Mean preference score (\u22121 to +1)",
                                    midline = 0, group = "profile",
                                    group_values = profile_values,
-                                   group_name = NULL) +
-  # single-column width: stack the legend entries
-  guides(color = guide_legend(ncol = 1))
+                                   group_name = "Preference profile")
 
-save_paper_figure(profile_plot, plot_out, width_mm = paper_width_single_mm,
-                  height_mm = 130)
+# Same 8:9 aspect as the earlier version of this figure
+save_paper_figure(profile_plot, plot_out, width_mm = 140, height_mm = 158)
 message("LPA profile plot saved: ", plot_out)

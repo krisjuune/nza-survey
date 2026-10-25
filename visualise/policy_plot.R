@@ -8,14 +8,10 @@ source(here("visualise", "theme_clean.R"))
 
 if (exists("snakemake")) {
   policy_choice_emm <- snakemake@input[["choice"]]
-  policy_rating_emm <- snakemake@input[["rating"]]
   choice_out        <- snakemake@output[["choice_plot"]]
-  rating_out        <- snakemake@output[["rating_plot"]]
 } else {
   policy_choice_emm <- here("data", "policy_choice_emm.csv")
-  policy_rating_emm <- here("data", "policy_rating_emm.csv")
   choice_out        <- here("output", "policy_choice_plot.png")
-  rating_out        <- here("output", "policy_rating_plot.png")
 }
 
 # Top-to-bottom display order from config (highest choice probability first);
@@ -118,30 +114,3 @@ choice_with_attrs <- choice_plot + attrs_plot +
 
 save_paper_figure(choice_with_attrs, choice_out, height_mm = 65)
 message("Policy choice plot saved: ", choice_out)
-
-rating_df <- read_csv(policy_rating_emm, show_col_types = FALSE) |>
-  rename(prob = emmean, asymp.LCL = lower.CL, asymp.UCL = upper.CL) |>
-  mutate(
-    policy_label = factor(
-      policy_display[policy_type],
-      levels = policy_level_labels
-    )
-  )
-
-rating_plot <- ggplot(rating_df, aes(x = policy_label, y = prob)) +
-  geom_neutral_line(3) +
-  geom_linerange(aes(ymin = asymp.LCL, ymax = asymp.UCL),
-                 color = policy_color, linewidth = paper_ci_width) +
-  geom_point(color = policy_color, size = paper_point_size) +
-  coord_flip(
-    ylim = symmetric_limits(c(rating_df$asymp.LCL, rating_df$asymp.UCL), 3)
-  ) +
-  theme_paper(legend = "none") +
-  labs(
-    x = NULL,
-    y = "Estimated rating"
-  )
-
-save_paper_figure(rating_plot, rating_out, width_mm = paper_width_single_mm,
-                  height_mm = 65)
-message("Policy rating plot saved: ", rating_out)
