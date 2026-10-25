@@ -8,7 +8,8 @@ rule plot_conjoint_general:
         choice_plot         = CHOICE_PLOT,
         rating_plot         = RATING_PLOT,
         country_choice_plot = COUNTRY_CHOICE_PLOT,
-        country_rating_plot = COUNTRY_RATING_PLOT
+        country_rating_plot = COUNTRY_RATING_PLOT,
+        **pdf_output(COUNTRY_CHOICE_PLOT, "country_choice_pdf")
     script:
         "../visualise/conjoint_general_plot.R"
 
@@ -33,7 +34,8 @@ rule plot_policy_types:
         rating = POLICY_RATING
     output:
         choice_plot = POLICY_CHOICE_PLOT,
-        rating_plot = POLICY_RATING_PLOT
+        rating_plot = POLICY_RATING_PLOT,
+        **pdf_output(POLICY_CHOICE_PLOT, "choice_pdf")
     script:
         "../visualise/policy_plot.R"
 
@@ -93,7 +95,8 @@ rule plot_profiles_combined:
         choice  = POLICY_BY_PROFILE_CHOICE,
         ame     = PROFILE_PREDICTORS_AME
     output:
-        plot = PROFILES_COMBINED_PLOT
+        plot = PROFILES_COMBINED_PLOT,
+        **pdf_output(PROFILES_COMBINED_PLOT)
     script:
         "../visualise/profiles_combined_plot.R"
 
@@ -103,7 +106,8 @@ rule plot_policy_breakeven_combined:
         grid    = POLICY_BREAKEVEN_COUNTRY_GRID,
         summary = POLICY_BREAKEVEN_COUNTRY_SUMMARY
     output:
-        combined = POLICY_BREAKEVEN_COMBINED
+        combined = POLICY_BREAKEVEN_COMBINED,
+        **pdf_output(POLICY_BREAKEVEN_COMBINED)
     script:
         "../visualise/policy_breakeven_combined_plot.R"
 
@@ -139,6 +143,24 @@ rule plot_wtp:
     input:
         wtp = WTP_COUNTRY
     output:
-        plot = WTP_PLOT
+        plot = WTP_PLOT,
+        **pdf_output(WTP_PLOT)
     script:
         "../visualise/wtp_plot.R"
+
+
+rule plot_robustness:
+    input:
+        variants       = ROBUSTNESS_VARIANTS,
+        validation     = ROBUSTNESS_VALIDATION,
+        country_choice = COUNTRY_CHOICE,
+        country_rating = COUNTRY_RATING,
+        overall_choice = CHOICE_OUTPUT,
+        overall_rating = RATING_OUTPUT
+    output:
+        sample_plot  = ROBUSTNESS_SAMPLE_PLOT,
+        income_plot  = ROBUSTNESS_INCOME_PLOT,
+        stated_plot  = VALIDATION_STATED_PLOT,
+        ranking_plot = VALIDATION_RANKING_PLOT
+    script:
+        "../visualise/robustness_plot.R"

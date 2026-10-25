@@ -25,6 +25,7 @@ if (exists("snakemake")) {
   accent_color           <- cfg$accent_color
   attribute_color        <- cfg$attribute_color
   highlight_color        <- cfg$highlight_color
+  robustness_alphas      <- unlist(cfg$robustness_alphas)
   policy_contrast_colors <- unlist(cfg$policy_contrast_colors)
   policy_color           <- cfg$policy_color
   secondary_color        <- cfg$secondary_color
@@ -97,6 +98,8 @@ if (exists("snakemake")) {
   accent_color           <- "#333333"
   attribute_color        <- "#333333"
   highlight_color        <- "#3f3d99"
+  robustness_alphas      <- c(no_speeders = 0.7, attention_passed = 0.4,
+                              design_weighted = 0.6)
   policy_contrast_colors <- c(saf = "#4575b4", gbf = "#d73027")
   policy_color           <- "#d73027"
   secondary_color        <- "#999999"

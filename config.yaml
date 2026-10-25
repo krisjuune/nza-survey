@@ -129,6 +129,14 @@ accent_color:    "#333333"
 # earlier #4a5897 was indistinguishable from the SAF blue, dE 4.7).
 highlight_color: "#3f3d99"
 
+# Robustness figures: alternative samples/weights in highlight_color at these
+# opacities (full / unweighted sample = 1). Drawn as the equivalent opaque
+# tint on white, so CI lines never show through the dots.
+robustness_alphas:
+  no_speeders:      0.7
+  attention_passed: 0.4
+  design_weighted:  0.6
+
 # The two focal policy packages (breakeven figure; CVD dE 20.9)
 policy_contrast_colors:
   saf: "#4575b4"
@@ -157,8 +165,10 @@ secondary_color: "#999999"
 reference_line_color: "#999999"   # dashed lines at 0.5 / neutral rating / OR = 1
 axis_color:           "#000000"   # axis lines, ticks, table column heads
 
-# Also save main figures as vector PDF (for journal submission) next to the PNG.
-# Off while drafting; switch on for the final figure set.
+# Also save the main figures as vector PDF (for journal submission) next to
+# the PNG; supplementary figures (output/supp_figs/) are always PNG only.
+# Off while drafting; switch on for the final figure set, or for one run with
+#   snakemake --cores 1 --config save_pdf=true
 save_pdf: false
 
 # Plot dimensions (inches, for ggsave)

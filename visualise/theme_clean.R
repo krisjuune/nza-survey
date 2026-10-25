@@ -116,6 +116,13 @@ theme_paper <- function(legend = "bottom") {
     )
 }
 
+# Opaque colour that looks like `hex` drawn at opacity `alpha` on white
+tint <- function(hex, alpha) {
+  rgb_mat <- grDevices::col2rgb(hex) / 255
+  blended <- 1 - outer(as.vector(1 - rgb_mat), alpha)
+  apply(blended, 2, function(x) grDevices::rgb(x[1], x[2], x[3]))
+}
+
 # Capital panel tags for multi-panel (patchwork) figures
 panel_tags <- function() patchwork::plot_annotation(tag_levels = "A")
 
@@ -131,13 +138,17 @@ cairo_ok <- function() {
                   warning = function(w) FALSE, error = function(e) FALSE))
 }
 
-# Save a main figure as PNG, plus a vector PDF (for submission) when
-# `save_pdf` is switched on in config.yaml.
+# Save a figure as PNG. Main figures additionally get a vector PDF (for
+# submission) when `save_pdf` is on in config.yaml; supplementary figures
+# (anything under supp_figs/) are always PNG only. The Snakefile declares the
+# same PDFs as outputs (MAIN_FIGURES), so the two stay in sync.
+is_supplementary <- function(path) grepl("(^|/)supp_figs/", path)
+
 save_paper_figure <- function(plot, path, width_mm = paper_width_mm,
                               height_mm, dpi = 600) {
   ggsave(path, plot, width = width_mm, height = height_mm, units = "mm",
          dpi = dpi, bg = "white")
-  if (save_pdf) {
+  if (save_pdf && !is_supplementary(path)) {
     ggsave(sub("\\.png$", ".pdf", path), plot, width = width_mm,
            height = height_mm, units = "mm",
            device = if (cairo_ok()) cairo_pdf else "pdf")

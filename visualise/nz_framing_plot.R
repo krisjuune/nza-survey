@@ -22,7 +22,7 @@ if (exists("snakemake")) {
   nz_rating_emm   <- here("data", "nz_rating_emm.csv")
   choice_out <- here("output", "supp_figs", "framing_choice_plot.png")
   rating_out <- here("output", "supp_figs", "framing_rating_plot.png")
-  nz_summary_out <- here("output", "nz_summary.txt")
+  nz_summary_out <- here("output", "supp_figs", "nz_summary.txt")
 }
 
 

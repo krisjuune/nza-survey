@@ -7,6 +7,7 @@ library(readr)
 library(here)
 
 source(here("scripts", "shared", "constants.R"))
+source(here("scripts", "shared", "conjoint_models.R"))
 
 if (exists("snakemake")) {
   conjoint_file   <- snakemake@input[["conjoint"]]
@@ -48,50 +49,10 @@ ts_msg <- function(...) {
 # ----------------------------
 # 1. CHOICE MODEL (logit)
 # ----------------------------
-ts_msg("Fitting choice model (glmer)...")
-t0 <- Sys.time()
-
-choice_model <- suppressWarnings(
-  glmer(
-    binary_choice ~
-      (fuel_code + activity_code + durability_code +
-         responsibility_code + cost_code) * country +
-      (1 | id),
-    data = df,
-    family = binomial,
-    control = glmerControl(
-      optimizer = "bobyqa", optCtrl = list(maxfun = 2e5)
-    )
-  )
-)
-
-ts_msg("Choice model done (", elapsed(t0), "s). Computing emmeans...")
-
-choice_emm <- lapply(seq_along(attributes), function(i) {
-  attr <- attributes[[i]]
-  message(
-    "  [", i, "/", length(attributes),
-    "] emmeans for ", attr, " (", elapsed(t0), "s elapsed)"
-  )
-  emmeans(
-    choice_model,
-    as.formula(paste0("~ ", attr, " | country")),
-    type = "response"
-  ) |>
-    as.data.frame() |>
-    mutate(attribute = attr)
-}) |>
-  bind_rows() |>
-  pivot_longer(
-    cols = ends_with("_code"),
-    names_to = "tmp",
-    values_to = "code"
-  ) |>
-  filter(!is.na(code)) |>
-  select(country, attribute, code, prob, SE, df, asymp.LCL, asymp.UCL)
+choice_emm <- fit_country_choice(df, log = ts_msg)
 
 write_csv(choice_emm, choice_out)
-ts_msg("Choice emmeans written (", elapsed(t0), "s total).")
+ts_msg("Choice emmeans written.")
 
 # ----------------------------
 # 2. RATING MODEL (linear)

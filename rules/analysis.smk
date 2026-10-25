@@ -162,3 +162,21 @@ rule wtp_analysis:
         txt = WTP_SUMMARY
     script:
         "../scripts/analysis/wtp.R"
+
+
+rule robustness_analysis:
+    input:
+        conjoint       = CONJOINT_LONG,
+        covariates     = COVARIATES,
+        country_choice = COUNTRY_CHOICE,
+        country_rating = COUNTRY_RATING,
+        overall_choice = CHOICE_OUTPUT,
+        overall_rating = RATING_OUTPUT,
+        policy_choice  = POLICY_CHOICE,
+        policy_rating  = POLICY_RATING
+    output:
+        variants   = ROBUSTNESS_VARIANTS,
+        validation = ROBUSTNESS_VALIDATION,
+        txt        = ROBUSTNESS_SUMMARY
+    script:
+        "../scripts/analysis/robustness.R"

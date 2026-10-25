@@ -32,6 +32,7 @@ covariates <- df |>
     start_date,
     finished,
     duration_min,
+    attention_check,
     age,
     gender,
     country,

@@ -15,6 +15,16 @@ os.environ["R_LIBS_USER"] = "/nonexistent"
 
 configfile: "config.yaml"
 
+# Main figures are also saved as vector PDF when save_pdf is on (config.yaml or
+# --config save_pdf=true); supplementary figures are always PNG only. The PDF
+# is declared as an extra output of each main-figure rule, so switching
+# save_pdf on makes Snakemake rebuild exactly those figures.
+SAVE_PDF = str(config.get("save_pdf", False)).lower() in ("true", "1", "yes")
+
+def pdf_output(png, name="pdf"):
+    """{name: <png path as .pdf>} for a main figure when SAVE_PDF, else {}."""
+    return {name: png[:-len(".png")] + ".pdf"} if SAVE_PDF else {}
+
 # -------------------
 # Files and paths
 # -------------------
@@ -54,6 +64,15 @@ FUEL_COST_RATING = "data/fuel_cost_rating_emm.csv"
 # willingness to pay (conditional logit, linear price) by country
 WTP_COUNTRY = "data/wtp_country.csv"
 WTP_SUMMARY = "output/supp_figs/wtp_summary.txt"
+
+# robustness checks (sample variants, income weighting, internal validation)
+ROBUSTNESS_VARIANTS   = "data/robustness_country_choice.csv"
+ROBUSTNESS_VALIDATION = "data/robustness_validation.csv"
+ROBUSTNESS_SUMMARY    = "output/supp_figs/robustness_summary.txt"
+ROBUSTNESS_SAMPLE_PLOT = "output/supp_figs/robustness_sample.png"
+ROBUSTNESS_INCOME_PLOT = "output/supp_figs/robustness_income.png"
+VALIDATION_STATED_PLOT = "output/supp_figs/validation_stated.png"
+VALIDATION_RANKING_PLOT = "output/supp_figs/validation_ranking.png"
 
 # climate concern subgroup results
 CONCERN_CHOICE = "data/concern_choice_emm.csv"
@@ -112,6 +131,16 @@ POLICY_BREAKEVEN_COUNTRY_GRID    = "data/policy_breakeven_country_grid.csv"
 POLICY_BREAKEVEN_COUNTRY_SUMMARY = "data/policy_breakeven_country_summary.csv"
 POLICY_BREAKEVEN_COUNTRY_TXT     = "output/supp_figs/policy_breakeven_country.txt"
 POLICY_BREAKEVEN_COMBINED        = "output/policy_breakeven_combined.png"
+
+# Main-paper figures (PNG, plus PDF when save_pdf is on); everything under
+# output/supp_figs/ is supplementary and PNG only.
+MAIN_FIGURES = [
+    COUNTRY_CHOICE_PLOT,
+    WTP_PLOT,
+    POLICY_CHOICE_PLOT,
+    PROFILES_COMBINED_PLOT,
+    POLICY_BREAKEVEN_COMBINED,
+]
 
 # -------------------
 # Rule modules
@@ -177,6 +206,13 @@ rule all:
         WTP_COUNTRY,
         WTP_SUMMARY,
         WTP_PLOT,
+        ROBUSTNESS_VARIANTS,
+        ROBUSTNESS_VALIDATION,
+        ROBUSTNESS_SUMMARY,
+        ROBUSTNESS_SAMPLE_PLOT,
+        ROBUSTNESS_INCOME_PLOT,
+        VALIDATION_STATED_PLOT,
+        VALIDATION_RANKING_PLOT,
         CONCERN_CHOICE_PLOT,
         CONCERN_RATING_PLOT,
         FLYER_TYPE_CHOICE_PLOT,
@@ -188,3 +224,5 @@ rule all:
         PROFILE_PREDICTORS_PLOT,
         PROFILES_COMBINED_PLOT,
         POLICY_BREAKEVEN_COMBINED,
+        # vector PDFs of the main figures (only when save_pdf is on)
+        *[pdf for png in MAIN_FIGURES for pdf in pdf_output(png).values()],
