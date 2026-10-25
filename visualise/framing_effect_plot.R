@@ -16,8 +16,8 @@ if (exists("snakemake")) {
 } else {
   choice_file <- here("data", "framing_effect_choice.csv")
   nz_file     <- here("data", "nz_choice_emm.csv")
-  plot_out    <- here("output", "supp_figs", "country_framing_choice.png")
-  results_out <- here("output", "supp_figs", "framing_results.png")
+  plot_out    <- here("output", "supp-figs", "country_framing_choice.png")
+  results_out <- here("output", "supp-figs", "framing_results.png")
 }
 
 framing_levels <- c("No information", "Net-zero information")

@@ -11,7 +11,7 @@ if (exists("snakemake")) {
   plot_out <- snakemake@output[["ic_plot"]]
 } else {
   ic_file  <- here("data", "lpa_conjoint_ic.csv")
-  plot_out <- here("output", "supp_figs", "lpa_conjoint_ic.png")
+  plot_out <- here("output", "supp-figs", "lpa_conjoint_ic.png")
 }
 
 ic_df <- read_csv(ic_file, show_col_types = FALSE)

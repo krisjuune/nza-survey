@@ -140,9 +140,9 @@ cairo_ok <- function() {
 
 # Save a figure as PNG. Main figures additionally get a vector PDF (for
 # submission) when `save_pdf` is on in config.yaml; supplementary figures
-# (anything under supp_figs/) are always PNG only. The Snakefile declares the
+# (anything under supp-figs/) are always PNG only. The Snakefile declares the
 # same PDFs as outputs (MAIN_FIGURES), so the two stay in sync.
-is_supplementary <- function(path) grepl("(^|/)supp_figs/", path)
+is_supplementary <- function(path) grepl("(^|/)supp-figs/", path)
 
 save_paper_figure <- function(plot, path, width_mm = paper_width_mm,
                               height_mm, dpi = 600) {

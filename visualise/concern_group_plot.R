@@ -15,8 +15,8 @@ if (exists("snakemake")) {
 } else {
   choice_file <- here("data", "concern_choice_emm.csv")
   rating_file <- here("data", "concern_rating_emm.csv")
-  choice_out  <- here("output", "supp_figs", "concern_choice_plot.png")
-  rating_out  <- here("output", "supp_figs", "concern_rating_plot.png")
+  choice_out  <- here("output", "supp-figs", "concern_choice_plot.png")
+  rating_out  <- here("output", "supp-figs", "concern_rating_plot.png")
 }
 
 read_and_factor <- function(path, rename_cols = NULL) {

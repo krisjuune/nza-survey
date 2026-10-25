@@ -69,10 +69,10 @@ WTP_SUMMARY = "output/text-files/wtp_summary.txt"
 ROBUSTNESS_VARIANTS   = "data/robustness_country_choice.csv"
 ROBUSTNESS_VALIDATION = "data/robustness_validation.csv"
 ROBUSTNESS_SUMMARY    = "output/text-files/robustness_summary.txt"
-ROBUSTNESS_SAMPLE_PLOT = "output/supp_figs/robustness_sample.png"
-ROBUSTNESS_INCOME_PLOT = "output/supp_figs/robustness_income.png"
-VALIDATION_STATED_PLOT = "output/supp_figs/validation_stated.png"
-VALIDATION_RANKING_PLOT = "output/supp_figs/validation_ranking.png"
+ROBUSTNESS_SAMPLE_PLOT = "output/supp-figs/robustness_sample.png"
+ROBUSTNESS_INCOME_PLOT = "output/supp-figs/robustness_income.png"
+VALIDATION_STATED_PLOT = "output/supp-figs/validation_stated.png"
+VALIDATION_RANKING_PLOT = "output/supp-figs/validation_ranking.png"
 
 # climate concern subgroup results
 CONCERN_CHOICE = "data/concern_choice_emm.csv"
@@ -103,22 +103,22 @@ POLICY_BREAKEVEN_GRID        = "data/policy_breakeven_grid.csv"
 POLICY_BREAKEVEN_INTERACTION = "output/text-files/policy_breakeven_interaction.txt"
 
 # output plots
-GENERAL_CONJOINT_PLOT    = "output/supp_figs/general_conjoint.png"
+GENERAL_CONJOINT_PLOT    = "output/supp-figs/general_conjoint.png"
 COUNTRY_CHOICE_PLOT      = "output/country_choice_conjoint.png"
-COUNTRY_RATING_PLOT      = "output/supp_figs/country_rating_conjoint.png"
-FRAMING_RESULTS_PLOT     = "output/supp_figs/framing_results.png"
+COUNTRY_RATING_PLOT      = "output/supp-figs/country_rating_conjoint.png"
+FRAMING_RESULTS_PLOT     = "output/supp-figs/framing_results.png"
 NZ_SUMMARY               = "output/text-files/nz_summary.txt"
 POLICY_CHOICE_PLOT       = "output/policy_choice_plot.png"
-INTERACT_COMBINED_PLOT   = "output/supp_figs/interact_combined_plot.png"
+INTERACT_COMBINED_PLOT   = "output/supp-figs/interact_combined_plot.png"
 WTP_PLOT                 = "output/wtp_plot.png"
-CONCERN_CHOICE_PLOT      = "output/supp_figs/concern_choice_plot.png"
-CONCERN_RATING_PLOT      = "output/supp_figs/concern_rating_plot.png"
-FLYER_TYPE_CHOICE_PLOT   = "output/supp_figs/flyer_type_choice_plot.png"
-FLYER_TYPE_RATING_PLOT   = "output/supp_figs/flyer_type_rating_plot.png"
-FRAMING_EFFECT_CHOICE_PLOT = "output/supp_figs/country_framing_choice.png"
-LPA_CONJOINT_IC_PLOT      = "output/supp_figs/lpa_conjoint_ic.png"
-LPA_CONJOINT_PROFILE_PLOT = "output/supp_figs/lpa_conjoint_profiles.png"
-PROFILE_PREDICTORS_PLOT   = "output/supp_figs/lpa_profile_predictors.png"
+CONCERN_CHOICE_PLOT      = "output/supp-figs/concern_choice_plot.png"
+CONCERN_RATING_PLOT      = "output/supp-figs/concern_rating_plot.png"
+FLYER_TYPE_CHOICE_PLOT   = "output/supp-figs/flyer_type_choice_plot.png"
+FLYER_TYPE_RATING_PLOT   = "output/supp-figs/flyer_type_rating_plot.png"
+FRAMING_EFFECT_CHOICE_PLOT = "output/supp-figs/country_framing_choice.png"
+LPA_CONJOINT_IC_PLOT      = "output/supp-figs/lpa_conjoint_ic.png"
+LPA_CONJOINT_PROFILE_PLOT = "output/supp-figs/lpa_conjoint_profiles.png"
+PROFILE_PREDICTORS_PLOT   = "output/supp-figs/lpa_profile_predictors.png"
 PROFILES_COMBINED_PLOT       = "output/profiles_combined_plot.png"
 # Country-level cost-preference breakeven
 AIRFARE_RAW                      = config["cost_files"][config["cost_source"]]
@@ -128,8 +128,12 @@ POLICY_BREAKEVEN_COUNTRY_SUMMARY = "data/policy_breakeven_country_summary.csv"
 POLICY_BREAKEVEN_COUNTRY_TXT     = "output/text-files/policy_breakeven_country.txt"
 POLICY_BREAKEVEN_COMBINED        = "output/policy_breakeven_combined.png"
 
+# supplementary tables (LaTeX)
+SAMPLE_TARGETS = "raw-data/sample_targets.csv"
+SAMPLE_TABLE   = "output/supp-tables/sample_summary.tex"
+
 # Main-paper figures (PNG, plus PDF when save_pdf is on); everything under
-# output/supp_figs/ is supplementary and PNG only.
+# output/supp-figs/ is supplementary and PNG only.
 MAIN_FIGURES = [
     COUNTRY_CHOICE_PLOT,
     WTP_PLOT,
@@ -216,5 +220,7 @@ rule all:
         PROFILE_PREDICTORS_PLOT,
         PROFILES_COMBINED_PLOT,
         POLICY_BREAKEVEN_COMBINED,
+        # supplementary tables
+        SAMPLE_TABLE,
         # vector PDFs of the main figures (only when save_pdf is on)
         *[pdf for png in MAIN_FIGURES for pdf in pdf_output(png).values()],

@@ -166,7 +166,7 @@ reference_line_color: "#999999"   # dashed lines at 0.5 / neutral rating / OR = 
 axis_color:           "#000000"   # axis lines, ticks, table column heads
 
 # Also save the main figures as vector PDF (for journal submission) next to
-# the PNG; supplementary figures (output/supp_figs/) are always PNG only.
+# the PNG; supplementary figures (output/supp-figs/) are always PNG only.
 # Off while drafting; switch on for the final figure set, or for one run with
 #   snakemake --cores 1 --config save_pdf=true
 save_pdf: false

@@ -13,7 +13,7 @@ if (exists("snakemake")) {
 } else {
   durability_choice_file <- here("data", "durability_cost_choice_emm.csv")
   fuel_choice_file       <- here("data", "fuel_cost_choice_emm.csv")
-  combined_out           <- here("output", "supp_figs", "interact_combined_plot.png")
+  combined_out           <- here("output", "supp-figs", "interact_combined_plot.png")
 }
 
 ink   <- attribute_color

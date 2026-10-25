@@ -180,3 +180,13 @@ rule robustness_analysis:
         txt        = ROBUSTNESS_SUMMARY
     script:
         "../scripts/analysis/robustness.R"
+
+
+rule sample_table:
+    input:
+        raw     = RAW,
+        targets = SAMPLE_TARGETS
+    output:
+        table = SAMPLE_TABLE
+    script:
+        "../scripts/analysis/sample_table.R"

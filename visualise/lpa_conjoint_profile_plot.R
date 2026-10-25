@@ -12,7 +12,7 @@ if (exists("snakemake")) {
   plot_out   <- snakemake@output[["profile_plot"]]
 } else {
   means_file <- here("data", "lpa_conjoint_means.csv")
-  plot_out   <- here("output", "supp_figs", "lpa_conjoint_profiles.png")
+  plot_out   <- here("output", "supp-figs", "lpa_conjoint_profiles.png")
 }
 
 profile_names <- c("High-integrity demanders", "Moderate demanders",

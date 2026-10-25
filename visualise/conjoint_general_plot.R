@@ -21,9 +21,9 @@ if (exists("snakemake")) {
   rating_file         <- here("data", "overall_rating_emm.csv")
   country_choice_file <- here("data", "country_choice_emm.csv")
   country_rating_file <- here("data", "country_rating_emm.csv")
-  general_out         <- here("output", "supp_figs", "general_conjoint.png")
+  general_out         <- here("output", "supp-figs", "general_conjoint.png")
   country_choice_out  <- here("output", "country_choice_conjoint.png")
-  country_rating_out  <- here("output", "supp_figs", "country_rating_conjoint.png")
+  country_rating_out  <- here("output", "supp-figs", "country_rating_conjoint.png")
 }
 
 read_rating <- function(path) {

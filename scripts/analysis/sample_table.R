@@ -1,0 +1,154 @@
+library(dplyr)
+library(tidyr)
+library(readr)
+library(here)
+
+source(here("scripts", "shared", "constants.R"))
+
+if (exists("snakemake")) {
+  raw_file     <- snakemake@input[["raw"]]
+  targets_file <- snakemake@input[["targets"]]
+  table_out    <- snakemake@output[["table"]]
+} else {
+  raw_file     <- here("raw-data", "raw_data.csv")
+  targets_file <- here("raw-data", "sample_targets.csv")
+  table_out    <- here("output", "supp-tables", "sample_summary.tex")
+}
+
+# -------------------
+# Respondent characteristics (valid sample, one row per respondent)
+# -------------------
+
+age_labels <- c(`2` = "18--24", `3` = "25--34", `4` = "35--44",
+                `5` = "45--54", `6` = "55--64", `7` = "65+")
+
+df <- read_csv(raw_file, show_col_types = FALSE,
+               col_select = c(country, age, gender, flyer_type, num_flying,
+                              num_flying_6_text, education_years,
+                              income_decile)) |>
+  mutate(
+    country   = factor(country_recode[as.character(country)], levels = country_levels),
+    age       = age_labels[as.character(age)],
+    gender    = recode(as.character(gender), `1` = "Female", `2` = "Male"),
+    flyer     = flyer_recode[flyer_type],
+    # num_flying = 5: never flown (0 flights); 6: number of flights entered
+    flights   = if_else(num_flying == 5, 0, suppressWarnings(as.numeric(num_flying_6_text))),
+    education = case_when(
+      education_years <= 12 ~ "Secondary or below ($\\leq$12 years)",
+      education_years <= 16 ~ "Post-secondary (13--16 years)",
+      education_years >= 17 ~ "Tertiary or above ($\\geq$17 years)"
+    ),
+    income    = if_else(income_decile == 99, "Prefer not to say",
+                        paste("Decile", income_decile))
+  )
+
+n_by_country <- count(df, country)
+
+# Share (%) of each level within country, every level present in every country
+shares <- function(var, levels, section) {
+  df |>
+    filter(!is.na(.data[[var]])) |>
+    count(country, level = .data[[var]]) |>
+    complete(country, level = levels, fill = list(n = 0)) |>
+    left_join(n_by_country, by = "country", suffix = c("", "_total")) |>
+    mutate(value = sprintf("%.1f\\%%", 100 * n / n_total),
+           section = section) |>
+    filter(level %in% levels) |>
+    select(section, level, country, value)
+}
+
+flight_stats <- df |>
+  group_by(country) |>
+  summarise(
+    `Median flights`  = median(flights, na.rm = TRUE),
+    `25th percentile` = quantile(flights, 0.25, na.rm = TRUE, names = FALSE),
+    `75th percentile` = quantile(flights, 0.75, na.rm = TRUE, names = FALSE),
+    `90th percentile` = quantile(flights, 0.90, na.rm = TRUE, names = FALSE),
+    .groups = "drop"
+  ) |>
+  pivot_longer(-country, names_to = "level") |>
+  mutate(value = sprintf("%g", value), section = "Flights")
+
+income_levels <- c(paste("Decile", 1:10), "Prefer not to say")
+education_levels <- c("Secondary or below ($\\leq$12 years)",
+                      "Post-secondary (13--16 years)",
+                      "Tertiary or above ($\\geq$17 years)")
+
+sample_vals <- bind_rows(
+  shares("age", age_labels, "Age"),
+  shares("gender", c("Female", "Male"), "Gender"),
+  shares("flyer", flyer_levels, "Flyer type"),
+  flight_stats,
+  shares("education", education_levels, "Education"),
+  shares("income", income_levels, "Income (self-placed national decile)")
+)
+
+# -------------------
+# Quota targets (blank until filled in raw-data/sample_targets.csv)
+# -------------------
+
+section_of <- c(age = "Age", gender = "Gender")
+targets <- read_csv(targets_file, show_col_types = FALSE,
+                    col_types = cols(target = col_double())) |>
+  filter(!is.na(target)) |>
+  transmute(section = section_of[variable], level,
+            country = factor(country, levels = country_levels),
+            target = sprintf("%g\\%%", target))
+
+# -------------------
+# LaTeX table
+# -------------------
+
+cells <- sample_vals |>
+  left_join(targets, by = c("section", "level", "country")) |>
+  mutate(target = coalesce(target, ""))
+
+row_order <- distinct(sample_vals, section, level)
+
+body_rows <- unlist(lapply(unique(row_order$section), function(sec) {
+  lv <- row_order$level[row_order$section == sec]
+  c("\\addlinespace",
+    sprintf("\\textbf{%s} \\\\", sec),
+    vapply(lv, function(l) {
+      r <- cells |> filter(section == sec, level == l) |> arrange(country)
+      paste0(l, " & ", paste(r$value, r$target, sep = " & ", collapse = " & "),
+             " \\\\")
+    }, character(1)))
+}))
+
+country_header <- paste0("\\multicolumn{2}{c}{", country_levels, "}", collapse = " & ")
+cmidrules <- paste0("\\cmidrule(lr){", seq(2, 12, 2), "-", seq(3, 13, 2), "}",
+                    collapse = " ")
+n_row <- paste0("\\textbf{Sample size} & ",
+                paste0("$n$ = ", format(n_by_country$n, big.mark = ","), " & ",
+                       collapse = " & "),
+                " \\\\")
+
+tex <- c(
+  "% Generated by scripts/analysis/sample_table.R -- do not edit by hand.",
+  "\\begin{table}[H]",
+  "\\centering",
+  "\\footnotesize",
+  "\\setlength{\\tabcolsep}{3pt}",
+  "\\begin{tabular}{l*{12}{r}}",
+  "\\toprule",
+  paste0(" & ", country_header, " \\\\"),
+  cmidrules,
+  paste0("\\textbf{Variable}", strrep(" & Sample & Target", 6), " \\\\"),
+  "\\midrule",
+  n_row,
+  body_rows,
+  "\\bottomrule",
+  "\\end{tabular}",
+  paste0("\\caption{Sample characteristics by country. Age and gender were used ",
+         "as quota variables during data collection. Flyer type is the screening ",
+         "question on flying frequency; flights are the self-reported number of ",
+         "flights, with 0 for respondents who have never flown. Education groups ",
+         "are based on years of education. Income deciles are self-placed within ",
+         "the national income distribution.}"),
+  "\\label{tab:sample-summary}",
+  "\\end{table}"
+)
+
+writeLines(tex, table_out)
+message("Sample table written: ", table_out)

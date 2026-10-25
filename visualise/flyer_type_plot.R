@@ -15,8 +15,8 @@ if (exists("snakemake")) {
 } else {
   choice_file <- here("data", "flyer_type_choice_emm.csv")
   rating_file <- here("data", "flyer_type_rating_emm.csv")
-  choice_out  <- here("output", "supp_figs", "flyer_type_choice_plot.png")
-  rating_out  <- here("output", "supp_figs", "flyer_type_rating_plot.png")
+  choice_out  <- here("output", "supp-figs", "flyer_type_choice_plot.png")
+  rating_out  <- here("output", "supp-figs", "flyer_type_rating_plot.png")
 }
 
 choice_df <- read_csv(choice_file, show_col_types = FALSE) |>
