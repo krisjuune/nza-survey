@@ -34,9 +34,9 @@ df <- read_csv(raw_file, show_col_types = FALSE,
     # num_flying = 5: never flown (0 flights); 6: number of flights entered
     flights   = if_else(num_flying == 5, 0, suppressWarnings(as.numeric(num_flying_6_text))),
     education = case_when(
-      education_years <= 12 ~ "Secondary or below ($\\leq$12 years)",
-      education_years <= 16 ~ "Post-secondary (13--16 years)",
-      education_years >= 17 ~ "Tertiary or above ($\\geq$17 years)"
+      education_years <= 12 ~ "$\\leq$12",
+      education_years <= 16 ~ "13--16",
+      education_years >= 17 ~ "$\\geq$17"
     ),
     income    = if_else(income_decile == 99, "Prefer not to say",
                         paste("Decile", income_decile))
@@ -54,6 +54,7 @@ shares <- function(var, levels, section) {
     mutate(value = sprintf("%.1f\\%%", 100 * n / n_total),
            section = section) |>
     filter(level %in% levels) |>
+    arrange(match(level, levels), country) |>
     select(section, level, country, value)
 }
 
@@ -67,20 +68,18 @@ flight_stats <- df |>
     .groups = "drop"
   ) |>
   pivot_longer(-country, names_to = "level") |>
-  mutate(value = sprintf("%g", value), section = "Flights")
+  mutate(value = sprintf("%g", value), section = "Reported flights")
 
 income_levels <- c(paste("Decile", 1:10), "Prefer not to say")
-education_levels <- c("Secondary or below ($\\leq$12 years)",
-                      "Post-secondary (13--16 years)",
-                      "Tertiary or above ($\\geq$17 years)")
+education_levels <- c("$\\leq$12", "13--16", "$\\geq$17")
 
 sample_vals <- bind_rows(
   shares("age", age_labels, "Age"),
   shares("gender", c("Female", "Male"), "Gender"),
-  shares("flyer", flyer_levels, "Flyer type"),
+  shares("flyer", flyer_levels, "Flying frequency"),
   flight_stats,
-  shares("education", education_levels, "Education"),
-  shares("income", income_levels, "Income (self-placed national decile)")
+  shares("education", education_levels, "Education (years)"),
+  shares("income", income_levels, "Income decile")
 )
 
 # -------------------
@@ -108,7 +107,8 @@ row_order <- distinct(sample_vals, section, level)
 body_rows <- unlist(lapply(unique(row_order$section), function(sec) {
   lv <- row_order$level[row_order$section == sec]
   c("\\addlinespace",
-    sprintf("\\textbf{%s} \\\\", sec),
+    # header spans the table so long titles don't widen the first column
+    sprintf("\\multicolumn{13}{l}{\\textbf{%s}} \\\\", sec),
     vapply(lv, function(l) {
       r <- cells |> filter(section == sec, level == l) |> arrange(country)
       paste0(l, " & ", paste(r$value, r$target, sep = " & ", collapse = " & "),
