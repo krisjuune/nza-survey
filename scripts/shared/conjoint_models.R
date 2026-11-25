@@ -87,3 +87,37 @@ design_mm <- function(df, weight = NULL, B = 500, seed = 1) {
     dplyr::right_join(est, by = c("country", "attribute", "code")) |>
     dplyr::select(country, attribute, code, prob, asymp.LCL, asymp.UCL)
 }
+
+# Policy choice by preference profile: logit of choosing a profile on policy
+# package x LPA profile, with a random intercept per respondent. Returns the
+# marginal choice probability of each package within each profile, plus the
+# number of respondents per profile.
+#   conjoint  long conjoint data with id, binary_choice, policy_type
+#   profiles  id + profile ("Profile 1".."Profile 3" factor)
+fit_policy_by_profile <- function(conjoint, profiles, log = message) {
+  df <- conjoint |>
+    dplyr::filter(!is.na(policy_type)) |>
+    dplyr::mutate(policy_type = factor(policy_type, levels = policy_levels)) |>
+    dplyr::inner_join(profiles, by = "id")
+
+  log("Policy x profile data: ", nrow(df), " rows, ", dplyr::n_distinct(df$id),
+      " respondents.")
+
+  model <- suppressWarnings(
+    lme4::glmer(
+      binary_choice ~ policy_type * profile + (1 | id),
+      data    = df,
+      family  = binomial,
+      control = lme4::glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5))
+    )
+  )
+
+  profile_n <- df |>
+    dplyr::distinct(id, profile) |>
+    dplyr::count(profile, name = "n_profile")
+
+  emmeans::emmeans(model, ~ policy_type | profile, type = "response") |>
+    as.data.frame() |>
+    dplyr::select(profile, policy_type, prob, SE, df, asymp.LCL, asymp.UCL) |>
+    dplyr::left_join(profile_n, by = "profile")
+}
