@@ -15,6 +15,7 @@ dependencies:
   - r-matrix
   - r-viridis
   - r-patchwork
+  - r-svglite
   - r-mclust
   - r-nnet
   - pip

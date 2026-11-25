@@ -38,6 +38,7 @@ if (exists("snakemake")) {
   errorbar_width    <- cfg$errorbar_width
   base_font_size    <- cfg$base_font_size
   save_pdf          <- isTRUE(as.logical(cfg$save_pdf))  # also accepts "true" from --config
+  save_svg          <- isTRUE(as.logical(cfg$save_svg))
 
 } else {
   # Fallback values for running scripts standalone (outside Snakemake).
@@ -130,6 +131,7 @@ if (exists("snakemake")) {
   errorbar_width <- 0
   base_font_size <- 12
   save_pdf       <- FALSE
+  save_svg       <- FALSE
 
   random_seed <- 2024
 }

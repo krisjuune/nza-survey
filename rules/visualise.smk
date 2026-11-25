@@ -8,7 +8,7 @@ rule plot_conjoint_general:
         general_plot        = GENERAL_CONJOINT_PLOT,
         country_choice_plot = COUNTRY_CHOICE_PLOT,
         country_rating_plot = COUNTRY_RATING_PLOT,
-        **pdf_output(COUNTRY_CHOICE_PLOT, "country_choice_pdf")
+        **vector_outputs(COUNTRY_CHOICE_PLOT, "country_choice_pdf")
     script:
         "../visualise/conjoint_general_plot.R"
 
@@ -30,7 +30,7 @@ rule plot_policy_types:
         choice = POLICY_CHOICE
     output:
         choice_plot = POLICY_CHOICE_PLOT,
-        **pdf_output(POLICY_CHOICE_PLOT, "choice_pdf")
+        **vector_outputs(POLICY_CHOICE_PLOT, "choice_pdf")
     script:
         "../visualise/policy_plot.R"
 
@@ -91,7 +91,7 @@ rule plot_profiles_combined:
         ame     = PROFILE_PREDICTORS_AME
     output:
         plot = PROFILES_COMBINED_PLOT,
-        **pdf_output(PROFILES_COMBINED_PLOT)
+        **vector_outputs(PROFILES_COMBINED_PLOT)
     script:
         "../visualise/profiles_combined_plot.R"
 
@@ -102,7 +102,7 @@ rule plot_policy_breakeven_combined:
         summary = POLICY_BREAKEVEN_COUNTRY_SUMMARY
     output:
         combined = POLICY_BREAKEVEN_COMBINED,
-        **pdf_output(POLICY_BREAKEVEN_COMBINED)
+        **vector_outputs(POLICY_BREAKEVEN_COMBINED)
     script:
         "../visualise/policy_breakeven_combined_plot.R"
 
@@ -132,7 +132,7 @@ rule plot_wtp:
         wtp = WTP_COUNTRY
     output:
         plot = WTP_PLOT,
-        **pdf_output(WTP_PLOT)
+        **vector_outputs(WTP_PLOT)
     script:
         "../visualise/wtp_plot.R"
 

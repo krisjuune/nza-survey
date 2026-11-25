@@ -15,15 +15,26 @@ os.environ["R_LIBS_USER"] = "/nonexistent"
 
 configfile: "config.yaml"
 
-# Main figures are also saved as vector PDF when save_pdf is on (config.yaml or
-# --config save_pdf=true); supplementary figures are always PNG only. The PDF
-# is declared as an extra output of each main-figure rule, so switching
-# save_pdf on makes Snakemake rebuild exactly those figures.
-SAVE_PDF = str(config.get("save_pdf", False)).lower() in ("true", "1", "yes")
+# Main figures are also saved as vector PDF / SVG when save_pdf / save_svg are
+# on (config.yaml or --config save_pdf=true); supplementary figures are always
+# PNG only. The vector files are declared as extra outputs of each main-figure
+# rule, so switching a format on makes Snakemake rebuild exactly those figures.
+def _flag(key):
+    return str(config.get(key, False)).lower() in ("true", "1", "yes")
 
-def pdf_output(png, name="pdf"):
-    """{name: <png path as .pdf>} for a main figure when SAVE_PDF, else {}."""
-    return {name: png[:-len(".png")] + ".pdf"} if SAVE_PDF else {}
+SAVE_PDF = _flag("save_pdf")
+SAVE_SVG = _flag("save_svg")
+
+def vector_outputs(png, name="pdf"):
+    """Extra outputs of a main figure: {name: .pdf} when SAVE_PDF and
+    {name with pdf->svg: .svg} when SAVE_SVG."""
+    stem = png[:-len(".png")]
+    out = {}
+    if SAVE_PDF:
+        out[name] = stem + ".pdf"
+    if SAVE_SVG:
+        out[name.replace("pdf", "svg")] = stem + ".svg"
+    return out
 
 # -------------------
 # Files and paths
@@ -132,7 +143,7 @@ POLICY_BREAKEVEN_COMBINED        = "output/policy_breakeven_combined.png"
 SAMPLE_TARGETS = "raw-data/sample_targets.csv"
 SAMPLE_TABLE   = "output/supp-tables/sample_summary.tex"
 
-# Main-paper figures (PNG, plus PDF when save_pdf is on); everything under
+# Main-paper figures (PNG, plus PDF/SVG when save_pdf/save_svg are on); everything under
 # output/supp-figs/ is supplementary and PNG only.
 MAIN_FIGURES = [
     COUNTRY_CHOICE_PLOT,
@@ -222,5 +233,5 @@ rule all:
         POLICY_BREAKEVEN_COMBINED,
         # supplementary tables
         SAMPLE_TABLE,
-        # vector PDFs of the main figures (only when save_pdf is on)
-        *[pdf for png in MAIN_FIGURES for pdf in pdf_output(png).values()],
+        # vector PDF/SVG of the main figures (only when save_pdf/save_svg are on)
+        *[f for png in MAIN_FIGURES for f in vector_outputs(png).values()],

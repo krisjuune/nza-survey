@@ -171,6 +171,10 @@ axis_color:           "#000000"   # axis lines, ticks, table column heads
 #   snakemake --cores 1 --config save_pdf=true
 save_pdf: false
 
+# Same for SVG (editable vector format, e.g. for Illustrator/Inkscape); main
+# figures only. One-off run: snakemake --cores 1 --config save_svg=true
+save_svg: true
+
 # Plot dimensions (inches, for ggsave)
 # narrow: single-panel plots (general conjoint, NZ framing)
 # wide:   6-country facet plots (country conjoint, flyer type etc, framing effect)

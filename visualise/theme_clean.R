@@ -138,10 +138,10 @@ cairo_ok <- function() {
                   warning = function(w) FALSE, error = function(e) FALSE))
 }
 
-# Save a figure as PNG. Main figures additionally get a vector PDF (for
-# submission) when `save_pdf` is on in config.yaml; supplementary figures
+# Save a figure as PNG. Main figures additionally get a vector PDF and/or SVG
+# when `save_pdf` / `save_svg` are on in config.yaml; supplementary figures
 # (anything under supp-figs/) are always PNG only. The Snakefile declares the
-# same PDFs as outputs (MAIN_FIGURES), so the two stay in sync.
+# same files as outputs (MAIN_FIGURES), so the two stay in sync.
 is_supplementary <- function(path) grepl("(^|/)supp-figs/", path)
 
 save_paper_figure <- function(plot, path, width_mm = paper_width_mm,
@@ -152,6 +152,11 @@ save_paper_figure <- function(plot, path, width_mm = paper_width_mm,
     ggsave(sub("\\.png$", ".pdf", path), plot, width = width_mm,
            height = height_mm, units = "mm",
            device = if (cairo_ok()) cairo_pdf else "pdf")
+  }
+  # svglite rather than grDevices::svg, which needs cairo
+  if (save_svg && !is_supplementary(path)) {
+    ggsave(sub("\\.png$", ".svg", path), plot, width = width_mm,
+           height = height_mm, units = "mm", device = svglite::svglite)
   }
 }
 
