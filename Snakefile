@@ -107,6 +107,7 @@ POLICY_BY_PROFILE_CHOICE = "data/policy_by_profile_choice.csv"
 # Multinomial predictors of LPA profile membership
 PROFILE_PREDICTORS = "data/profile_predictors.csv"
 PROFILE_PREDICTORS_AME = "data/profile_predictors_ame.csv"
+PROFILE_PREDICTORS_ADDITIONAL_TXT = "output/text-files/lpa_additional_predictors.txt"
 
 # Compensating price differential: GBF vs SAF_ETS breakeven
 POLICY_BREAKEVEN             = "data/policy_breakeven.csv"
@@ -196,6 +197,7 @@ rule all:
         POLICY_BY_PROFILE_CHOICE,
         PROFILE_PREDICTORS,
         PROFILE_PREDICTORS_AME,
+        PROFILE_PREDICTORS_ADDITIONAL_TXT,
         POLICY_BREAKEVEN,
         POLICY_BREAKEVEN_GRID,
         POLICY_BREAKEVEN_INTERACTION,

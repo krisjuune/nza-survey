@@ -101,12 +101,25 @@ rule profile_predictors_analysis:
     input:
         profiles   = LPA_CONJOINT_PROFILES,
         groups     = RESPONDENT_GROUPS,
-        covariates = COVARIATES
+        covariates = COVARIATES,
+        raw        = RAW
     output:
         results = PROFILE_PREDICTORS,
         ame     = PROFILE_PREDICTORS_AME
     script:
         "../scripts/analysis/profile_predictors.R"
+
+
+rule profile_predictors_additional_analysis:
+    input:
+        profiles   = LPA_CONJOINT_PROFILES,
+        groups     = RESPONDENT_GROUPS,
+        covariates = COVARIATES,
+        raw        = RAW
+    output:
+        txt = PROFILE_PREDICTORS_ADDITIONAL_TXT
+    script:
+        "../scripts/analysis/profile_predictors_additional.R"
 
 
 rule policy_by_profile_analysis:

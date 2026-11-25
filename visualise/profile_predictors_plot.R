@@ -19,5 +19,5 @@ if (exists("snakemake")) {
 # profiles figure shows the subset with at least one significant effect.
 p <- plot_profile_ame(read_profile_ame(ame_file), significant_only = FALSE)
 
-save_paper_figure(p, plot_out, height_mm = 165)
+save_paper_figure(p, plot_out, height_mm = 200)
 message("Profile predictor plot saved: ", plot_out)

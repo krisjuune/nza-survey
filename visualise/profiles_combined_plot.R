@@ -73,8 +73,8 @@ panel_b <- read_profile_ame(ame_file) |>
 # Combine
 # -------------------------------------------------------------------
 combined <- panel_a / panel_b +
-  plot_layout(heights = c(1, 1.2)) +
+  plot_layout(heights = c(1, 1.6)) +
   panel_tags()
 
-save_paper_figure(combined, plot_out, height_mm = 150)
+save_paper_figure(combined, plot_out, height_mm = 175)
 message("Profiles combined plot saved: ", plot_out)

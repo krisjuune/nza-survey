@@ -37,7 +37,15 @@ ame_rows <- tibble::tribble(
   "Responsibility ratings (per SD)",              "actor_role_manufacturers|actor_role_manufacturers", "Manufacturers",
   "Responsibility ratings (per SD)",              "actor_role_nonprofit|actor_role_nonprofit", "Nonprofits",
   "Responsibility ratings (per SD)",              "actor_role_passengers|actor_role_passengers", "Passengers",
-  "Responsibility ratings (per SD)",              "actor_role_researchers|actor_role_researchers", "Researchers"
+  "Responsibility ratings (per SD)",              "actor_role_researchers|actor_role_researchers", "Researchers",
+  "Household habits (per SD)",                    "dailylife_actions_1|dailylife_actions_1", "Turn off lights",
+  "Household habits (per SD)",                    "dailylife_actions_2|dailylife_actions_2", "Cut down heating/air conditioning",
+  "Household habits (per SD)",                    "dailylife_actions_3|dailylife_actions_3", "Only run full loads",
+  "Household habits (per SD)",                    "dailylife_actions_4|dailylife_actions_4", "Switch off standby",
+  "Household habits (per SD)",                    "dailylife_actions_5|dailylife_actions_5", "Air-dry laundry",
+  "Household habits (per SD)",                    "dailylife_actions_6|dailylife_actions_6", "Public transport, walk or cycle",
+  "Electric car use (vs no car)",                "ev_use|At least sometimes",              "At least sometimes",
+  "Electric car use (vs no car)",                 "ev_use|Rarely or never",                 "Rarely or never"
 )
 
 read_profile_ame <- function(path) {
@@ -48,15 +56,16 @@ read_profile_ame <- function(path) {
     )
 }
 
+# rows: row table (group, key, label) defining order and labels.
 # significant_only = TRUE keeps predictors with at least one profile whose
 # 95% CI excludes zero (and drops groups left empty).
-plot_profile_ame <- function(ame, significant_only = FALSE) {
+plot_profile_ame <- function(ame, significant_only = FALSE, rows = ame_rows) {
   keep <- if (significant_only) {
     unique(ame$key[ame$significant])
   } else {
     unique(ame$key)
   }
-  rows <- dplyr::filter(ame_rows, key %in% keep)
+  rows <- dplyr::filter(rows, key %in% keep)
 
   # Header row per group, then its items; bold headers with no data or tick
   lv  <- unlist(lapply(unique(rows$group), function(g)
