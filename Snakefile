@@ -76,6 +76,11 @@ FUEL_COST_RATING = "data/fuel_cost_rating_emm.csv"
 WTP_COUNTRY = "data/wtp_country.csv"
 WTP_SUMMARY = "output/text-files/wtp_summary.txt"
 
+# WTP converted to nominal 2020 USD (using cost-paper baseline airfares);
+# shown alongside the relative (%) estimates in WTP_PLOT, not as its own figure.
+WTP_COUNTRY_USD = "data/wtp_country_usd.csv"
+WTP_USD_SUMMARY = "output/text-files/wtp_usd_summary.txt"
+
 # robustness checks (sample variants, income weighting, internal validation)
 ROBUSTNESS_VARIANTS   = "data/robustness_country_choice.csv"
 ROBUSTNESS_VALIDATION = "data/robustness_validation.csv"
@@ -135,6 +140,7 @@ PROFILES_COMBINED_PLOT       = "output/profiles_combined_plot.png"
 # Country-level cost-preference breakeven
 AIRFARE_RAW                      = config["cost_files"][config["cost_source"]]
 AIRFARE_COSTS                    = "data/airfare_costs.csv"
+AIRFARE_BASELINE                 = "data/airfare_baseline.csv"
 POLICY_BREAKEVEN_COUNTRY_GRID    = "data/policy_breakeven_country_grid.csv"
 POLICY_BREAKEVEN_COUNTRY_SUMMARY = "data/policy_breakeven_country_summary.csv"
 POLICY_BREAKEVEN_COUNTRY_TXT     = "output/text-files/policy_breakeven_country.txt"
@@ -202,6 +208,7 @@ rule all:
         POLICY_BREAKEVEN_GRID,
         POLICY_BREAKEVEN_INTERACTION,
         AIRFARE_COSTS,
+        AIRFARE_BASELINE,
         POLICY_BREAKEVEN_COUNTRY_GRID,
         POLICY_BREAKEVEN_COUNTRY_SUMMARY,
         POLICY_BREAKEVEN_COUNTRY_TXT,
@@ -215,6 +222,8 @@ rule all:
         INTERACT_COMBINED_PLOT,
         WTP_COUNTRY,
         WTP_SUMMARY,
+        WTP_COUNTRY_USD,
+        WTP_USD_SUMMARY,
         WTP_PLOT,
         ROBUSTNESS_VARIANTS,
         ROBUSTNESS_VALIDATION,

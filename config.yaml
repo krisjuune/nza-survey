@@ -124,6 +124,28 @@ attribute_display:
 attribute_color: "#333333"
 accent_color:    "#333333"
 
+# Per-attribute-group colours, used only in the combined country-choice +
+# WTP figure (the one place every attribute appears with its own colour, to
+# visually tie the WTP premiums to the attribute rows they're derived from).
+# Deep/muted, from a reference 4-swatch palette (crimson/navy/blue/teal);
+# reds for the two offset-related attributes, blues for the other three.
+# Fuel and Durability of offsets are the two compared in the WTP panels, so
+# they get the most saturated colour in each family (teal, crimson) for
+# maximum contrast with each other. Validated on the *adjacent* pairlist
+# (rows are read in fixed, text-labelled attribute blocks, so identity never
+# depends on colour alone): worst CVD dE 12.6, normal dE 16.4 across all 4
+# adjacent pairs. Not all-pairs safe past 3 hues (structural, see dataviz
+# skill); not CVD-validated against colours used in other figures (not
+# required - they never appear in the same panel), though two are close to
+# profile_teal and highlight_color under simulation (teal vs. teal, medium
+# blue vs. indigo) - flagged here in case that is ever a concern.
+attribute_group_colors:
+  Fuel:                   "#559596"
+  Offsetting activity:    "#5e191e"
+  Durability of offsets:  "#af2735"
+  Responsible actor:      "#194f81"
+  Ticket price increase:  "#17243e"
+
 # Indigo highlight for the attribute-level main figures (WTP, country choice).
 # Deep enough to stay distinct from the SAF blue and the profile plum (the
 # earlier #4a5897 was indistinguishable from the SAF blue, dE 4.7).

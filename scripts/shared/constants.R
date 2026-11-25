@@ -24,6 +24,7 @@ if (exists("snakemake")) {
   # Plot aesthetics
   accent_color           <- cfg$accent_color
   attribute_color        <- cfg$attribute_color
+  attribute_group_colors <- unlist(cfg$attribute_group_colors)
   highlight_color        <- cfg$highlight_color
   robustness_alphas      <- unlist(cfg$robustness_alphas)
   policy_contrast_colors <- unlist(cfg$policy_contrast_colors)
@@ -98,6 +99,13 @@ if (exists("snakemake")) {
 
   accent_color           <- "#333333"
   attribute_color        <- "#333333"
+  attribute_group_colors <- c(
+    "Fuel"                   = "#559596",
+    "Offsetting activity"    = "#5e191e",
+    "Durability of offsets"  = "#af2735",
+    "Responsible actor"      = "#194f81",
+    "Ticket price increase"  = "#17243e"
+  )
   highlight_color        <- "#3f3d99"
   robustness_alphas      <- c(no_speeders = 0.7, attention_passed = 0.4,
                               design_weighted = 0.6)

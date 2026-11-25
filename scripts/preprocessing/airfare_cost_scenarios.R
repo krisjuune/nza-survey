@@ -6,14 +6,16 @@ library(here)
 source(here("scripts", "shared", "constants.R"))
 
 if (exists("snakemake")) {
-  airfare_file <- snakemake@input[["airfare"]]
-  out_file     <- snakemake@output[["costs"]]
+  airfare_file  <- snakemake@input[["airfare"]]
+  out_file      <- snakemake@output[["costs"]]
+  baseline_file <- snakemake@output[["baseline"]]
 } else {
   airfare_file <- here(switch(cost_source,
     cost_paper = "raw-data/airfare.csv",
     published  = "raw-data/airfare_costs_published.csv"
   ))
-  out_file <- here("data", "airfare_costs.csv")
+  out_file      <- here("data", "airfare_costs.csv")
+  baseline_file <- here("data", "airfare_baseline.csv")
 }
 
 # Output schema (one row per country x fuel pathway), shared by all sources.
@@ -92,6 +94,41 @@ read_published <- function(path) {
       fare_change_high   = pmax(fare_change_high, fare_change_median)
     )
 }
+
+# Baseline (2020) average airfare per country, for converting %-based WTP
+# estimates into nominal USD (see scripts/analysis/wtp_usd.R). Only available
+# from the cost paper's raw sheet (column 4); the published-data schema has
+# no equivalent column, so that source yields an empty baseline file.
+parse_usd <- function(x) as.numeric(gsub("[$,]", "", trimws(x)))
+
+read_baseline_fares <- function(path) {
+  read_csv(path, skip = 5, col_names = FALSE, show_col_types = FALSE) |>
+    filter(!is.na(X1), X1 != "") |>
+    transmute(
+      country            = trimws(X2),
+      route              = trimws(X3),
+      baseline_fare_usd  = parse_usd(X4)
+    ) |>
+    distinct(country, .keep_all = TRUE) |>
+    filter(country %in% country_levels) |>
+    arrange(country)
+}
+
+baseline <- switch(cost_source,
+  cost_paper = read_baseline_fares(airfare_file),
+  published  = {
+    message("No baseline-fare column in published cost data; ",
+            "writing an empty baseline file.")
+    tibble(country = character(), route = character(),
+          baseline_fare_usd = numeric())
+  },
+  stop("Unknown cost_source: ", cost_source)
+)
+
+write_csv(baseline, baseline_file)
+message("Airfare baseline fares written: ", baseline_file)
+message(sprintf("  %d countries: %s", nrow(baseline),
+                paste(baseline$country, collapse = ", ")))
 
 costs <- switch(cost_source,
   cost_paper = read_cost_paper(airfare_file),

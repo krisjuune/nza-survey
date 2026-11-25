@@ -49,6 +49,8 @@ general_plot <- (choice_plot | rating_plot) + panel_tags()
 save_paper_figure(general_plot, general_out, height_mm = 110)
 
 # ── By country: choice is a main figure, rating supplementary ───────────────
+# Choice is coloured by attribute group (see attribute_group_colors in
+# config.yaml) to visually tie it to the WTP premiums in wtp_plot.R.
 
 country_choice_df <- read_csv(country_choice_file, show_col_types = FALSE) |>
   mutate(country = factor(country, levels = country_levels))
@@ -56,11 +58,10 @@ country_choice_df <- read_csv(country_choice_file, show_col_types = FALSE) |>
 country_rating_df <- read_rating(country_rating_file) |>
   mutate(country = factor(country, levels = country_levels))
 
-# Main figure: same indigo as the WTP figure
 country_choice_plot <- plot_attribute_emm(country_choice_df,
                                 x_label = "Choice probability", midline = 0.5,
                                 breaks = choice_breaks, facet = "country",
-                                color = highlight_color)
+                                color_by_attribute = TRUE)
 
 country_rating_plot <- plot_attribute_emm(country_rating_df,
                                 x_label = "Estimated rating", midline = 3,

@@ -177,6 +177,17 @@ rule wtp_analysis:
         "../scripts/analysis/wtp.R"
 
 
+rule wtp_usd_analysis:
+    input:
+        wtp      = WTP_COUNTRY,
+        baseline = AIRFARE_BASELINE
+    output:
+        wtp_usd = WTP_COUNTRY_USD,
+        txt     = WTP_USD_SUMMARY
+    script:
+        "../scripts/analysis/wtp_usd.R"
+
+
 rule robustness_analysis:
     input:
         conjoint       = CONJOINT_LONG,

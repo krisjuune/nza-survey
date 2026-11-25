@@ -181,14 +181,18 @@ make_row_positions <- function(lvls, hdrs, within = 1.0, between = 0.6) {
 # Marginal means by attribute level: one row per level, attribute names as
 # bold headers. `df` needs attribute, code, prob, asymp.LCL, asymp.UCL (raw
 # codes; labelled here). Optional:
-#   facet         column to facet by (one row of panels)
-#   group         column drawn as offset, coloured dots within each row
-#   group_values  named colours for the group levels (legend order = names)
-#   color         ink for ungrouped plots (default: dark attribute ink)
+#   facet              column to facet by (one row of panels)
+#   group              column drawn as offset, coloured dots within each row
+#   group_values       named colours for the group levels (legend order = names)
+#   color              ink for ungrouped plots (default: dark attribute ink)
+#   color_by_attribute color each row by its attribute group (attribute_group_colors
+#                      in config.yaml), with a legend in attribute_headers order.
+#                      Mutually exclusive with `group`.
 plot_attribute_emm <- function(df, x_label, midline, symmetric = FALSE,
                                breaks = waiver(), facet = NULL, group = NULL,
                                group_values = NULL, group_name = NULL,
-                               color = attribute_color) {
+                               color = attribute_color,
+                               color_by_attribute = FALSE) {
   row_pos    <- make_row_positions(plot_levels, attribute_headers)
   row_labels <- dplyr::if_else(plot_levels %in% attribute_headers,
                                paste0("<b>", plot_levels, "</b>"), plot_levels)
@@ -223,12 +227,19 @@ plot_attribute_emm <- function(df, x_label, midline, symmetric = FALSE,
     ) +
     scale_x_continuous(breaks = breaks) +
     coord_cartesian(xlim = x_limits) +
-    theme_paper(legend = if (is.null(group)) "none" else "bottom") +
+    theme_paper(legend = if (is.null(group) && !color_by_attribute) "none" else "bottom") +
     theme(axis.text.y  = ggtext::element_markdown(),
           axis.ticks.y = element_blank()) +
     labs(x = x_label, y = NULL, color = group_name)
 
-  if (is.null(group)) {
+  if (color_by_attribute) {
+    p <- p +
+      geom_linerange(aes(xmin = asymp.LCL, xmax = asymp.UCL, color = attribute),
+                     linewidth = paper_ci_width, na.rm = TRUE) +
+      geom_point(aes(color = attribute), size = paper_point_size, na.rm = TRUE) +
+      scale_color_manual(name = NULL, values = attribute_group_colors,
+                         breaks = attribute_headers)
+  } else if (is.null(group)) {
     p <- p +
       geom_linerange(aes(xmin = asymp.LCL, xmax = asymp.UCL),
                      color = color, linewidth = paper_ci_width,

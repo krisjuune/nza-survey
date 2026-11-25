@@ -128,7 +128,8 @@ rule plot_framing_effect:
 
 rule plot_wtp:
     input:
-        wtp = WTP_COUNTRY
+        wtp     = WTP_COUNTRY,
+        wtp_usd = WTP_COUNTRY_USD
     output:
         plot = WTP_PLOT,
         **vector_outputs(WTP_PLOT)
