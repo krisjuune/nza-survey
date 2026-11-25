@@ -98,8 +98,7 @@ rule plot_profiles_combined:
 
 rule plot_policy_breakeven_combined:
     input:
-        grid    = POLICY_BREAKEVEN_COUNTRY_GRID,
-        summary = POLICY_BREAKEVEN_COUNTRY_SUMMARY
+        grid    = POLICY_BREAKEVEN_COUNTRY_GRID
     output:
         combined = POLICY_BREAKEVEN_COMBINED,
         **vector_outputs(POLICY_BREAKEVEN_COMBINED)
