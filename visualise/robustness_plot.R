@@ -10,8 +10,10 @@ source(here("visualise", "theme_clean.R"))
 if (exists("snakemake")) {
   variants_file   <- snakemake@input[["variants"]]
   validation_file <- snakemake@input[["validation"]]
+  sizes_file      <- snakemake@input[["sizes"]]
   sample_out      <- snakemake@output[["sample_plot"]]
   income_out      <- snakemake@output[["income_plot"]]
+  consistency_out <- snakemake@output[["consistency_plot"]]
   stated_out      <- snakemake@output[["stated_plot"]]
   ranking_out     <- snakemake@output[["ranking_plot"]]
   country_choice_file <- snakemake@input[["country_choice"]]
@@ -21,8 +23,10 @@ if (exists("snakemake")) {
 } else {
   variants_file   <- here("data", "robustness_country_choice.csv")
   validation_file <- here("data", "robustness_validation.csv")
+  sizes_file      <- here("data", "robustness_sample_sizes.csv")
   sample_out      <- here("output", "supp-figs", "robustness_sample.png")
   income_out      <- here("output", "supp-figs", "robustness_income.png")
+  consistency_out <- here("output", "supp-figs", "robustness_consistency.png")
   stated_out      <- here("output", "supp-figs", "validation_stated.png")
   ranking_out     <- here("output", "supp-figs", "validation_ranking.png")
   country_choice_file <- here("data", "country_choice_emm.csv")
@@ -34,6 +38,16 @@ if (exists("snakemake")) {
 variants <- read_csv(variants_file, show_col_types = FALSE,
                      col_types = cols(code = col_character())) |>
   mutate(country = factor(country, levels = country_levels))
+
+sizes  <- read_csv(sizes_file, show_col_types = FALSE)
+size_n <- setNames(sizes$n, sizes$variant)
+
+# Appends each variant's respondent count to its legend label, e.g.
+# "Full sample (n = 5,283)"
+label_with_n <- function(labels) {
+  setNames(paste0(labels, " (n = ", format(size_n[names(labels)], big.mark = ","), ")"),
+          names(labels))
+}
 
 # Country choice results re-estimated on alternative samples / weights, with
 # the reference estimate in the main-figure indigo
@@ -51,8 +65,8 @@ plot_variants <- function(labels, values) {
 # ── Sample exclusions (same glmer model as the main figure) ──────────────────
 
 sample_plot <- plot_variants(
-  c(full = "Full sample", no_speeders = "Excluding fastest 5%",
-    attention_passed = "Attention-check passers"),
+  label_with_n(c(full = "Full sample", no_speeders = "Excluding fastest 5%",
+                attention_passed = "Attention-check passers")),
   tint(highlight_color, c(1, robustness_alphas[["no_speeders"]],
                           robustness_alphas[["attention_passed"]]))
 )
@@ -65,6 +79,19 @@ income_plot <- plot_variants(
   tint(highlight_color, c(1, robustness_alphas[["design_weighted"]]))
 )
 save_paper_figure(income_plot, income_out, height_mm = 125)
+
+# ── Choice/rating consistency (same glmer model as the main figure) ──────────
+# "Fully consistent" excludes anyone who chose a lower-rated profile over its
+# alternative at least once across their 6 tasks; "mostly consistent" excludes
+# only those with 2 or more such inconsistencies.
+
+consistency_plot <- plot_variants(
+  label_with_n(c(full = "Full sample", mostly_consistent = "Mostly consistent",
+                consistent = "Fully consistent")),
+  tint(highlight_color, c(1, robustness_alphas[["mostly_consistent"]],
+                          robustness_alphas[["consistent"]]))
+)
+save_paper_figure(consistency_plot, consistency_out, height_mm = 135)
 
 # ── Stated pathway ratings vs conjoint choices ───────────────────────────────
 # Facet titles: stated pathway item vs the conjoint level it is matched to
@@ -183,5 +210,5 @@ ranking_plot <- (p_levels / p_rank) +
   panel_tags()
 save_paper_figure(ranking_plot, ranking_out, height_mm = 130)
 
-message("Robustness plots saved: ", sample_out, ", ", income_out, ", ", stated_out,
-        ", ", ranking_out)
+message("Robustness plots saved: ", sample_out, ", ", income_out, ", ", consistency_out,
+        ", ", stated_out, ", ", ranking_out)

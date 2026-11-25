@@ -201,6 +201,7 @@ rule robustness_analysis:
     output:
         variants   = ROBUSTNESS_VARIANTS,
         validation = ROBUSTNESS_VALIDATION,
+        sizes      = ROBUSTNESS_SIZES,
         txt        = ROBUSTNESS_SUMMARY
     script:
         "../scripts/analysis/robustness.R"

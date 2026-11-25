@@ -108,6 +108,7 @@ if (exists("snakemake")) {
   )
   highlight_color        <- "#3f3d99"
   robustness_alphas      <- c(no_speeders = 0.7, attention_passed = 0.4,
+                              mostly_consistent = 0.7, consistent = 0.4,
                               design_weighted = 0.6)
   policy_contrast_colors <- c(saf = "#4575b4", gbf = "#d73027")
   policy_color           <- "#d73027"

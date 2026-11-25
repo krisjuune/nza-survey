@@ -84,9 +84,11 @@ WTP_USD_SUMMARY = "output/text-files/wtp_usd_summary.txt"
 # robustness checks (sample variants, income weighting, internal validation)
 ROBUSTNESS_VARIANTS   = "data/robustness_country_choice.csv"
 ROBUSTNESS_VALIDATION = "data/robustness_validation.csv"
+ROBUSTNESS_SIZES      = "data/robustness_sample_sizes.csv"
 ROBUSTNESS_SUMMARY    = "output/text-files/robustness_summary.txt"
 ROBUSTNESS_SAMPLE_PLOT = "output/supp-figs/robustness_sample.png"
 ROBUSTNESS_INCOME_PLOT = "output/supp-figs/robustness_income.png"
+ROBUSTNESS_CONSISTENCY_PLOT = "output/supp-figs/robustness_consistency.png"
 VALIDATION_STATED_PLOT = "output/supp-figs/validation_stated.png"
 VALIDATION_RANKING_PLOT = "output/supp-figs/validation_ranking.png"
 
@@ -227,9 +229,11 @@ rule all:
         WTP_PLOT,
         ROBUSTNESS_VARIANTS,
         ROBUSTNESS_VALIDATION,
+        ROBUSTNESS_SIZES,
         ROBUSTNESS_SUMMARY,
         ROBUSTNESS_SAMPLE_PLOT,
         ROBUSTNESS_INCOME_PLOT,
+        ROBUSTNESS_CONSISTENCY_PLOT,
         VALIDATION_STATED_PLOT,
         VALIDATION_RANKING_PLOT,
         CONCERN_CHOICE_PLOT,

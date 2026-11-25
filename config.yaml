@@ -155,9 +155,11 @@ highlight_color: "#3f3d99"
 # opacities (full / unweighted sample = 1). Drawn as the equivalent opaque
 # tint on white, so CI lines never show through the dots.
 robustness_alphas:
-  no_speeders:      0.7
-  attention_passed: 0.4
-  design_weighted:  0.6
+  no_speeders:        0.7
+  attention_passed:   0.4
+  mostly_consistent:  0.7
+  consistent:         0.4
+  design_weighted:    0.6
 
 # The two focal policy packages (breakeven figure; CVD dE 20.9)
 policy_contrast_colors:

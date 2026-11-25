@@ -18,6 +18,7 @@ if (exists("snakemake")) {
   policy_rating_file  <- snakemake@input[["policy_rating"]]
   variants_out        <- snakemake@output[["variants"]]
   validation_out      <- snakemake@output[["validation"]]
+  sizes_out           <- snakemake@output[["sizes"]]
   txt_out             <- snakemake@output[["txt"]]
 } else {
   conjoint_file       <- here("data", "conjoint_long.csv")
@@ -30,6 +31,7 @@ if (exists("snakemake")) {
   policy_rating_file  <- here("data", "policy_rating_emm.csv")
   variants_out        <- here("data", "robustness_country_choice.csv")
   validation_out      <- here("data", "robustness_validation.csv")
+  sizes_out           <- here("data", "robustness_sample_sizes.csv")
   txt_out             <- here("output", "text-files", "robustness_summary.txt")
 }
 
@@ -58,9 +60,28 @@ speeders <- resp |>
   pull(id)
 inattentive <- resp |> filter(!attention_check %in% attention_pass) |> pull(id)
 
+# Choice/rating consistency: per task, did the respondent choose the profile
+# they rated *lower* than the one they rejected? Counted per respondent across
+# their 6 tasks.
+inconsistent_counts <- df |>
+  select(id, task, alternative, support, binary_choice) |>
+  pivot_wider(id_cols = c(id, task), names_from = alternative,
+              values_from = c(support, binary_choice)) |>
+  mutate(chosen_support = if_else(binary_choice_a == 1, support_a, support_b),
+         other_support  = if_else(binary_choice_a == 1, support_b, support_a),
+         inconsistent   = chosen_support < other_support) |>
+  filter(!is.na(inconsistent)) |>
+  group_by(id) |>
+  summarise(n_inconsistent = sum(inconsistent), .groups = "drop")
+
+inconsistent_1plus <- inconsistent_counts |> filter(n_inconsistent >= 1) |> pull(id)
+inconsistent_2plus <- inconsistent_counts |> filter(n_inconsistent >= 2) |> pull(id)
+
 sample_variants <- list(
-  no_speeders      = setdiff(unique(df$id), speeders),
-  attention_passed = setdiff(unique(df$id), inattentive)
+  no_speeders       = setdiff(unique(df$id), speeders),
+  attention_passed  = setdiff(unique(df$id), inattentive),
+  consistent        = setdiff(unique(df$id), inconsistent_1plus),
+  mostly_consistent = setdiff(unique(df$id), inconsistent_2plus)
 )
 
 variant_mm <- imap_dfr(sample_variants, function(keep, name) {
@@ -70,6 +91,13 @@ variant_mm <- imap_dfr(sample_variants, function(keep, name) {
 
 full_mm <- read_csv(country_choice_file, show_col_types = FALSE) |>
   mutate(variant = "full")
+
+# Respondent counts per variant, for legend labels in robustness_plot.R
+sample_sizes <- tibble(
+  variant = c("full", names(sample_variants)),
+  n       = c(n_distinct(df$id), vapply(sample_variants, length, integer(1)))
+)
+write_csv(sample_sizes, sizes_out)
 
 # ── 2. Income weighting (design-based marginal means) ────────────────────────
 
@@ -132,6 +160,8 @@ compare_variants <- function(a, b) {
 variant_summary <- bind_rows(
   compare_variants("full", "no_speeders"),
   compare_variants("full", "attention_passed"),
+  compare_variants("full", "consistent"),
+  compare_variants("full", "mostly_consistent"),
   compare_variants("full", "design_unweighted"),
   compare_variants("design_unweighted", "design_weighted")
 )
@@ -268,6 +298,10 @@ txt <- c(
           100 * speeder_share, length(speeders), length(sample_variants$no_speeders)),
   sprintf("Attention-check passers (answer 1 or 99): %d removed (%d kept)",
           length(inattentive), length(sample_variants$attention_passed)),
+  sprintf("Fully consistent (no choice/rating inconsistency across 6 tasks): %d removed (%d kept)",
+          length(inconsistent_1plus), length(sample_variants$consistent)),
+  sprintf("Mostly consistent (fewer than 2 choice/rating inconsistencies): %d removed (%d kept)",
+          length(inconsistent_2plus), length(sample_variants$mostly_consistent)),
   "",
   "--- Income weights (uniform national deciles within country) ---",
   show(weight_diag),

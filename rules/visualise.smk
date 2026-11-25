@@ -141,14 +141,16 @@ rule plot_robustness:
     input:
         variants       = ROBUSTNESS_VARIANTS,
         validation     = ROBUSTNESS_VALIDATION,
+        sizes          = ROBUSTNESS_SIZES,
         country_choice = COUNTRY_CHOICE,
         country_rating = COUNTRY_RATING,
         overall_choice = CHOICE_OUTPUT,
         overall_rating = RATING_OUTPUT
     output:
-        sample_plot  = ROBUSTNESS_SAMPLE_PLOT,
-        income_plot  = ROBUSTNESS_INCOME_PLOT,
-        stated_plot  = VALIDATION_STATED_PLOT,
-        ranking_plot = VALIDATION_RANKING_PLOT
+        sample_plot      = ROBUSTNESS_SAMPLE_PLOT,
+        income_plot      = ROBUSTNESS_INCOME_PLOT,
+        consistency_plot = ROBUSTNESS_CONSISTENCY_PLOT,
+        stated_plot      = VALIDATION_STATED_PLOT,
+        ranking_plot     = VALIDATION_RANKING_PLOT
     script:
         "../visualise/robustness_plot.R"
