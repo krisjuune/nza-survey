@@ -59,9 +59,9 @@ policy_attrs <- tibble(
     "Fossil fuels"
   ),
   offsetting = c(
-    "Point source capture /\nDirect air capture",
+    "Point-source capture /\nDirect air capture",
     "Traditional offsets /\nNature-based offsets",
-    "Point source capture /\nDirect air capture",
+    "Point-source capture /\nDirect air capture",
     "Direct air capture",
     "Traditional offsets /\nNature-based offsets"
   ),
