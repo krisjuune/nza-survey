@@ -24,15 +24,18 @@ if (exists("snakemake")) {
 # (attribute_group_colors) in all four panels, so they read as one set.
 
 premiums <- c(
-  saf_vs_fossil          = "Sustainable aviation fuels over fossil fuels",
-  permanent_vs_temporary = "Permanent over temporary offsets"
+  saf_vs_fossil          = "Biofuels or synthetic fuels\nover fossil fuels",
+  geological_vs_offsets  = "Direct air or point-source capture over\ntraditional or nature-based offsets",
+  permanent_vs_temporary = "Permanent over\ntemporary offsets"
 )
 legend_labels <- c(
   saf_vs_fossil          = "Fuel type",
-  permanent_vs_temporary = "Permanence of storage\nor offsetting"
+  geological_vs_offsets  = "Offsetting activity",
+  permanent_vs_temporary = "Durability of offsets"
 )
 premium_colors <- c(
   saf_vs_fossil          = attribute_group_colors[["Fuel"]],
+  geological_vs_offsets  = attribute_group_colors[["Offsetting activity"]],
   permanent_vs_temporary = attribute_group_colors[["Durability of offsets"]]
 )
 
@@ -89,18 +92,23 @@ rel_df <- read_csv(wtp_file, show_col_types = FALSE) |>
   mutate(y = row_pos[country], code = factor(code, levels = names(premiums)))
 
 rel_x_max <- ceiling(max(rel_df$upper) / 20) * 20
+# The offsetting-activity premium is negative, so the shared axis extends
+# below zero (dashed zero line marks no premium)
+rel_x_min <- min(0, floor(min(rel_df$lower) / 20) * 20)
 
 plot_relative <- function(code_name, title = TRUE) {
   d <- filter(rel_df, code == code_name)
   ggplot(d, aes(x = wtp, y = y, color = code)) +
+    geom_vline(xintercept = 0, color = reference_line_color, linetype = "dashed",
+               linewidth = 0.3) +
     geom_linerange(aes(xmin = lower, xmax = upper), linewidth = paper_ci_width) +
     geom_point(size = paper_point_size) +
     color_scale +
     scale_y_continuous(breaks = row_pos, labels = axis_labels,
                        expand = expansion(add = 0.8)) +
-    scale_x_continuous(breaks = seq(0, rel_x_max, by = 20),
+    scale_x_continuous(breaks = seq(rel_x_min, rel_x_max, by = 20),
                        expand = expansion(mult = c(0, 0.02))) +
-    coord_cartesian(xlim = c(0, rel_x_max), ylim = row_ylim) +
+    coord_cartesian(xlim = c(rel_x_min, rel_x_max), ylim = row_ylim) +
     base_theme() +
     labs(title = if (title) premiums[[code_name]] else NULL, x = NULL, y = NULL)
 }
@@ -112,19 +120,22 @@ usd_df <- read_csv(wtp_usd_file, show_col_types = FALSE) |>
   mutate(y = row_pos[country], code = factor(code, levels = names(premiums)))
 
 usd_x_max <- ceiling(max(usd_df$upper_usd) / 10) * 10
+usd_x_min <- min(0, floor(min(usd_df$lower_usd) / 10) * 10)
 
 plot_usd <- function(code_name, title = TRUE) {
   d <- filter(usd_df, code == code_name)
   ggplot(d, aes(x = wtp_usd, y = y, color = code)) +
+    geom_vline(xintercept = 0, color = reference_line_color, linetype = "dashed",
+               linewidth = 0.3) +
     geom_linerange(aes(xmin = lower_usd, xmax = upper_usd), linewidth = paper_ci_width) +
     geom_point(size = paper_point_size) +
     color_scale +
     scale_y_continuous(breaks = row_pos, labels = axis_labels,
                        expand = expansion(add = 0.8)) +
-    scale_x_continuous(breaks = seq(0, usd_x_max, by = 10),
+    scale_x_continuous(breaks = seq(usd_x_min, usd_x_max, by = 10),
                        labels = scales::dollar_format(),
                        expand = expansion(mult = c(0, 0.02))) +
-    coord_cartesian(xlim = c(0, usd_x_max), ylim = row_ylim) +
+    coord_cartesian(xlim = c(usd_x_min, usd_x_max), ylim = row_ylim) +
     base_theme() +
     labs(title = if (title) premiums[[code_name]] else NULL, x = NULL, y = NULL)
 }
@@ -152,21 +163,20 @@ p_a <- plot_relative("saf_vs_fossil") +
   geom_point(data = legend_dummy, aes(x = dx, y = dy, color = code),
             size = paper_point_size, alpha = 0, inherit.aes = FALSE) +
   labs(tag = "A")
-p_b <- plot_relative("permanent_vs_temporary") +
-  guides(color = "none") +
-  theme(axis.text.y = element_blank())
-p_c <- plot_usd("saf_vs_fossil", title = FALSE) +
+no_rows <- list(guides(color = "none"), theme(axis.text.y = element_blank()))
+p_a2 <- plot_relative("geological_vs_offsets") + no_rows
+p_b  <- plot_relative("permanent_vs_temporary") + no_rows
+p_c  <- plot_usd("saf_vs_fossil", title = FALSE) +
   guides(color = "none") +
   labs(tag = "B")
-p_d <- plot_usd("permanent_vs_temporary", title = FALSE) +
-  guides(color = "none") +
-  theme(axis.text.y = element_blank())
+p_c2 <- plot_usd("geological_vs_offsets", title = FALSE) + no_rows
+p_d  <- plot_usd("permanent_vs_temporary", title = FALSE) + no_rows
 
 rel_label <- axis_title_row("Willingness to pay (percentage points of ticket price)")
 usd_label <- axis_title_row("Willingness to pay (2020 USD)")
 
-combined <- ((p_a | p_b) / rel_label / (p_c | p_d) / usd_label) +
+combined <- ((p_a | p_a2 | p_b) / rel_label / (p_c | p_c2 | p_d) / usd_label) +
   plot_layout(heights = c(1, 0.08, 1, 0.08), guides = "collect")
 
-save_paper_figure(combined, plot_out, width_mm = 220, height_mm = 110)
+save_paper_figure(combined, plot_out, width_mm = 260, height_mm = 120)
 message("WTP plot saved: ", plot_out)

@@ -29,7 +29,8 @@ if (exists("snakemake")) {
   robustness_alphas      <- unlist(cfg$robustness_alphas)
   policy_contrast_colors <- unlist(cfg$policy_contrast_colors)
   policy_color           <- cfg$policy_color
-  secondary_color        <- cfg$secondary_color
+  correlation_colors     <- unlist(cfg$correlation_colors)
+  secondary_color       <- cfg$secondary_color
   reference_line_color   <- cfg$reference_line_color
   axis_color             <- cfg$axis_color
   concern_colors    <- unlist(cfg$concern_colors)
@@ -87,7 +88,7 @@ if (exists("snakemake")) {
       fossil = "Fossil fuels", plants = "Biofuels", electric = "Synthetic fuels")),
     activity_code = list(label = "Offsetting activity", levels = list(
       cookstoves = "Traditional offsets", direct_air = "Direct air capture",
-      factory_ccs = "Point source capture", trees = "Nature-based offsets")),
+      factory_ccs = "Point-source capture", trees = "Nature-based offsets")),
     durability_code = list(label = "Durability of offsets", levels = list(
       temporary = "Temporary", permanent = "Permanent")),
     responsibility_code = list(label = "Responsible actor", levels = list(
@@ -112,7 +113,8 @@ if (exists("snakemake")) {
                               design_weighted = 0.6)
   policy_contrast_colors <- c(saf = "#4575b4", gbf = "#d73027")
   policy_color           <- "#d73027"
-  secondary_color        <- "#999999"
+  correlation_colors     <- c(negative = "#4575b4", positive = "#d73027")
+  secondary_color       <- "#999999"
   reference_line_color   <- "#999999"
   axis_color             <- "#000000"
 

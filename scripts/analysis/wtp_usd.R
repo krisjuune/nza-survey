@@ -24,7 +24,7 @@ if (exists("snakemake")) {
 # the per-country baseline fares - the same pooling convention used for the
 # "All countries" breakeven estimate (policy_breakeven_country.R).
 
-premiums <- c("saf_vs_fossil", "permanent_vs_temporary")
+premiums <- c("saf_vs_fossil", "geological_vs_offsets", "permanent_vs_temporary")
 
 baseline <- read_csv(baseline_file, show_col_types = FALSE)
 

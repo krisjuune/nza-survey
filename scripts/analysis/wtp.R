@@ -119,11 +119,21 @@ summarise_wtp <- function(fit, label) {
   wtp   <- cbind(wtp, "fuel_code:saf" = saf)
   wtp_d <- cbind(wtp_d, "fuel_code:saf" = saf_d)
 
-  # Premiums used in the text: SAF over fossil, permanent over temporary
+  # Geological storage (direct air capture or point-source capture) over
+  # traditional or nature-based offsets: mean of each pair of activity levels
+  geol <- c("activity_code:direct_air", "activity_code:factory_ccs")
+  offs <- c("activity_code:cookstoves", "activity_code:trees")
+  geol_prem   <- unname(rowMeans(wtp[, geol, drop = FALSE]) - rowMeans(wtp[, offs, drop = FALSE]))
+  geol_prem_d <- rowMeans(wtp_d[, geol]) - rowMeans(wtp_d[, offs])
+
+  # Premiums used in the text: SAF over fossil, geological storage over
+  # offsets, permanent over temporary
   prem <- c("fuel_code:saf_vs_fossil" = saf - unname(wtp[, "fuel_code:fossil"]),
+            "activity_code:geological_vs_offsets" = geol_prem,
             "durability_code:permanent_vs_temporary" =
               unname(wtp[, "durability_code:permanent"] - wtp[, "durability_code:temporary"]))
   prem_d <- cbind(saf_d - wtp_d[, "fuel_code:fossil"],
+                  geol_prem_d,
                   wtp_d[, "durability_code:permanent"] - wtp_d[, "durability_code:temporary"])
 
   all_est <- c(wtp[1, ], prem)
@@ -176,7 +186,7 @@ message("WTP estimates written: ", wtp_out)
 fmt <- function(x, lo, hi) sprintf("%+.1f [%+.1f, %+.1f]", x, lo, hi)
 
 prem_lines <- wtp_tbl |>
-  filter(code %in% c("saf_vs_fossil", "permanent_vs_temporary")) |>
+  filter(code %in% c("saf_vs_fossil", "geological_vs_offsets", "permanent_vs_temporary")) |>
   mutate(txt = fmt(wtp, lower, upper)) |>
   select(country, code, txt) |>
   pivot_wider(names_from = code, values_from = txt)
@@ -193,7 +203,7 @@ txt <- c(
   "--- Price coefficient (log-odds per pp of ticket price) ---",
   capture.output(print(as.data.frame(price_lines), digits = 3, row.names = FALSE)),
   "",
-  "--- Premiums (pp of ticket price): SAF over fossil; permanent over temporary ---",
+  "--- Premiums (pp of ticket price): biofuels or synthetic fuels over fossil; direct air or point-source capture over traditional or nature-based offsets; permanent over temporary ---",
   capture.output(print(as.data.frame(prem_lines), row.names = FALSE)),
   "",
   "--- Linearity of price (categorical-price model) ---",
