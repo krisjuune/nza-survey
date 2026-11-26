@@ -14,12 +14,14 @@ if (exists("snakemake")) {
   framing_rating_out   <- snakemake@output[["framing_rating"]]
   nz_choice_out        <- snakemake@output[["nz_choice"]]
   nz_rating_out        <- snakemake@output[["nz_rating"]]
+  nz_contrasts_out     <- snakemake@output[["nz_contrasts"]]
 } else {
   input_file           <- here("data", "conjoint_long.csv")
   framing_choice_out   <- here("data", "framing_choice_emm.csv")
   framing_rating_out   <- here("data", "framing_rating_emm.csv")
   nz_choice_out        <- here("data", "nz_choice_emm.csv")
   nz_rating_out        <- here("data", "nz_rating_emm.csv")
+  nz_contrasts_out     <- here("data", "nz_choice_contrasts.csv")
 }
 
 df <- read_csv(
@@ -92,8 +94,29 @@ nz_choice_emm <- emmeans(
   as.data.frame() |>
   select(framing, nz_binary, prob, SE, df, asymp.LCL, asymp.UCL)
 
+# Tests of the net-zero information effect, on the probability scale (Wald z):
+#   - within each package type (aligned / not aligned): net-zero information
+#     minus no information
+#   - interaction: did information change the aligned-minus-not-aligned gap?
+#     (difference in differences)
+nz_grid <- regrid(emmeans(choice_model, ~ framing * nz_binary))
+nz_contrasts <- bind_rows(
+  pairs(nz_grid, by = "nz_binary", reverse = TRUE) |>
+    summary(infer = TRUE) |>
+    as.data.frame() |>
+    mutate(test = if_else(nz_binary == 1,
+                          "Aligned: net-zero info minus no info",
+                          "Not aligned: net-zero info minus no info")),
+  contrast(nz_grid, interaction = c("revpairwise", "revpairwise")) |>
+    summary(infer = TRUE) |>
+    as.data.frame() |>
+    mutate(test = "Interaction: change in aligned-minus-not-aligned gap")
+) |>
+  select(test, estimate, SE, asymp.LCL, asymp.UCL, z.ratio, p.value)
+
 write_csv(choice_emm, framing_choice_out)
 write_csv(nz_choice_emm, nz_choice_out)
+write_csv(nz_contrasts, nz_contrasts_out)
 ts_msg("Choice emmeans written (", elapsed(t0), "s total).")
 
 # ----------------------------
