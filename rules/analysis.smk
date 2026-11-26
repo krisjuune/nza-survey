@@ -25,7 +25,8 @@ rule nz_framing_analysis:
         framing_choice = FRAMING_CHOICE,
         framing_rating = FRAMING_RATING,
         nz_choice      = NZ_CHOICE,
-        nz_rating      = NZ_RATING
+        nz_rating      = NZ_RATING,
+        nz_contrasts   = NZ_CONTRASTS
     script:
         "../scripts/analysis/nz_framing.R"
 
@@ -61,6 +62,16 @@ rule fuel_cost_analysis:
         rating = FUEL_COST_RATING
     script:
         "../scripts/analysis/fuel_cost.R"
+
+
+rule activity_cost_analysis:
+    input:
+        conjoint   = CONJOINT_LONG,
+        covariates = COVARIATES
+    output:
+        choice = ACTIVITY_COST_CHOICE
+    script:
+        "../scripts/analysis/activity_cost.R"
 
 
 rule concern_group_analysis:
@@ -120,6 +131,18 @@ rule profile_predictors_additional_analysis:
         txt = PROFILE_PREDICTORS_ADDITIONAL_TXT
     script:
         "../scripts/analysis/profile_predictors_additional.R"
+
+
+rule profile_predictor_correlations:
+    input:
+        profiles   = LPA_CONJOINT_PROFILES,
+        groups     = RESPONDENT_GROUPS,
+        covariates = COVARIATES,
+        raw        = RAW
+    output:
+        correlations = PROFILE_PREDICTOR_CORRELATIONS
+    script:
+        "../scripts/analysis/profile_predictor_correlations.R"
 
 
 rule policy_by_profile_analysis:

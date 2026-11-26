@@ -97,7 +97,7 @@ attribute_display:
   activity_code:
     label: "Offsetting activity"
     levels: {cookstoves: "Traditional offsets", direct_air: "Direct air capture",
-             factory_ccs: "Point source capture", trees: "Nature-based offsets"}
+             factory_ccs: "Point-source capture", trees: "Nature-based offsets"}
   durability_code:
     label: "Durability of offsets"
     levels: {temporary: "Temporary", permanent: "Permanent"}
@@ -168,6 +168,12 @@ policy_contrast_colors:
 
 # Single colour for policy-level dot plots (policy choice, policy by profile)
 policy_color: "#d73027"
+
+# Diverging ends (through white at 0) for correlation heatmaps; the policy
+# contrast pair, never in the same figure
+correlation_colors:
+  negative: "#4575b4"
+  positive: "#d73027"
 
 # LPA preference profiles: teal / gold / plum. Never shown in the same figure
 # as the policy pair (worst CVD dE 10.3, normal dE 17.1).

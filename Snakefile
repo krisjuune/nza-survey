@@ -59,6 +59,7 @@ FRAMING_CHOICE = "data/framing_choice_emm.csv"
 FRAMING_RATING = "data/framing_rating_emm.csv"
 NZ_CHOICE      = "data/nz_choice_emm.csv"
 NZ_RATING      = "data/nz_rating_emm.csv"
+NZ_CONTRASTS   = "data/nz_choice_contrasts.csv"
 
 # country subgroup results
 COUNTRY_CHOICE = "data/country_choice_emm.csv"
@@ -71,6 +72,9 @@ DURABILITY_COST_RATING = "data/durability_cost_rating_emm.csv"
 # fuel × cost (willingness-to-pay) interaction results
 FUEL_COST_CHOICE = "data/fuel_cost_choice_emm.csv"
 FUEL_COST_RATING = "data/fuel_cost_rating_emm.csv"
+
+# offsetting activity (capture vs offsets) x cost interaction results
+ACTIVITY_COST_CHOICE = "data/activity_cost_choice_emm.csv"
 
 # willingness to pay (conditional logit, linear price) by country
 WTP_COUNTRY = "data/wtp_country.csv"
@@ -115,6 +119,7 @@ POLICY_BY_PROFILE_CHOICE = "data/policy_by_profile_choice.csv"
 PROFILE_PREDICTORS = "data/profile_predictors.csv"
 PROFILE_PREDICTORS_AME = "data/profile_predictors_ame.csv"
 PROFILE_PREDICTORS_ADDITIONAL_TXT = "output/text-files/lpa_additional_predictors.txt"
+PROFILE_PREDICTOR_CORRELATIONS = "data/profile_predictor_correlations.csv"
 
 # Compensating price differential: GBF vs SAF_ETS breakeven
 POLICY_BREAKEVEN             = "data/policy_breakeven.csv"
@@ -138,6 +143,8 @@ FRAMING_EFFECT_CHOICE_PLOT = "output/supp-figs/country_framing_choice.png"
 LPA_CONJOINT_IC_PLOT      = "output/supp-figs/lpa_conjoint_ic.png"
 LPA_CONJOINT_PROFILE_PLOT = "output/supp-figs/lpa_conjoint_profiles.png"
 PROFILE_PREDICTORS_PLOT   = "output/supp-figs/lpa_profile_predictors.png"
+PREDICTOR_CORRELATIONS_PLOT = "output/supp-figs/lpa_predictor_correlations.png"
+PREDICTOR_CORRELATIONS_COUNTRY_PLOT = "output/supp-figs/lpa_predictor_correlations_country.png"
 PROFILES_COMBINED_PLOT       = "output/profiles_combined_plot.png"
 # Country-level cost-preference breakeven
 AIRFARE_RAW                      = config["cost_files"][config["cost_source"]]
@@ -151,6 +158,7 @@ POLICY_BREAKEVEN_COMBINED        = "output/policy_breakeven_combined.png"
 # supplementary tables (LaTeX)
 SAMPLE_TARGETS = "raw-data/sample_targets.csv"
 SAMPLE_TABLE   = "output/supp-tables/sample_summary.tex"
+NZ_FRAMING_TABLE = "output/supp-tables/nz_framing_tests.tex"
 
 # Main-paper figures (PNG, plus PDF/SVG when save_pdf/save_svg are on); everything under
 # output/supp-figs/ is supplementary and PNG only.
@@ -188,12 +196,14 @@ rule all:
         FRAMING_RATING,
         NZ_CHOICE,
         NZ_RATING,
+        NZ_CONTRASTS,
         COUNTRY_CHOICE,
         COUNTRY_RATING,
         DURABILITY_COST_CHOICE,
         DURABILITY_COST_RATING,
         FUEL_COST_CHOICE,
         FUEL_COST_RATING,
+        ACTIVITY_COST_CHOICE,
         CONCERN_CHOICE,
         CONCERN_RATING,
         FLYER_TYPE_CHOICE,
@@ -206,6 +216,7 @@ rule all:
         PROFILE_PREDICTORS,
         PROFILE_PREDICTORS_AME,
         PROFILE_PREDICTORS_ADDITIONAL_TXT,
+        PROFILE_PREDICTOR_CORRELATIONS,
         POLICY_BREAKEVEN,
         POLICY_BREAKEVEN_GRID,
         POLICY_BREAKEVEN_INTERACTION,
@@ -244,9 +255,12 @@ rule all:
         LPA_CONJOINT_IC_PLOT,
         LPA_CONJOINT_PROFILE_PLOT,
         PROFILE_PREDICTORS_PLOT,
+        PREDICTOR_CORRELATIONS_PLOT,
+        PREDICTOR_CORRELATIONS_COUNTRY_PLOT,
         PROFILES_COMBINED_PLOT,
         POLICY_BREAKEVEN_COMBINED,
         # supplementary tables
         SAMPLE_TABLE,
+        NZ_FRAMING_TABLE,
         # vector PDF/SVG of the main figures (only when save_pdf/save_svg are on)
         *[f for png in MAIN_FIGURES for f in vector_outputs(png).values()],

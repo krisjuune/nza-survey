@@ -30,7 +30,7 @@ if (exists("snakemake")) {
   policy_contrast_colors <- unlist(cfg$policy_contrast_colors)
   policy_color           <- cfg$policy_color
   correlation_colors     <- unlist(cfg$correlation_colors)
-  secondary_color       <- cfg$secondary_color
+  secondary_color        <- cfg$secondary_color
   reference_line_color   <- cfg$reference_line_color
   axis_color             <- cfg$axis_color
   concern_colors    <- unlist(cfg$concern_colors)
@@ -114,7 +114,7 @@ if (exists("snakemake")) {
   policy_contrast_colors <- c(saf = "#4575b4", gbf = "#d73027")
   policy_color           <- "#d73027"
   correlation_colors     <- c(negative = "#4575b4", positive = "#d73027")
-  secondary_color       <- "#999999"
+  secondary_color        <- "#999999"
   reference_line_color   <- "#999999"
   axis_color             <- "#000000"
 

@@ -18,9 +18,11 @@ rule plot_nz_framing:
         framing_choice = FRAMING_CHOICE,
         framing_rating = FRAMING_RATING,
         nz_choice      = NZ_CHOICE,
-        nz_rating      = NZ_RATING
+        nz_rating      = NZ_RATING,
+        nz_contrasts   = NZ_CONTRASTS
     output:
-        nz_summary          = NZ_SUMMARY
+        nz_summary          = NZ_SUMMARY,
+        nz_table            = NZ_FRAMING_TABLE
     script:
         "../visualise/nz_framing_plot.R"
 
@@ -38,7 +40,8 @@ rule plot_policy_types:
 rule plot_interact_combined:
     input:
         durability_choice = DURABILITY_COST_CHOICE,
-        fuel_choice       = FUEL_COST_CHOICE
+        fuel_choice       = FUEL_COST_CHOICE,
+        activity_choice   = ACTIVITY_COST_CHOICE
     output:
         plot = INTERACT_COMBINED_PLOT
     script:
@@ -113,6 +116,16 @@ rule plot_profile_predictors:
         plot = PROFILE_PREDICTORS_PLOT
     script:
         "../visualise/profile_predictors_plot.R"
+
+
+rule plot_predictor_correlations:
+    input:
+        correlations = PROFILE_PREDICTOR_CORRELATIONS
+    output:
+        pooled_plot  = PREDICTOR_CORRELATIONS_PLOT,
+        country_plot = PREDICTOR_CORRELATIONS_COUNTRY_PLOT
+    script:
+        "../visualise/profile_predictor_correlations_plot.R"
 
 
 rule plot_framing_effect:
